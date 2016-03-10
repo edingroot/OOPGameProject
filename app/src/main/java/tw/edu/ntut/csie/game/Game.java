@@ -38,7 +38,7 @@ public class Game extends Activity {
     /**
      * 預設的畫面更新速度，一秒約15張畫面(理想值)。
      */
-    public static final int FRAME_RATE = 15;
+    public static final int FRAME_RATE = 40;
 
     /**
      * 預設的最大除錯資訊顯示數量
