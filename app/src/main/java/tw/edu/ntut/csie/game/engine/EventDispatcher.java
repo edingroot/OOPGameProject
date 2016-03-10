@@ -106,7 +106,7 @@ class EventDispatcher implements OnTouchListener, SensorEventListener {
      *
      * @return 加速度資訊
      */
-    public String getAccelerationIfno() {
+    public String getAccelerationInfo() {
         return _accelerationInfo;
     }
 

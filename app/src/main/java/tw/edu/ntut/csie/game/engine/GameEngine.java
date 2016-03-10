@@ -503,7 +503,7 @@ public class GameEngine implements Runnable {
             canvas.drawText(String.format(FRAME_TIME_INFO_FORMAT, used), 0, baseLine, paint);
             canvas.drawText(_gameFrame.getInfo(), 0, baseLine + RATIO_INFO_OFFSET, paint);
             canvas.drawText(_eventDispatcher.getOrientationInfo(), 0, baseLine + ORIENTATION_INFO_OFFSET, paint);
-            canvas.drawText(_eventDispatcher.getAccelerationIfno(), 0, baseLine + ACCELERATION_INFO_OFFSET, paint);
+            canvas.drawText(_eventDispatcher.getAccelerationInfo(), 0, baseLine + ACCELERATION_INFO_OFFSET, paint);
         }
     }
 }
