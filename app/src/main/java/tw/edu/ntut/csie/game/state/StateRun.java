@@ -1,5 +1,6 @@
 package tw.edu.ntut.csie.game.state;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -8,12 +9,17 @@ import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.engine.GameEngine;
+import tw.edu.ntut.csie.game.object.Stone;
+import tw.edu.ntut.csie.game.util.Common;
+import tw.edu.ntut.csie.game.util.DraggableGameObject;
 
 public class StateRun extends GameState {
     private final int MAP_LEFT_MARGIN = 230;
     private final int MAP_RIGHT_MARGIN = 200;
 
     private MovingBitmap imgMap;
+    private List<List<DraggableGameObject>> foreObjectLists = new ArrayList<>();
+    private List<DraggableGameObject> objStones = new ArrayList<>();
 
     private boolean isGrabbingMap = false;
     private int initMapX = 0;
@@ -26,6 +32,13 @@ public class StateRun extends GameState {
     @Override
     public void initialize(Map<String, Object> data) {
         imgMap = new MovingBitmap(R.drawable.map);
+
+        Stone stone = new Stone(100, 100);
+        stone.initialize();
+        objStones.add(stone);
+
+        foreObjectLists.add(objStones);
+
         imgMap.setLocation(-(imgMap.getWidth() - Game.GAME_FRAME_WIDTH) / 2, 0);
     }
 
@@ -43,7 +56,15 @@ public class StateRun extends GameState {
 
     @Override
     public void show() {
+        // show background image
         imgMap.show();
+
+        // show objects in foreObjectLists
+        for (List<DraggableGameObject> objList : foreObjectLists) {
+            for (DraggableGameObject gameObject : objList) {
+                gameObject.show();
+            }
+        }
     }
 
     @Override
@@ -69,11 +90,19 @@ public class StateRun extends GameState {
     @Override
     public boolean pointerPressed(List<Pointer> pointers) {
         if (pointers.size() == 1) {
-            int touchX = pointers.get(0).getX();
-            int touchY = pointers.get(0).getY();
+            Pointer singlePointer = pointers.get(0);
 
+            // check is dragging of objects in foreObjectLists
+            for (List<DraggableGameObject> objList : foreObjectLists) {
+                for (DraggableGameObject gameObject : objList) {
+                    if (Common.isInImageScope(singlePointer, gameObject))
+                        gameObject.dragPressed(singlePointer);
+                }
+            }
+
+            // to move background
             initMapX = imgMap.getX();
-            initPointerX = touchX;
+            initPointerX = singlePointer.getX();
             isGrabbingMap = true;
         }
         return true;
@@ -81,8 +110,19 @@ public class StateRun extends GameState {
 
     @Override
     public boolean pointerMoved(List<Pointer> pointers) {
+        Pointer singlePointer = pointers.get(0);
+
+        // trigger dragMoved event on dragging objects in foreObjectLists
+        for (List<DraggableGameObject> objList : foreObjectLists) {
+            for (DraggableGameObject gameObject : objList) {
+                if (gameObject.isDragging())
+                    gameObject.dragMoved(singlePointer);
+            }
+        }
+
+        // move background
         if (isGrabbingMap) {
-            int newX = initMapX + pointers.get(0).getX() - initPointerX;
+            int newX = initMapX + singlePointer.getX() - initPointerX;
             if (newX <= 0 && newX + imgMap.getWidth() >= Game.GAME_FRAME_WIDTH) {
                 imgMap.setLocation(newX, imgMap.getY());
             }
@@ -93,7 +133,19 @@ public class StateRun extends GameState {
 
     @Override
     public boolean pointerReleased(List<Pointer> pointers) {
+        Pointer singlePointer = pointers.get(0);
+
+        // trigger dragReleased event on dragging objects in foreObjectLists
+        for (List<DraggableGameObject> objList : foreObjectLists) {
+            for (DraggableGameObject gameObject : objList) {
+                if (gameObject.isDragging()) {
+                    gameObject.dragReleased(singlePointer);
+                }
+            }
+        }
+
         isGrabbingMap = false;
+
         return false;
     }
 
