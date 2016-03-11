@@ -4,15 +4,18 @@ import tw.edu.ntut.csie.game.GameObject;
 import tw.edu.ntut.csie.game.Pointer;
 
 public abstract class DraggableGameObject implements GameObject {
-    protected int x, y;
+    protected int x = 0, y = 0;
     protected int initialX, initialY;
     protected int width, height;
     private boolean dragging = false;
 
-    public abstract void initialize();
-    public abstract void setLocation(int x, int y);
     public abstract void dragMoved(Pointer pointer);
     public abstract void dragReleased(Pointer pointer);
+
+    public void setLocation(int x, int y) {
+        this.x = x;
+        this.y = y;
+    }
 
     public void dragPressed(Pointer pointer) {
         this.initialX = this.x;

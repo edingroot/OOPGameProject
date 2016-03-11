@@ -49,7 +49,6 @@ public class StateRun extends GameState {
 
         // game objects
         Stone stone = new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 10, 300);
-        stone.initialize();
         objStones.add(stone);
 
         // add lists to foreObjectLists

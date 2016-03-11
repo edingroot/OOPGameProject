@@ -9,23 +9,14 @@ public class Stone extends DraggableGameObject {
     private MovingBitmap image;
 
     public Stone(int x, int y) {
-        this.x = x;
-        this.y = y;
-
         image = new MovingBitmap(R.drawable.digit_0); // TODO: replace with correct drawable
         this.width = image.getWidth();
         this.height = image.getHeight();
-    }
-
-    @Override
-    public void initialize() {
         this.setLocation(x, y);
     }
 
-    @Override
     public void setLocation(int x, int y) {
-        this.x = x;
-        this.y = y;
+        super.setLocation(x, y);
         image.setLocation(x, y);
     }
 
