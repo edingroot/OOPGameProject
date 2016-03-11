@@ -10,6 +10,7 @@ import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.engine.GameEngine;
 import tw.edu.ntut.csie.game.object.Stone;
+import tw.edu.ntut.csie.game.object.Tree;
 import tw.edu.ntut.csie.game.util.Common;
 import tw.edu.ntut.csie.game.util.Constants;
 import tw.edu.ntut.csie.game.util.DraggableGameObject;
@@ -23,7 +24,8 @@ public class StateRun extends GameState {
     private MovingBitmap imgBackground;
     private MovingBitmap imgFloor;
     private List<List<DraggableGameObject>> foreObjectLists = new ArrayList<>();
-    private List<DraggableGameObject> objStones = new ArrayList<>();
+    private List<DraggableGameObject> stones = new ArrayList<>();
+    private List<DraggableGameObject> trees = new ArrayList<>();
 
     private boolean isGrabbingMap = false;
     private int initBackX = 0, initForeX = 0;
@@ -47,13 +49,17 @@ public class StateRun extends GameState {
                 SKYLINE_Y
         );
 
-        // game objects
+        // -- draggable game objects
+        // stones
         Stone stone = new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 10, 300);
-        objStones.add(stone);
+        stones.add(stone);
+        // trees
+        Tree tree = new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 320);
+        trees.add(tree);
 
         // add lists to foreObjectLists
-        foreObjectLists.add(objStones);
-
+        foreObjectLists.add(stones);
+        foreObjectLists.add(trees);
     }
 
     @Override
