@@ -23,9 +23,7 @@ public class StateRun extends GameState {
 
     private MovingBitmap imgBackground;
     private MovingBitmap imgFloor;
-    private List<List<DraggableGameObject>> foreObjectLists = new ArrayList<>();
-    private List<DraggableGameObject> stones = new ArrayList<>();
-    private List<DraggableGameObject> trees = new ArrayList<>();
+    private List<DraggableGameObject> foreObjects = new ArrayList<>();
 
     private boolean isGrabbingMap = false;
     private int initBackX = 0, initForeX = 0;
@@ -52,14 +50,10 @@ public class StateRun extends GameState {
         // -- draggable game objects
         // stones
         Stone stone = new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 10, 300);
-        stones.add(stone);
+        foreObjects.add(stone);
         // trees
         Tree tree = new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 320);
-        trees.add(tree);
-
-        // add lists to foreObjectLists
-        foreObjectLists.add(stones);
-        foreObjectLists.add(trees);
+        foreObjects.add(tree);
     }
 
     @Override
@@ -78,10 +72,8 @@ public class StateRun extends GameState {
             imgFloor.setLocation(imgFloor.getX() + foreDeltaX, imgFloor.getY());
 
             // move foreground objects with map
-            for (List<DraggableGameObject> objList : foreObjectLists) {
-                for (DraggableGameObject gameObject : objList) {
-                    gameObject.setLocation(gameObject.getX() + foreDeltaX, gameObject.getY());
-                }
+            for (DraggableGameObject gameObject : foreObjects) {
+                gameObject.setLocation(gameObject.getX() + foreDeltaX, gameObject.getY());
             }
         }
     }
@@ -93,10 +85,8 @@ public class StateRun extends GameState {
         imgFloor.show();
 
         // show objects in foreObjectLists
-        for (List<DraggableGameObject> objList : foreObjectLists) {
-            for (DraggableGameObject gameObject : objList) {
-                gameObject.show();
-            }
+        for (DraggableGameObject gameObject : foreObjects) {
+            gameObject.show();
         }
     }
 
@@ -126,12 +116,10 @@ public class StateRun extends GameState {
             Pointer singlePointer = pointers.get(0);
 
             // check is dragging of objects in foreObjectLists
-            for (List<DraggableGameObject> objList : foreObjectLists) {
-                for (DraggableGameObject gameObject : objList) {
-                    gameObject.dragPressed(singlePointer);
-                    if (Common.isInImageScope(singlePointer, gameObject))
-                        gameObject.setDragging(true);
-                }
+            for (DraggableGameObject gameObject : foreObjects) {
+                gameObject.dragPressed(singlePointer);
+                if (Common.isInImageScope(singlePointer, gameObject))
+                    gameObject.setDragging(true);
             }
 
             // to move background
@@ -148,11 +136,9 @@ public class StateRun extends GameState {
         Pointer singlePointer = pointers.get(0);
 
         // trigger dragMoved event on dragging objects in foreObjectLists
-        for (List<DraggableGameObject> objList : foreObjectLists) {
-            for (DraggableGameObject gameObject : objList) {
-                if (gameObject.isDragging())
-                    gameObject.dragMoved(singlePointer);
-            }
+        for (DraggableGameObject gameObject : foreObjects) {
+            if (gameObject.isDragging())
+                gameObject.dragMoved(singlePointer);
         }
 
         // move background
@@ -167,10 +153,8 @@ public class StateRun extends GameState {
                 imgFloor.setLocation(newForeX, imgFloor.getY());
 
                 // move foreground objects with foreground
-                for (List<DraggableGameObject> objList : foreObjectLists) {
-                    for (DraggableGameObject gameObject : objList) {
-                        gameObject.setLocation(gameObject.getInitialX() + foreDeltaX, gameObject.getY());
-                    }
+                for (DraggableGameObject gameObject : foreObjects) {
+                    gameObject.setLocation(gameObject.getInitialX() + foreDeltaX, gameObject.getY());
                 }
             }
         }
@@ -183,12 +167,10 @@ public class StateRun extends GameState {
         Pointer singlePointer = pointers.get(0);
 
         // trigger dragReleased event on dragging objects in foreObjectLists
-        for (List<DraggableGameObject> objList : foreObjectLists) {
-            for (DraggableGameObject gameObject : objList) {
-                gameObject.dragReleased(singlePointer);
-                if (gameObject.isDragging()) {
-                    gameObject.setDragging(false);
-                }
+        for (DraggableGameObject gameObject : foreObjects) {
+            gameObject.dragReleased(singlePointer);
+            if (gameObject.isDragging()) {
+                gameObject.setDragging(false);
             }
         }
 
@@ -212,12 +194,9 @@ public class StateRun extends GameState {
         imgBackground.release();
         imgBackground = null;
 
-        for (List<DraggableGameObject> objList : foreObjectLists) {
-            for (DraggableGameObject gameObject : objList) {
-                gameObject.release();
-            }
-            objList.clear();
+        for (DraggableGameObject gameObject : foreObjects) {
+            gameObject.release();
         }
-        foreObjectLists.clear();
+        foreObjects.clear();
     }
 }
