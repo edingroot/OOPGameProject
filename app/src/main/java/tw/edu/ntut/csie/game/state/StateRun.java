@@ -11,13 +11,14 @@ import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.engine.GameEngine;
 import tw.edu.ntut.csie.game.object.Stone;
 import tw.edu.ntut.csie.game.util.Common;
+import tw.edu.ntut.csie.game.util.Constants;
 import tw.edu.ntut.csie.game.util.DraggableGameObject;
 
 public class StateRun extends GameState {
-    private final int MAP_LEFT_MARGIN = 100;
-    private final int MAP_RIGHT_MARGIN = 80;
+    private final int MAP_LEFT_MARGIN = 180 + Constants.FRAME_LEFT_MARGIN;
+    private final int MAP_RIGHT_MARGIN = 150 + Constants.FRAME_RIGHT_MARGIN;
     private final int SKYLINE_Y = 230;
-    private final double FORE_MOVE_RATIO = 0.8; // ratio relative to background
+    private final double BACK_MOVE_RATIO = 0.6; // ratio relative to foreground
 
     private MovingBitmap imgBackground;
     private MovingBitmap imgFloor;
@@ -34,17 +35,9 @@ public class StateRun extends GameState {
 
     @Override
     public void initialize(Map<String, Object> data) {
+        // set back images
         imgBackground = new MovingBitmap(R.drawable.background);
         imgFloor = new MovingBitmap(R.drawable.floor);
-
-        Stone stone = new Stone(100, 300);
-        stone.initialize();
-        objStones.add(stone);
-
-        // add lists to foreObjectLists
-        foreObjectLists.add(objStones);
-
-        // set back images
         imgBackground.setLocation(
                 -(imgBackground.getWidth() - Game.GAME_FRAME_WIDTH) / 2,
                 SKYLINE_Y - imgBackground.getWidth()
@@ -53,27 +46,36 @@ public class StateRun extends GameState {
                 -(imgFloor.getWidth() - Game.GAME_FRAME_WIDTH) / 2,
                 SKYLINE_Y
         );
+
+        // game objects
+        Stone stone = new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 10, 300);
+        stone.initialize();
+        objStones.add(stone);
+
+        // add lists to foreObjectLists
+        foreObjectLists.add(objStones);
+
     }
 
     @Override
     public void move() {
         if (!isGrabbingMap) {
-            int backDeltaX = 0, foreDeltaX;
+            int backDeltaX, foreDeltaX = 0;
 
             // if user grab the map over left or right margin, roll back automatically
-            if (imgBackground.getX() + MAP_LEFT_MARGIN > 0) {
-                backDeltaX = -20;
-            } else if (imgBackground.getX() + imgBackground.getWidth() - MAP_RIGHT_MARGIN < Game.GAME_FRAME_WIDTH) {
-                backDeltaX = 20;
+            if (imgFloor.getX() + MAP_LEFT_MARGIN > 0) {
+                foreDeltaX = -20;
+            } else if (imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN < Game.GAME_FRAME_WIDTH) {
+                foreDeltaX = 20;
             }
-            foreDeltaX = (int) (backDeltaX * FORE_MOVE_RATIO);
+            backDeltaX = (int) (foreDeltaX * BACK_MOVE_RATIO);
             imgBackground.setLocation(imgBackground.getX() + backDeltaX, 0);
             imgFloor.setLocation(imgFloor.getX() + foreDeltaX, imgFloor.getY());
 
             // move foreground objects with map
             for (List<DraggableGameObject> objList : foreObjectLists) {
                 for (DraggableGameObject gameObject : objList) {
-                    gameObject.setLocation(gameObject.getX() + backDeltaX, gameObject.getY());
+                    gameObject.setLocation(gameObject.getX() + foreDeltaX, gameObject.getY());
                 }
             }
         }
@@ -150,14 +152,14 @@ public class StateRun extends GameState {
 
         // move background
         if (isGrabbingMap) {
-            int backDeltaX = singlePointer.getX() - initPointerX;
+            int foreDeltaX = singlePointer.getX() - initPointerX;
 
-            int newX = initBackX + backDeltaX;
-            if (newX < 0 && newX + imgBackground.getWidth() > Game.GAME_FRAME_WIDTH) {
-                imgBackground.setLocation(newX, imgBackground.getY());
-
-                int foreDeltaX = (int) (backDeltaX * FORE_MOVE_RATIO);
-                imgFloor.setLocation(initForeX + foreDeltaX, imgFloor.getY());
+            int newForeX = initForeX + foreDeltaX;
+            int newBackX = (int) (initBackX + foreDeltaX * BACK_MOVE_RATIO);
+            if (newForeX < 0 - Constants.FRAME_LEFT_MARGIN &&
+                newForeX + imgFloor.getWidth() > Game.GAME_FRAME_WIDTH + Constants.FRAME_RIGHT_MARGIN) {
+                imgBackground.setLocation(newBackX, imgBackground.getY());
+                imgFloor.setLocation(newForeX, imgFloor.getY());
 
                 // move foreground objects with foreground
                 for (List<DraggableGameObject> objList : foreObjectLists) {
