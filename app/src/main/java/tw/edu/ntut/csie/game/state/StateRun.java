@@ -13,7 +13,7 @@ import tw.edu.ntut.csie.game.object.Stone;
 import tw.edu.ntut.csie.game.object.Tree;
 import tw.edu.ntut.csie.game.util.Common;
 import tw.edu.ntut.csie.game.util.Constants;
-import tw.edu.ntut.csie.game.util.DraggableGameObject;
+import tw.edu.ntut.csie.game.util.MovableGameObject;
 
 public class StateRun extends GameState {
     private final int MAP_LEFT_MARGIN = 180 + Constants.FRAME_LEFT_MARGIN;
@@ -23,7 +23,7 @@ public class StateRun extends GameState {
 
     private MovingBitmap imgBackground;
     private MovingBitmap imgFloor;
-    private List<DraggableGameObject> foreObjects = new ArrayList<>();
+    private List<MovableGameObject> foreObjects = new ArrayList<>();
 
     private boolean isGrabbingMap = false;
     private int initBackX = 0, initForeX = 0;
@@ -36,7 +36,7 @@ public class StateRun extends GameState {
     @Override
     public void initialize(Map<String, Object> data) {
         // set back images
-        imgBackground = new MovingBitmap(R.drawable.background);
+        imgBackground = new MovingBitmap(R.drawable.background0);
         imgFloor = new MovingBitmap(R.drawable.floor);
         imgBackground.setLocation(
                 -(imgBackground.getWidth() - Game.GAME_FRAME_WIDTH) / 2,
@@ -47,7 +47,7 @@ public class StateRun extends GameState {
                 SKYLINE_Y
         );
 
-        // -- draggable game objects
+        // -- game objects
         // stones
         Stone stone = new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 10, 300);
         foreObjects.add(stone);
@@ -72,7 +72,7 @@ public class StateRun extends GameState {
             imgFloor.setLocation(imgFloor.getX() + foreDeltaX, imgFloor.getY());
 
             // move foreground objects with map
-            for (DraggableGameObject gameObject : foreObjects) {
+            for (MovableGameObject gameObject : foreObjects) {
                 gameObject.setLocation(gameObject.getX() + foreDeltaX, gameObject.getY());
             }
         }
@@ -85,7 +85,7 @@ public class StateRun extends GameState {
         imgFloor.show();
 
         // show objects in foreObjectLists
-        for (DraggableGameObject gameObject : foreObjects) {
+        for (MovableGameObject gameObject : foreObjects) {
             gameObject.show();
         }
     }
@@ -116,7 +116,7 @@ public class StateRun extends GameState {
             Pointer singlePointer = pointers.get(0);
 
             // check is dragging of objects in foreObjectLists
-            for (DraggableGameObject gameObject : foreObjects) {
+            for (MovableGameObject gameObject : foreObjects) {
                 gameObject.dragPressed(singlePointer);
                 if (Common.isInImageScope(singlePointer, gameObject))
                     gameObject.setDragging(true);
@@ -136,7 +136,7 @@ public class StateRun extends GameState {
         Pointer singlePointer = pointers.get(0);
 
         // trigger dragMoved event on dragging objects in foreObjectLists
-        for (DraggableGameObject gameObject : foreObjects) {
+        for (MovableGameObject gameObject : foreObjects) {
             if (gameObject.isDragging())
                 gameObject.dragMoved(singlePointer);
         }
@@ -153,7 +153,7 @@ public class StateRun extends GameState {
                 imgFloor.setLocation(newForeX, imgFloor.getY());
 
                 // move foreground objects with foreground
-                for (DraggableGameObject gameObject : foreObjects) {
+                for (MovableGameObject gameObject : foreObjects) {
                     gameObject.setLocation(gameObject.getInitialX() + foreDeltaX, gameObject.getY());
                 }
             }
@@ -167,7 +167,7 @@ public class StateRun extends GameState {
         Pointer singlePointer = pointers.get(0);
 
         // trigger dragReleased event on dragging objects in foreObjectLists
-        for (DraggableGameObject gameObject : foreObjects) {
+        for (MovableGameObject gameObject : foreObjects) {
             gameObject.dragReleased(singlePointer);
             if (gameObject.isDragging()) {
                 gameObject.setDragging(false);
@@ -194,9 +194,10 @@ public class StateRun extends GameState {
         imgBackground.release();
         imgBackground = null;
 
-        for (DraggableGameObject gameObject : foreObjects) {
+        for (MovableGameObject gameObject : foreObjects) {
             gameObject.release();
         }
         foreObjects.clear();
+        foreObjects = null;
     }
 }

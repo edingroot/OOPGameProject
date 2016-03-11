@@ -3,7 +3,7 @@ package tw.edu.ntut.csie.game.util;
 import tw.edu.ntut.csie.game.GameObject;
 import tw.edu.ntut.csie.game.Pointer;
 
-public abstract class DraggableGameObject implements GameObject {
+public abstract class MovableGameObject implements GameObject {
     protected int x = 0, y = 0;
     protected int initialX, initialY;
     protected int width, height;

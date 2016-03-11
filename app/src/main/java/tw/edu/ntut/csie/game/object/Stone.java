@@ -3,9 +3,9 @@ package tw.edu.ntut.csie.game.object;
 import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
-import tw.edu.ntut.csie.game.util.DraggableGameObject;
+import tw.edu.ntut.csie.game.util.MovableGameObject;
 
-public class Stone extends DraggableGameObject {
+public class Stone extends MovableGameObject {
     private MovingBitmap image;
 
     public Stone(int x, int y) {
