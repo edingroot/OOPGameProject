@@ -14,15 +14,18 @@ import tw.edu.ntut.csie.game.util.Common;
 import tw.edu.ntut.csie.game.util.DraggableGameObject;
 
 public class StateRun extends GameState {
-    private final int MAP_LEFT_MARGIN = 230;
-    private final int MAP_RIGHT_MARGIN = 200;
+    private final int MAP_LEFT_MARGIN = 100;
+    private final int MAP_RIGHT_MARGIN = 80;
+    private final int SKYLINE_Y = 230;
+    private final double FORE_MOVE_RATIO = 0.8; // ratio relative to background
 
-    private MovingBitmap imgMap;
+    private MovingBitmap imgBackground;
+    private MovingBitmap imgFloor;
     private List<List<DraggableGameObject>> foreObjectLists = new ArrayList<>();
     private List<DraggableGameObject> objStones = new ArrayList<>();
 
     private boolean isGrabbingMap = false;
-    private int initMapX = 0;
+    private int initBackX = 0, initForeX = 0;
     private int initPointerX = 0;
 
     public StateRun(GameEngine engine) {
@@ -31,33 +34,56 @@ public class StateRun extends GameState {
 
     @Override
     public void initialize(Map<String, Object> data) {
-        imgMap = new MovingBitmap(R.drawable.map);
+        imgBackground = new MovingBitmap(R.drawable.background);
+        imgFloor = new MovingBitmap(R.drawable.floor);
 
-        Stone stone = new Stone(100, 100);
+        Stone stone = new Stone(100, 300);
         stone.initialize();
         objStones.add(stone);
 
+        // add lists to foreObjectLists
         foreObjectLists.add(objStones);
 
-        imgMap.setLocation(-(imgMap.getWidth() - Game.GAME_FRAME_WIDTH) / 2, 0);
+        // set back images
+        imgBackground.setLocation(
+                -(imgBackground.getWidth() - Game.GAME_FRAME_WIDTH) / 2,
+                SKYLINE_Y - imgBackground.getWidth()
+        );
+        imgFloor.setLocation(
+                -(imgFloor.getWidth() - Game.GAME_FRAME_WIDTH) / 2,
+                SKYLINE_Y
+        );
     }
 
     @Override
     public void move() {
         if (!isGrabbingMap) {
+            int backDeltaX = 0, foreDeltaX;
+
             // if user grab the map over left or right margin, roll back automatically
-            if (imgMap.getX() + MAP_LEFT_MARGIN > 0) {
-                imgMap.setLocation(imgMap.getX() - 20, 0);
-            } else if (imgMap.getX() + imgMap.getWidth() - MAP_RIGHT_MARGIN < Game.GAME_FRAME_WIDTH) {
-                imgMap.setLocation(imgMap.getX() + 20, 0);
+            if (imgBackground.getX() + MAP_LEFT_MARGIN > 0) {
+                backDeltaX = -20;
+            } else if (imgBackground.getX() + imgBackground.getWidth() - MAP_RIGHT_MARGIN < Game.GAME_FRAME_WIDTH) {
+                backDeltaX = 20;
+            }
+            foreDeltaX = (int) (backDeltaX * FORE_MOVE_RATIO);
+            imgBackground.setLocation(imgBackground.getX() + backDeltaX, 0);
+            imgFloor.setLocation(imgFloor.getX() + foreDeltaX, imgFloor.getY());
+
+            // move foreground objects with map
+            for (List<DraggableGameObject> objList : foreObjectLists) {
+                for (DraggableGameObject gameObject : objList) {
+                    gameObject.setLocation(gameObject.getX() + backDeltaX, gameObject.getY());
+                }
             }
         }
     }
 
     @Override
     public void show() {
-        // show background image
-        imgMap.show();
+        // show back image
+        imgBackground.show();
+        imgFloor.show();
 
         // show objects in foreObjectLists
         for (List<DraggableGameObject> objList : foreObjectLists) {
@@ -95,13 +121,15 @@ public class StateRun extends GameState {
             // check is dragging of objects in foreObjectLists
             for (List<DraggableGameObject> objList : foreObjectLists) {
                 for (DraggableGameObject gameObject : objList) {
+                    gameObject.dragPressed(singlePointer);
                     if (Common.isInImageScope(singlePointer, gameObject))
-                        gameObject.dragPressed(singlePointer);
+                        gameObject.setDragging(true);
                 }
             }
 
             // to move background
-            initMapX = imgMap.getX();
+            initBackX = imgBackground.getX();
+            initForeX = imgFloor.getX();
             initPointerX = singlePointer.getX();
             isGrabbingMap = true;
         }
@@ -122,9 +150,21 @@ public class StateRun extends GameState {
 
         // move background
         if (isGrabbingMap) {
-            int newX = initMapX + singlePointer.getX() - initPointerX;
-            if (newX <= 0 && newX + imgMap.getWidth() >= Game.GAME_FRAME_WIDTH) {
-                imgMap.setLocation(newX, imgMap.getY());
+            int backDeltaX = singlePointer.getX() - initPointerX;
+
+            int newX = initBackX + backDeltaX;
+            if (newX < 0 && newX + imgBackground.getWidth() > Game.GAME_FRAME_WIDTH) {
+                imgBackground.setLocation(newX, imgBackground.getY());
+
+                int foreDeltaX = (int) (backDeltaX * FORE_MOVE_RATIO);
+                imgFloor.setLocation(initForeX + foreDeltaX, imgFloor.getY());
+
+                // move foreground objects with foreground
+                for (List<DraggableGameObject> objList : foreObjectLists) {
+                    for (DraggableGameObject gameObject : objList) {
+                        gameObject.setLocation(gameObject.getInitialX() + foreDeltaX, gameObject.getY());
+                    }
+                }
             }
         }
 
@@ -138,8 +178,9 @@ public class StateRun extends GameState {
         // trigger dragReleased event on dragging objects in foreObjectLists
         for (List<DraggableGameObject> objList : foreObjectLists) {
             for (DraggableGameObject gameObject : objList) {
+                gameObject.dragReleased(singlePointer);
                 if (gameObject.isDragging()) {
-                    gameObject.dragReleased(singlePointer);
+                    gameObject.setDragging(false);
                 }
             }
         }
@@ -161,7 +202,15 @@ public class StateRun extends GameState {
 
     @Override
     public void release() {
-        imgMap.release();
-        imgMap = null;
+        imgBackground.release();
+        imgBackground = null;
+
+        for (List<DraggableGameObject> objList : foreObjectLists) {
+            for (DraggableGameObject gameObject : objList) {
+                gameObject.release();
+            }
+            objList.clear();
+        }
+        foreObjectLists.clear();
     }
 }
