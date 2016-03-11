@@ -9,17 +9,26 @@ public abstract class MovableGameObject implements GameObject {
     protected int width, height;
     private boolean dragging = false;
 
-    public abstract void dragMoved(Pointer pointer);
-    public abstract void dragReleased(Pointer pointer);
-
     public void setLocation(int x, int y) {
         this.x = x;
         this.y = y;
     }
 
-    public void dragPressed(Pointer pointer) {
+    public void moveStarted(Pointer pointer) {
         this.initialX = this.x;
         this.initialY = this.y;
+    }
+
+    public void dragPressed(Pointer pointer) {
+        this.dragging = true;
+        this.moveStarted(pointer);
+    }
+
+    public void dragMoved(Pointer pointer) {
+    }
+
+    public void dragReleased(Pointer pointer) {
+        this.dragging = false;
     }
 
     public int getX() {

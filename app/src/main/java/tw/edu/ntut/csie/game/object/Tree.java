@@ -1,6 +1,5 @@
 package tw.edu.ntut.csie.game.object;
 
-import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
@@ -33,16 +32,6 @@ public class Tree extends MovableGameObject {
     @Override
     public void show() {
         image.show();
-    }
-
-    @Override
-    public void dragMoved(Pointer pointer) {
-
-    }
-
-    @Override
-    public void dragReleased(Pointer pointer) {
-
     }
 
     @Override

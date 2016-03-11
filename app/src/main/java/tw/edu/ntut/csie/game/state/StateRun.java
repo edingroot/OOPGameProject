@@ -117,12 +117,12 @@ public class StateRun extends GameState {
 
             // check is dragging of objects in foreObjectLists
             for (MovableGameObject gameObject : foreObjects) {
-                gameObject.dragPressed(singlePointer);
+                gameObject.moveStarted(singlePointer);
                 if (Common.isInImageScope(singlePointer, gameObject))
-                    gameObject.setDragging(true);
+                    gameObject.dragPressed(singlePointer);
             }
 
-            // to move background
+            // for moving map
             initBackX = imgBackground.getX();
             initForeX = imgFloor.getX();
             initPointerX = singlePointer.getX();
@@ -169,9 +169,6 @@ public class StateRun extends GameState {
         // trigger dragReleased event on dragging objects in foreObjectLists
         for (MovableGameObject gameObject : foreObjects) {
             gameObject.dragReleased(singlePointer);
-            if (gameObject.isDragging()) {
-                gameObject.setDragging(false);
-            }
         }
 
         isGrabbingMap = false;
