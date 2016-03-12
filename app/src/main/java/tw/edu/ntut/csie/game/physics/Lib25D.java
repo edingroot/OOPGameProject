@@ -11,18 +11,34 @@ public class Lib25D {
      */
     public static double horizontalMoveAdj(double E, double D, double M) {
 
-        double result = 1;
+        double result;
 
-        result *= M * D;
-        result /= E + D;
-        result = M - result;
+        result = M - (M * D) / (E+D);
 
         return result;
     }
 
-//    public static double[] displayAdjToDepth(double height, ) {
-//        double sizeAdj = 1;
-//
-//    }
+    public static double verticalMoveAdj(double E, double Eh, double F) {
+
+        double result;
+
+        double distance = E + F;
+        double horizonOfB = Math.sqrt(distance * distance + Eh * Eh);
+        double ratio = F / (E + F);
+        double horizonOfFToB = horizonOfB * ratio;
+
+        result = Math.sqrt(horizonOfFToB * horizonOfFToB - F * F);
+
+        return result;
+    }
+
+    public static double heightAdj(double E, double H, double F) {
+
+        double result;
+
+        result = E * H / (E + F);
+
+        return result;
+    }
 
 }

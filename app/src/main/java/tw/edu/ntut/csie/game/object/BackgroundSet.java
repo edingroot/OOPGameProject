@@ -17,6 +17,8 @@ public class BackgroundSet extends MovableGameObject {
     private MovingBitmap[] backImages = new MovingBitmap[3];
     private int foreDeltaX = 0;
 
+
+
     public BackgroundSet() {
         this.width = WRAP_WIDTH;
         this.height = WRAP_HEIGHT;
@@ -57,6 +59,7 @@ public class BackgroundSet extends MovableGameObject {
                     foreDeltaX
             );
             backImages[i].setLocation(deltaX, backImages[i].getY());
+
         }
     }
 
@@ -80,6 +83,7 @@ public class BackgroundSet extends MovableGameObject {
     @Override
     public void dragReleased(Pointer pointer) {
         foreDeltaX = 0;
+
     }
 
     @Override
