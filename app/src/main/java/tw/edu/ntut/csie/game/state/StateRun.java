@@ -9,6 +9,7 @@ import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.engine.GameEngine;
+import tw.edu.ntut.csie.game.object.BackgroundSet;
 import tw.edu.ntut.csie.game.object.Stone;
 import tw.edu.ntut.csie.game.object.Tree;
 import tw.edu.ntut.csie.game.util.Common;
@@ -18,15 +19,14 @@ import tw.edu.ntut.csie.game.util.MovableGameObject;
 public class StateRun extends GameState {
     private final int MAP_LEFT_MARGIN = 180 + Constants.FRAME_LEFT_MARGIN;
     private final int MAP_RIGHT_MARGIN = 150 + Constants.FRAME_RIGHT_MARGIN;
-    private final int SKYLINE_Y = 230;
-    private final double BACK_MOVE_RATIO = 0.6; // ratio relative to foreground
 
-    private MovingBitmap imgBackground;
+    private MovingBitmap staticBackground;
+    private BackgroundSet backgroundSet;
     private MovingBitmap imgFloor;
     private List<MovableGameObject> foreObjects = new ArrayList<>();
 
     private boolean isGrabbingMap = false;
-    private int initBackX = 0, initForeX = 0;
+    private int initForeX = 0;
     private int initPointerX = 0;
 
     public StateRun(GameEngine engine) {
@@ -35,19 +35,20 @@ public class StateRun extends GameState {
 
     @Override
     public void initialize(Map<String, Object> data) {
-        // set back images
-        imgBackground = new MovingBitmap(R.drawable.background0);
+        // ---------- set back images ----------
+        staticBackground = new MovingBitmap(R.drawable.background);
+        int initialX = -(BackgroundSet.WRAP_WIDTH - Game.GAME_FRAME_WIDTH) / 2; // center screen
+        staticBackground.setLocation(initialX, 0);
+
+        backgroundSet = new BackgroundSet();
+
         imgFloor = new MovingBitmap(R.drawable.floor);
-        imgBackground.setLocation(
-                -(imgBackground.getWidth() - Game.GAME_FRAME_WIDTH) / 2,
-                SKYLINE_Y - imgBackground.getWidth()
-        );
         imgFloor.setLocation(
                 -(imgFloor.getWidth() - Game.GAME_FRAME_WIDTH) / 2,
-                SKYLINE_Y
+                BackgroundSet.WRAP_HEIGHT - BackgroundSet.OVERLAP_FOREGROUND
         );
 
-        // -- game objects
+        // ---------- game objects ----------
         // stones
         Stone stone = new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 10, 300);
         foreObjects.add(stone);
@@ -59,7 +60,7 @@ public class StateRun extends GameState {
     @Override
     public void move() {
         if (!isGrabbingMap) {
-            int backDeltaX, foreDeltaX = 0;
+            int foreDeltaX = 0;
 
             // if user grab the map over left or right margin, roll back automatically
             if (imgFloor.getX() + MAP_LEFT_MARGIN > 0) {
@@ -67,8 +68,7 @@ public class StateRun extends GameState {
             } else if (imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN < Game.GAME_FRAME_WIDTH) {
                 foreDeltaX = 20;
             }
-            backDeltaX = (int) (foreDeltaX * BACK_MOVE_RATIO);
-            imgBackground.setLocation(imgBackground.getX() + backDeltaX, 0);
+            backgroundSet.setForeDeltaX(foreDeltaX).move();
             imgFloor.setLocation(imgFloor.getX() + foreDeltaX, imgFloor.getY());
 
             // move foreground objects with map
@@ -81,8 +81,9 @@ public class StateRun extends GameState {
     @Override
     public void show() {
         // show back image
-        imgBackground.show();
+        staticBackground.show();
         imgFloor.show();
+        backgroundSet.show();
 
         // show objects in foreObjectLists
         for (MovableGameObject gameObject : foreObjects) {
@@ -118,12 +119,12 @@ public class StateRun extends GameState {
             // check is dragging of objects in foreObjectLists
             for (MovableGameObject gameObject : foreObjects) {
                 gameObject.moveStarted(singlePointer);
-                if (Common.isInImageScope(singlePointer, gameObject))
+                if (Common.isInObjectScope(singlePointer, gameObject))
                     gameObject.dragPressed(singlePointer);
             }
 
             // for moving map
-            initBackX = imgBackground.getX();
+            backgroundSet.moveStarted(singlePointer);
             initForeX = imgFloor.getX();
             initPointerX = singlePointer.getX();
             isGrabbingMap = true;
@@ -146,10 +147,9 @@ public class StateRun extends GameState {
             int foreDeltaX = singlePointer.getX() - initPointerX;
 
             int newForeX = initForeX + foreDeltaX;
-            int newBackX = (int) (initBackX + foreDeltaX * BACK_MOVE_RATIO);
             if (newForeX < 0 - Constants.FRAME_LEFT_MARGIN &&
                 newForeX + imgFloor.getWidth() > Game.GAME_FRAME_WIDTH + Constants.FRAME_RIGHT_MARGIN) {
-                imgBackground.setLocation(newBackX, imgBackground.getY());
+                backgroundSet.setForeDeltaX(foreDeltaX).dragMoved(singlePointer);
                 imgFloor.setLocation(newForeX, imgFloor.getY());
 
                 // move foreground objects with foreground
@@ -188,8 +188,8 @@ public class StateRun extends GameState {
 
     @Override
     public void release() {
-        imgBackground.release();
-        imgBackground = null;
+        backgroundSet.release();
+        backgroundSet = null;
 
         for (MovableGameObject gameObject : foreObjects) {
             gameObject.release();
