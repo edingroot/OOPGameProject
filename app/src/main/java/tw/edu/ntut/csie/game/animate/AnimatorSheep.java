@@ -7,6 +7,8 @@ package tw.edu.ntut.csie.game.animate;
  */
 public class AnimatorSheep {
 
+    
+    private Animation clip;
 
 
 }

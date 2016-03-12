@@ -4,4 +4,6 @@ public class Constants {
     public static final int FRAME_LEFT_MARGIN = 10;
     public static final int FRAME_RIGHT_MARGIN = 10;
     public static final int EYE_TO_FRAME_Y = 100;
+    public static final int TIME_DELAY = 0;
+    public static final int TIME_INTERVAL = 250;
 }
