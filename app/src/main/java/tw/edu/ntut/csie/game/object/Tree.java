@@ -24,6 +24,11 @@ public class Tree extends MovableGameObject {
         image.setLocation(x, y - image.getHeight());
     }
 
+    public void resize(int width, int height) {
+        super.resize(width, height);
+        image.resize(width, height);
+    }
+
     @Override
     public void move() {
 

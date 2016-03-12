@@ -14,6 +14,11 @@ public abstract class MovableGameObject implements GameObject {
         this.y = y;
     }
 
+    public void resize(int width, int height) {
+        this.width = width;
+        this.height = height;
+    }
+
     public void moveStarted(Pointer pointer) {
         this.initialX = this.x;
         this.initialY = this.y;

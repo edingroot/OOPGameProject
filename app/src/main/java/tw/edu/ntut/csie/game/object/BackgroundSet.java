@@ -17,8 +17,6 @@ public class BackgroundSet implements GameObject {
     private int[] initialX = new int[3];
     private int foreDeltaX = 0;
 
-
-
     public BackgroundSet() {
         backImages[0] = new MovingBitmap(R.drawable.background0);
         backImages[1] = new MovingBitmap(R.drawable.background1);

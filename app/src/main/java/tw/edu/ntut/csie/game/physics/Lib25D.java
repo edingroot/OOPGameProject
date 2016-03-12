@@ -11,11 +11,7 @@ public class Lib25D {
      * @return the new deltaX
      */
     public static double horizontalMoveAdj(double E, double D, double M) {
-        double result;
-
-        result = M - (M * D) / (E+D);
-
-        return result;
+        return M - (M * D) / (E + D);
     }
 
     /**
@@ -48,11 +44,7 @@ public class Lib25D {
      * @return
      */
     public static double heightAdj(double E, double H, double F) {
-        double result;
-
-        result = E * H / (E + F);
-
-        return result;
+        return E * H / (E + F);
     }
 
 }

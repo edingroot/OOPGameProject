@@ -14,6 +14,7 @@ import tw.edu.ntut.csie.game.engine.GameEngine;
 import tw.edu.ntut.csie.game.object.BackgroundSet;
 import tw.edu.ntut.csie.game.object.Stone;
 import tw.edu.ntut.csie.game.object.Tree;
+import tw.edu.ntut.csie.game.physics.Util25D;
 import tw.edu.ntut.csie.game.util.Common;
 import tw.edu.ntut.csie.game.util.Constants;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
@@ -54,12 +55,12 @@ public class StateRun extends GameState {
 
         // ---------- game objects ----------
         // stones
-        Stone stone = new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 10, 300);
-        addToForeObjectTable(stone);
+        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 10, 300));
         // trees
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 320));
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 330));
-
+        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 130, 230));
+        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 200, 300));
     }
 
     @Override
@@ -161,7 +162,7 @@ public class StateRun extends GameState {
 
             int newForeX = initForeX + foreDeltaX;
             if (newForeX < 0 - Constants.FRAME_LEFT_MARGIN &&
-                newForeX + imgFloor.getWidth() > Game.GAME_FRAME_WIDTH + Constants.FRAME_RIGHT_MARGIN) {
+                    newForeX + imgFloor.getWidth() > Game.GAME_FRAME_WIDTH + Constants.FRAME_RIGHT_MARGIN) {
                 backgroundSet.setForeDeltaX(foreDeltaX).dragMoved();
                 imgFloor.setLocation(newForeX, imgFloor.getY());
 
@@ -221,16 +222,12 @@ public class StateRun extends GameState {
     }
 
     private void addToForeObjectTable(MovableGameObject gameObject) {
-        int py = gameObject.getY();
-        List<MovableGameObject> list = foreObjectTable.get(py);
-        if (list == null)
-            list = new ArrayList<>();
-        list.add(gameObject);
-        foreObjectTable.put(py, list);
+        setForeObjectLocation(gameObject, gameObject.getX(), gameObject.getY());
     }
 
     /**
      * To set location of ANY OBJECT in foreground MUST use this method!
+     *
      * @param gameObject
      * @param x
      * @param y
@@ -241,10 +238,25 @@ public class StateRun extends GameState {
         // remove old item
         int py = gameObject.getY();
         list = foreObjectTable.get(py);
-        list.remove(gameObject);
+        if (list != null)
+            list.remove(gameObject);
+
+        // calculate new size and position in 2.5D
+        int newX = Util25D.calOnForegroundX(
+                Game.GAME_FRAME_WIDTH,
+                Game.GAME_FRAME_HEIGHT,
+                x, y
+        );
+        int newHeight = Util25D.calOnForegroundHeight(
+                Game.GAME_FRAME_HEIGHT,
+                gameObject.getHeight(), y
+        );
+        int newWidth = newHeight * (gameObject.getHeight() / gameObject.getWidth());
+        System.out.printf("%d, %d, %d\n", x, newX, newHeight);
 
         // put new item
-        gameObject.setLocation(x, y);
+        // gameObject.resize(newWidth, newHeight);
+        gameObject.setLocation(newX, y);
         list = foreObjectTable.get(y);
         if (list == null)
             list = new ArrayList<>();

@@ -19,6 +19,11 @@ public class Stone extends MovableGameObject {
         image.setLocation(x, y);
     }
 
+    public void resize(int width, int height) {
+        super.resize(width, height);
+        image.resize(width, height);
+    }
+
     @Override
     public void move() {
 
