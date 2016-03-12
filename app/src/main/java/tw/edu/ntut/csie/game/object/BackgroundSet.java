@@ -25,9 +25,9 @@ public class BackgroundSet implements GameObject {
         backImages[2] = new MovingBitmap(R.drawable.background2);
 
         int px = -(WRAP_WIDTH - Game.GAME_FRAME_WIDTH) / 2; // center screen
-        backImages[0].setLocation(px, 100);
-        backImages[1].setLocation(px, 150);
-        backImages[2].setLocation(px, 160);
+        backImages[0].setLocation(px, 120);
+        backImages[1].setLocation(px, 170);
+        backImages[2].setLocation(px, 180);
     }
 
     public BackgroundSet setForeDeltaX(int foreDeltaX) {
