@@ -12,7 +12,7 @@ public class BackgroundSet extends MovableGameObject {
     public static final int OVERLAP_FOREGROUND = 20;
     public static final int WRAP_WIDTH = 1400;
     public static final int WRAP_HEIGHT = 220;
-    private static final int[] DEPTH_TO_FRAME = {600, 500, 400};
+    private static final int[] DEPTH_TO_FRAME = {400, 200, 50};
 
     private MovingBitmap[] backImages = new MovingBitmap[3];
     private int foreDeltaX = 0;
@@ -26,9 +26,9 @@ public class BackgroundSet extends MovableGameObject {
         backImages[2] = new MovingBitmap(R.drawable.background2);
 
         int initialX = -(WRAP_WIDTH - Game.GAME_FRAME_WIDTH) / 2; // center screen
-        backImages[0].setLocation(initialX, 80);
-        backImages[1].setLocation(initialX, 130);
-        backImages[2].setLocation(initialX, 150);
+        backImages[0].setLocation(initialX, 100);
+        backImages[1].setLocation(initialX, 150);
+        backImages[2].setLocation(initialX, 160);
     }
 
     public BackgroundSet setForeDeltaX(int foreDeltaX) {

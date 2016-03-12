@@ -5,21 +5,19 @@ public class Lib25D {
     /**
      * Calculate horizontal displacement adjustment of 2.5D
      * @param E distance of eye to the nearest object(dObject = 0)
-     * @param d distance of the object
+     * @param D distance of the object
      * @param M horizontal movement in 3D
      * @return the new deltaX
      */
-    public static double horizontalMoveAdj(double E, double d, double M) {
-        double ratio = 0.5;
+    public static double horizontalMoveAdj(double E, double D, double M) {
+
         double result = 1;
 
-        double Epd = E + d;
-        double sEm = Math.sqrt(Epd * Epd + M * M);
-        double mDe = (M * d) / (Epd);
-        result *= mDe * sEm;
-        result /= sEm ;
+        result *= M * D;
+        result /= E + D;
+        result = M - result;
 
-        return result * ratio;
+        return result;
     }
 
 //    public static double[] displayAdjToDepth(double height, ) {
