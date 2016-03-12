@@ -17,7 +17,7 @@ public class Lib25D {
         double sEm = Math.sqrt(Epd * Epd + M * M);
         double mDe = (M * d) / (Epd);
         result *= mDe * sEm;
-        result /= sEm - Math.sqrt(d * d + mDe * mDe);
+        result /= sEm ;
 
         return result * ratio;
     }
