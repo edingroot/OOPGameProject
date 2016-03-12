@@ -3,6 +3,8 @@ package tw.edu.ntut.csie.game.state;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.NavigableMap;
+import java.util.TreeMap;
 
 import tw.edu.ntut.csie.game.Game;
 import tw.edu.ntut.csie.game.Pointer;
@@ -23,7 +25,8 @@ public class StateRun extends GameState {
     private MovingBitmap staticBackground;
     private BackgroundSet backgroundSet;
     private MovingBitmap imgFloor;
-    private List<MovableGameObject> foreObjects = new ArrayList<>();
+    // NavigableMap foreObjectTable: index = y-axis of object
+    private NavigableMap<Integer, List<MovableGameObject>> foreObjectTable;
 
     private boolean isGrabbingMap = false;
     private int initForeX = 0;
@@ -31,6 +34,7 @@ public class StateRun extends GameState {
 
     public StateRun(GameEngine engine) {
         super(engine);
+        foreObjectTable = new TreeMap<>();
     }
 
     @Override
@@ -51,10 +55,11 @@ public class StateRun extends GameState {
         // ---------- game objects ----------
         // stones
         Stone stone = new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 10, 300);
-        foreObjects.add(stone);
+        addToForeObjectTable(stone);
         // trees
-        Tree tree = new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 320);
-        foreObjects.add(tree);
+        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 320));
+        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 330));
+
     }
 
     @Override
@@ -72,8 +77,10 @@ public class StateRun extends GameState {
             imgFloor.setLocation(imgFloor.getX() + foreDeltaX, imgFloor.getY());
 
             // move foreground objects with map
-            for (MovableGameObject gameObject : foreObjects) {
-                gameObject.setLocation(gameObject.getX() + foreDeltaX, gameObject.getY());
+            for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
+                for (MovableGameObject gameObject : entry.getValue()) {
+                    setForeObjectLocation(gameObject, gameObject.getX() + foreDeltaX, gameObject.getY());
+                }
             }
         }
     }
@@ -85,9 +92,11 @@ public class StateRun extends GameState {
         imgFloor.show();
         backgroundSet.show();
 
-        // show objects in foreObjectLists
-        for (MovableGameObject gameObject : foreObjects) {
-            gameObject.show();
+        // show objects in foreObjectLists ordering by Y-axis
+        for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
+            for (MovableGameObject gameObject : entry.getValue()) {
+                gameObject.show();
+            }
         }
     }
 
@@ -117,10 +126,12 @@ public class StateRun extends GameState {
             Pointer singlePointer = pointers.get(0);
 
             // check is dragging of objects in foreObjectLists
-            for (MovableGameObject gameObject : foreObjects) {
-                gameObject.moveStarted(singlePointer);
-                if (Common.isInObjectScope(singlePointer, gameObject))
-                    gameObject.dragPressed(singlePointer);
+            for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
+                for (MovableGameObject gameObject : entry.getValue()) {
+                    gameObject.moveStarted(singlePointer);
+                    if (Common.isInObjectScope(singlePointer, gameObject))
+                        gameObject.dragPressed(singlePointer);
+                }
             }
 
             // for moving map
@@ -137,9 +148,11 @@ public class StateRun extends GameState {
         Pointer singlePointer = pointers.get(0);
 
         // trigger dragMoved event on dragging objects in foreObjectLists
-        for (MovableGameObject gameObject : foreObjects) {
-            if (gameObject.isDragging())
-                gameObject.dragMoved(singlePointer);
+        for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
+            for (MovableGameObject gameObject : entry.getValue()) {
+                if (gameObject.isDragging())
+                    gameObject.dragMoved(singlePointer);
+            }
         }
 
         // move background
@@ -153,8 +166,10 @@ public class StateRun extends GameState {
                 imgFloor.setLocation(newForeX, imgFloor.getY());
 
                 // move foreground objects with foreground
-                for (MovableGameObject gameObject : foreObjects) {
-                    gameObject.setLocation(gameObject.getInitialX() + foreDeltaX, gameObject.getY());
+                for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
+                    for (MovableGameObject gameObject : entry.getValue()) {
+                        setForeObjectLocation(gameObject, gameObject.getInitialX() + foreDeltaX, gameObject.getY());
+                    }
                 }
             }
         }
@@ -167,8 +182,10 @@ public class StateRun extends GameState {
         Pointer singlePointer = pointers.get(0);
 
         // trigger dragReleased event on dragging objects in foreObjectLists
-        for (MovableGameObject gameObject : foreObjects) {
-            gameObject.dragReleased(singlePointer);
+        for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
+            for (MovableGameObject gameObject : entry.getValue()) {
+                gameObject.dragReleased(singlePointer);
+            }
         }
 
         isGrabbingMap = false;
@@ -191,10 +208,44 @@ public class StateRun extends GameState {
         backgroundSet.release();
         backgroundSet = null;
 
-        for (MovableGameObject gameObject : foreObjects) {
-            gameObject.release();
+        for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
+            List<MovableGameObject> list = entry.getValue();
+            for (MovableGameObject gameObject : list) {
+                gameObject.release();
+            }
+            list.clear();
         }
-        foreObjects.clear();
-        foreObjects = null;
+        foreObjectTable.clear();
+    }
+
+    private void addToForeObjectTable(MovableGameObject gameObject) {
+        int py = gameObject.getY();
+        List<MovableGameObject> list = foreObjectTable.get(py);
+        if (list == null)
+            list = new ArrayList<>();
+        list.add(gameObject);
+        foreObjectTable.put(py, list);
+    }
+
+    /**
+     * To set location of ANY OBJECT in foreground MUST use this method!
+     * @param gameObject
+     * @param x
+     * @param y
+     */
+    public void setForeObjectLocation(MovableGameObject gameObject, int x, int y) {
+        List<MovableGameObject> list;
+
+        // remove old item
+        int py = gameObject.getY();
+        list = foreObjectTable.get(py);
+        list.remove(gameObject);
+
+        // put new item
+        gameObject.setLocation(x, y);
+        list = foreObjectTable.get(y);
+        if (list == null)
+            list = new ArrayList<>();
+        list.add(gameObject);
     }
 }
