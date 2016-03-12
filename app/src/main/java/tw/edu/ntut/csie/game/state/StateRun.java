@@ -124,7 +124,7 @@ public class StateRun extends GameState {
             }
 
             // for moving map
-            backgroundSet.moveStarted(singlePointer);
+            backgroundSet.moveStarted();
             initForeX = imgFloor.getX();
             initPointerX = singlePointer.getX();
             isGrabbingMap = true;
@@ -149,7 +149,7 @@ public class StateRun extends GameState {
             int newForeX = initForeX + foreDeltaX;
             if (newForeX < 0 - Constants.FRAME_LEFT_MARGIN &&
                 newForeX + imgFloor.getWidth() > Game.GAME_FRAME_WIDTH + Constants.FRAME_RIGHT_MARGIN) {
-                backgroundSet.setForeDeltaX(foreDeltaX).dragMoved(singlePointer);
+                backgroundSet.setForeDeltaX(foreDeltaX).dragMoved();
                 imgFloor.setLocation(newForeX, imgFloor.getY());
 
                 // move foreground objects with foreground
@@ -165,6 +165,8 @@ public class StateRun extends GameState {
     @Override
     public boolean pointerReleased(List<Pointer> pointers) {
         Pointer singlePointer = pointers.get(0);
+
+        backgroundSet.dragReleased();
 
         // trigger dragReleased event on dragging objects in foreObjectLists
         for (MovableGameObject gameObject : foreObjects) {
