@@ -11,7 +11,7 @@ public class BackgroundSet implements GameObject {
     public static final int OVERLAP_FOREGROUND = 20;
     public static final int WRAP_WIDTH = 1400;
     public static final int WRAP_HEIGHT = 220;
-    private static final int[] DEPTH_TO_FRAME = {400, 200, 50};
+    private static final int[] DEPTH_TO_FRAME = {400, 250, 220}; // shouldn't lower than WRAP_HEIGHT
 
     private MovingBitmap[] backImages = new MovingBitmap[3];
     private int[] initialX = new int[3];
@@ -25,7 +25,7 @@ public class BackgroundSet implements GameObject {
         int px = -(WRAP_WIDTH - Game.GAME_FRAME_WIDTH) / 2; // center screen
         backImages[0].setLocation(px, 100);
         backImages[1].setLocation(px, 150);
-        backImages[2].setLocation(px, 160);
+        backImages[2].setLocation(px, 155);
     }
 
     public BackgroundSet setForeDeltaX(int foreDeltaX) {

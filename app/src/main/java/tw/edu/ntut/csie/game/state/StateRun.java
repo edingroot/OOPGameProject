@@ -12,9 +12,8 @@ import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.engine.GameEngine;
 import tw.edu.ntut.csie.game.object.BackgroundSet;
-import tw.edu.ntut.csie.game.object.Stone;
 import tw.edu.ntut.csie.game.object.Tree;
-import tw.edu.ntut.csie.game.physics.Util25D;
+import tw.edu.ntut.csie.game.physics.Lib25D;
 import tw.edu.ntut.csie.game.util.Common;
 import tw.edu.ntut.csie.game.util.Constants;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
@@ -55,7 +54,7 @@ public class StateRun extends GameState {
 
         // ---------- game objects ----------
         // stones
-        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 10, 300));
+        // addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 10, 300));
         // trees
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 320));
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 330));
@@ -70,18 +69,17 @@ public class StateRun extends GameState {
 
             // if user grab the map over left or right margin, roll back automatically
             if (imgFloor.getX() + MAP_LEFT_MARGIN > 0) {
-                foreDeltaX = -20;
+                foreDeltaX = -50;
             } else if (imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN < Game.GAME_FRAME_WIDTH) {
-                foreDeltaX = 20;
+                foreDeltaX = 50;
             }
             backgroundSet.setForeDeltaX(foreDeltaX).move();
             imgFloor.setLocation(imgFloor.getX() + foreDeltaX, imgFloor.getY());
 
             // move foreground objects with map
-            for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
-                for (MovableGameObject gameObject : entry.getValue()) {
-                    setForeObjectLocation(gameObject, gameObject.getX() + foreDeltaX, gameObject.getY());
-                }
+            for (MovableGameObject gameObject : getAllForeObjects()) {
+                int deltaX25D = calForeObjectHorizontalMove(foreDeltaX, gameObject.getY());
+                setForeObjectLocation(gameObject, gameObject.getX() + deltaX25D, gameObject.getY());
             }
         }
     }
@@ -94,10 +92,8 @@ public class StateRun extends GameState {
         backgroundSet.show();
 
         // show objects in foreObjectLists ordering by Y-axis
-        for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
-            for (MovableGameObject gameObject : entry.getValue()) {
-                gameObject.show();
-            }
+        for (MovableGameObject gameObject : getAllForeObjects()) {
+            gameObject.show();
         }
     }
 
@@ -127,12 +123,10 @@ public class StateRun extends GameState {
             Pointer singlePointer = pointers.get(0);
 
             // check is dragging of objects in foreObjectLists
-            for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
-                for (MovableGameObject gameObject : entry.getValue()) {
-                    gameObject.moveStarted(singlePointer);
-                    if (Common.isInObjectScope(singlePointer, gameObject))
-                        gameObject.dragPressed(singlePointer);
-                }
+            for (MovableGameObject gameObject : getAllForeObjects()) {
+                gameObject.moveStarted(singlePointer);
+                if (Common.isInObjectScope(singlePointer, gameObject))
+                    gameObject.dragPressed(singlePointer);
             }
 
             // for moving map
@@ -147,13 +141,12 @@ public class StateRun extends GameState {
     @Override
     public boolean pointerMoved(List<Pointer> pointers) {
         Pointer singlePointer = pointers.get(0);
+        List<MovableGameObject> foreObjects = getAllForeObjects();
 
         // trigger dragMoved event on dragging objects in foreObjectLists
-        for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
-            for (MovableGameObject gameObject : entry.getValue()) {
-                if (gameObject.isDragging())
-                    gameObject.dragMoved(singlePointer);
-            }
+        for (MovableGameObject gameObject : foreObjects) {
+            if (gameObject.isDragging())
+                gameObject.dragMoved(singlePointer);
         }
 
         // move background
@@ -167,10 +160,9 @@ public class StateRun extends GameState {
                 imgFloor.setLocation(newForeX, imgFloor.getY());
 
                 // move foreground objects with foreground
-                for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
-                    for (MovableGameObject gameObject : entry.getValue()) {
-                        setForeObjectLocation(gameObject, gameObject.getInitialX() + foreDeltaX, gameObject.getY());
-                    }
+                for (MovableGameObject gameObject : foreObjects) {
+                    int deltaX25D = calForeObjectHorizontalMove(foreDeltaX, gameObject.getY());
+                    setForeObjectLocation(gameObject, gameObject.getInitialX() + deltaX25D, gameObject.getY());
                 }
             }
         }
@@ -185,10 +177,8 @@ public class StateRun extends GameState {
         backgroundSet.dragReleased();
 
         // trigger dragReleased event on dragging objects in foreObjectLists
-        for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
-            for (MovableGameObject gameObject : entry.getValue()) {
-                gameObject.dragReleased(singlePointer);
-            }
+        for (MovableGameObject gameObject : getAllForeObjects()) {
+            gameObject.dragReleased(singlePointer);
         }
 
         isGrabbingMap = false;
@@ -221,8 +211,25 @@ public class StateRun extends GameState {
         foreObjectTable.clear();
     }
 
+    private List<MovableGameObject> getAllForeObjects() {
+        List<MovableGameObject> listAll = new ArrayList<>();
+        for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
+            List<MovableGameObject> list = entry.getValue();
+            for (MovableGameObject gameObject : list) {
+                listAll.add(gameObject);
+            }
+        }
+        return listAll;
+    }
+
     private void addToForeObjectTable(MovableGameObject gameObject) {
-        setForeObjectLocation(gameObject, gameObject.getX(), gameObject.getY());
+        int y = gameObject.getY();
+        // put new item
+        List<MovableGameObject> list = foreObjectTable.get(y);
+        if (list == null)
+            list = new ArrayList<>();
+        list.add(gameObject);
+        foreObjectTable.put(y, list);
     }
 
     /**
@@ -233,6 +240,10 @@ public class StateRun extends GameState {
      * @param y
      */
     public void setForeObjectLocation(MovableGameObject gameObject, int x, int y) {
+        if (y == gameObject.getY()) {
+            gameObject.setLocation(x, y);
+            return;
+        }
         List<MovableGameObject> list;
 
         // remove old item
@@ -240,26 +251,20 @@ public class StateRun extends GameState {
         list = foreObjectTable.get(py);
         if (list != null)
             list.remove(gameObject);
-
-        // calculate new size and position in 2.5D
-        int newX = Util25D.calOnForegroundX(
-                Game.GAME_FRAME_WIDTH,
-                Game.GAME_FRAME_HEIGHT,
-                x, y
-        );
-        int newHeight = Util25D.calOnForegroundHeight(
-                Game.GAME_FRAME_HEIGHT,
-                gameObject.getHeight(), y
-        );
-        int newWidth = newHeight * (gameObject.getHeight() / gameObject.getWidth());
-        System.out.printf("%d, %d, %d\n", x, newX, newHeight);
+        foreObjectTable.put(py, list);
 
         // put new item
-        // gameObject.resize(newWidth, newHeight);
-        gameObject.setLocation(newX, y);
+        gameObject.setLocation(x, y);
         list = foreObjectTable.get(y);
         if (list == null)
             list = new ArrayList<>();
         list.add(gameObject);
+        foreObjectTable.put(y, list);
+    }
+
+    private int calForeObjectHorizontalMove(int deltaX, int y) {
+        double E = Constants.EYE_TO_FRAME_Y;
+        double D = Game.GAME_FRAME_HEIGHT - y;
+        return (int) Lib25D.horizontalMoveAdj(E, D, deltaX);
     }
 }
