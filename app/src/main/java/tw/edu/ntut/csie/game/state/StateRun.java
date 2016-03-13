@@ -21,6 +21,7 @@ import tw.edu.ntut.csie.game.util.MovableGameObject;
 public class StateRun extends GameState {
     private final int MAP_LEFT_MARGIN = 180 + Constants.FRAME_LEFT_MARGIN;
     private final int MAP_RIGHT_MARGIN = 150 + Constants.FRAME_RIGHT_MARGIN;
+    private final int MAP_AUTO_ROLL_RATE = 50;
 
     private MovingBitmap staticBackground;
     private BackgroundSet backgroundSet;
@@ -69,9 +70,11 @@ public class StateRun extends GameState {
 
             // if user grab the map over left or right margin, roll back automatically
             if (imgFloor.getX() + MAP_LEFT_MARGIN > 0) {
-                foreDeltaX = -50;
+                int diff = imgFloor.getX() + MAP_LEFT_MARGIN;
+                foreDeltaX = -(diff >= MAP_AUTO_ROLL_RATE ? MAP_AUTO_ROLL_RATE : diff);
             } else if (imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN < Game.GAME_FRAME_WIDTH) {
-                foreDeltaX = 50;
+                int diff = Game.GAME_FRAME_WIDTH - (imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN);
+                foreDeltaX = diff >= MAP_AUTO_ROLL_RATE ? MAP_AUTO_ROLL_RATE : diff;
             }
             backgroundSet.setForeDeltaX(foreDeltaX).move();
             imgFloor.setLocation(imgFloor.getX() + foreDeltaX, imgFloor.getY());
@@ -263,8 +266,7 @@ public class StateRun extends GameState {
     }
 
     private int calForeObjectHorizontalMove(int deltaX, int y) {
-        double E = Constants.EYE_TO_FRAME_Y;
         double D = Game.GAME_FRAME_HEIGHT - y;
-        return (int) Lib25D.horizontalMoveAdj(E, D, deltaX);
+        return (int) Lib25D.horizontalMoveAdj(Constants.EYE_TO_FRAME_Y, D, deltaX);
     }
 }
