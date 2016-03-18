@@ -1,7 +1,9 @@
 package tw.edu.ntut.csie.game.util;
 
+import tw.edu.ntut.csie.game.Game;
 import tw.edu.ntut.csie.game.GameObject;
 import tw.edu.ntut.csie.game.Pointer;
+import tw.edu.ntut.csie.game.physics.Lib25D;
 
 public abstract class MovableGameObject implements GameObject {
     protected int x = 0, y = 0;
@@ -12,6 +14,17 @@ public abstract class MovableGameObject implements GameObject {
     public void setLocation(int x, int y) {
         this.x = x;
         this.y = y;
+
+        int newHeight = this.height;
+//
+//        if (y <= Game.GAME_FRAME_HEIGHT) {
+//            newHeight = (int) Lib25D.heightAdj(
+//                    Constants.EYE_TO_FRAME_Y,
+//                    this.height,
+//                    Game.GAME_FRAME_HEIGHT - y
+//            );
+//        }
+        this.resize(this.getWidth(), newHeight);
     }
 
     public void resize(int width, int height) {

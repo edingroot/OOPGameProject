@@ -41,7 +41,7 @@ public class Lib25D {
      * @param E distance of eye to the nearest object(dObject = 0)
      * @param H height of the object
      * @param F vertical movement in 3D
-     * @return
+     * @return new height of the object
      */
     public static double heightAdj(double E, double H, double F) {
         return E * H / (E + F);
