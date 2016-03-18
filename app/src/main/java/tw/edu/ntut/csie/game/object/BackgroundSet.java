@@ -9,7 +9,7 @@ import tw.edu.ntut.csie.game.util.Constants;
 
 public class BackgroundSet implements GameObject {
     public static final int OVERLAP_FOREGROUND = 20;
-    public static final int WRAP_WIDTH = 1400;
+    public static final int WRAP_WIDTH = 1100;
     public static final int WRAP_HEIGHT = 220;
     private static final int[] DEPTH_TO_FRAME = {400, 250, 220}; // shouldn't lower than WRAP_HEIGHT
 
