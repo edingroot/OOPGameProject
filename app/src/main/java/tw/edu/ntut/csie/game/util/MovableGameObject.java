@@ -9,7 +9,7 @@ public abstract class MovableGameObject implements GameObject {
     protected int x = 0, y = 0;
     protected int initialX, initialY;
     protected int width, height;
-    private boolean dragging = false;
+    protected boolean dragging = false;
 
     public void setLocation(int x, int y) {
         this.x = x;
