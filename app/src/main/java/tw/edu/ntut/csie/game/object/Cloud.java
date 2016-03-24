@@ -8,6 +8,9 @@ public class Cloud extends MovableGameObject {
     public static final int TYPE_WHITE = 1; // 白雲
     public static final int TYPE_GRAY = 2; // 烏雲
     public static final int TYPE_BLACK = 3; // 雨雲
+    public static final int LEVEL_BIG = 1;
+    public static final int LEVEL_MEDIUM = 2;
+    public static final int LEVEL_SMALL = 3;
     private static final int CLOUD_IMAGE[][] = {
             {R.drawable.cloud_white1_1, R.drawable.cloud_white1_2, R.drawable.cloud_white1_3},
             {R.drawable.cloud_gray1_1, R.drawable.cloud_gray1_2, R.drawable.cloud_gray1_3},
@@ -16,7 +19,7 @@ public class Cloud extends MovableGameObject {
 
     private int type;
     private int level; // (1~3): how big it is
-    private int speed = 5; // (<0): moving left
+    private int speed = 1; // (<0): moving left
     private MovingBitmap image;
 
     public Cloud(int x, int y, int type, int level) {
