@@ -72,7 +72,7 @@ public class StateRun extends GameState {
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 130, 230));
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 200, 300));
         // sheep
-        addToForeObjectTable(new Sheep(imgFloor.getX() + MAP_LEFT_MARGIN + 300, 200));
+        addToForeObjectTable(new Sheep(imgFloor.getX() + MAP_LEFT_MARGIN + 500, 280));
     }
 
     @Override
@@ -286,6 +286,6 @@ public class StateRun extends GameState {
 
     private int calForeObjectHorizontalMove(int deltaX, int y) {
         double D = Game.GAME_FRAME_HEIGHT - y;
-        return (int) Lib25D.horizontalMoveAdj(Constants.EYE_TO_FRAME_Y, D, deltaX);
+        return (int) Lib25D.horizontalMoveAdj(D, deltaX);
     }
 }
