@@ -17,7 +17,7 @@ public class Animation implements GameObject {
     /**
      * 預設畫面與畫面之間的延遲數(沒有延遲)
      */
-    public static final int DEFAULT_DELAY = 0;
+    public static final int DEFAULT_DELAY = 2;
 
     /**
      * 遊戲畫面上的位置。

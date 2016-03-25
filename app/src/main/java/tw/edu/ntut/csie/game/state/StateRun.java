@@ -12,6 +12,7 @@ import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.engine.GameEngine;
 import tw.edu.ntut.csie.game.object.BackgroundSet;
+import tw.edu.ntut.csie.game.object.Sheep;
 import tw.edu.ntut.csie.game.object.Tree;
 import tw.edu.ntut.csie.game.physics.Lib25D;
 import tw.edu.ntut.csie.game.util.Common;
@@ -61,6 +62,8 @@ public class StateRun extends GameState {
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 330));
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 130, 230));
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 200, 300));
+        // sheep
+        addToForeObjectTable(new Sheep(imgFloor.getX() + MAP_LEFT_MARGIN + 300, 200));
     }
 
     @Override
@@ -98,6 +101,8 @@ public class StateRun extends GameState {
         for (MovableGameObject gameObject : getAllForeObjects()) {
             gameObject.show();
         }
+
+
     }
 
     @Override

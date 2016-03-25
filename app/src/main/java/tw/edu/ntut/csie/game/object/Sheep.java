@@ -20,7 +20,7 @@ public class Sheep extends MovableGameObject {
     private List<Animation> animations_head;
     private Random rand;
 
-    public Sheep() {
+    public Sheep(int x, int y) {
         this.width = 100;
         this.height = 200;
 
@@ -31,14 +31,17 @@ public class Sheep extends MovableGameObject {
         isLand = false;
 
         animations = new ArrayList<>();
+        animations_body = new ArrayList<>();
+        animations_head = new ArrayList<>();
+
 
         body_rest = new Animation();
         animations.add(body_rest);
         animations_body.add(body_rest);
-        body_walk.addFrame(R.drawable.sheep_default_0);
-        body_walk.addFrame(R.drawable.sheep_default_1);
-        body_walk.addFrame(R.drawable.sheep_default_2);
-        body_walk.addFrame(R.drawable.sheep_default_1);
+        body_rest.addFrame(R.drawable.sheep_default_0);
+        body_rest.addFrame(R.drawable.sheep_default_1);
+        body_rest.addFrame(R.drawable.sheep_default_2);
+        body_rest.addFrame(R.drawable.sheep_default_1);
 
 
         body_walk = new Animation();
@@ -63,6 +66,8 @@ public class Sheep extends MovableGameObject {
         head_walk.addFrame(R.drawable.face_walk_1);
 
         tail = new Animation();
+
+        this.setLocation(x,y);
     }
 
     public void setLocation(int x, int y) {
