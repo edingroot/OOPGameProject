@@ -13,6 +13,8 @@ import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.engine.GameEngine;
 import tw.edu.ntut.csie.game.object.BackgroundSet;
 import tw.edu.ntut.csie.game.object.Sheep;
+import tw.edu.ntut.csie.game.object.Cloud;
+import tw.edu.ntut.csie.game.object.Stone;
 import tw.edu.ntut.csie.game.object.Tree;
 import tw.edu.ntut.csie.game.physics.Lib25D;
 import tw.edu.ntut.csie.game.util.Common;
@@ -42,8 +44,8 @@ public class StateRun extends GameState {
     @Override
     public void initialize(Map<String, Object> data) {
         // ---------- set back images ----------
-        staticBackground = new MovingBitmap(R.drawable.background);
         int initialX = -(BackgroundSet.WRAP_WIDTH - Game.GAME_FRAME_WIDTH) / 2; // center screen
+        staticBackground = new MovingBitmap(R.drawable.background);
         staticBackground.setLocation(initialX, 0);
 
         backgroundSet = new BackgroundSet();
@@ -55,8 +57,15 @@ public class StateRun extends GameState {
         );
 
         // ---------- game objects ----------
+        // clouds
+        addToForeObjectTable(new Cloud(10, 100, Cloud.TYPE_WHITE, Cloud.LEVEL_SMALL));
         // stones
-        // addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 10, 300));
+        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 45, 240));
+        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 30, 280));
+        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 15, 320));
+        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 95, 240));
+        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 80, 280));
+        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 65, 320));
         // trees
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 320));
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 330));
@@ -68,6 +77,12 @@ public class StateRun extends GameState {
 
     @Override
     public void move() {
+        List<MovableGameObject> foreObjects = getAllForeObjects();
+        // move foreground objects with map
+        for (MovableGameObject gameObject : foreObjects) {
+            gameObject.move();
+        }
+
         if (!isGrabbingMap) {
             int foreDeltaX = 0;
 
@@ -83,7 +98,7 @@ public class StateRun extends GameState {
             imgFloor.setLocation(imgFloor.getX() + foreDeltaX, imgFloor.getY());
 
             // move foreground objects with map
-            for (MovableGameObject gameObject : getAllForeObjects()) {
+            for (MovableGameObject gameObject : foreObjects) {
                 int deltaX25D = calForeObjectHorizontalMove(foreDeltaX, gameObject.getY());
                 setForeObjectLocation(gameObject, gameObject.getX() + deltaX25D, gameObject.getY());
             }
@@ -150,6 +165,7 @@ public class StateRun extends GameState {
     public boolean pointerMoved(List<Pointer> pointers) {
         Pointer singlePointer = pointers.get(0);
         List<MovableGameObject> foreObjects = getAllForeObjects();
+        int deltaX = singlePointer.getX() - initPointerX;
 
         // trigger dragMoved event on dragging objects in foreObjectLists
         for (MovableGameObject gameObject : foreObjects) {
@@ -159,17 +175,15 @@ public class StateRun extends GameState {
 
         // move background
         if (isGrabbingMap) {
-            int foreDeltaX = singlePointer.getX() - initPointerX;
-
-            int newForeX = initForeX + foreDeltaX;
+            int newForeX = initForeX + deltaX;
             if (newForeX < 0 - Constants.FRAME_LEFT_MARGIN &&
                     newForeX + imgFloor.getWidth() > Game.GAME_FRAME_WIDTH + Constants.FRAME_RIGHT_MARGIN) {
-                backgroundSet.setForeDeltaX(foreDeltaX).dragMoved();
+                backgroundSet.setForeDeltaX(deltaX).dragMoved();
                 imgFloor.setLocation(newForeX, imgFloor.getY());
 
                 // move foreground objects with foreground
                 for (MovableGameObject gameObject : foreObjects) {
-                    int deltaX25D = calForeObjectHorizontalMove(foreDeltaX, gameObject.getY());
+                    int deltaX25D = calForeObjectHorizontalMove(deltaX, gameObject.getY());
                     setForeObjectLocation(gameObject, gameObject.getInitialX() + deltaX25D, gameObject.getY());
                 }
             }

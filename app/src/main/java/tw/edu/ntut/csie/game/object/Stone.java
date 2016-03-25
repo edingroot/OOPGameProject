@@ -8,7 +8,7 @@ public class Stone extends MovableGameObject {
     private MovingBitmap image;
 
     public Stone(int x, int y) {
-        image = new MovingBitmap(R.drawable.digit_0); // TODO: replace with correct drawable
+        image = new MovingBitmap(R.drawable.stone);
         this.width = image.getWidth();
         this.height = image.getHeight();
         this.setLocation(x, y);
