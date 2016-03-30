@@ -144,19 +144,22 @@ public class StateRun extends GameState {
     public boolean pointerPressed(List<Pointer> pointers) {
         if (pointers.size() == 1) {
             Pointer singlePointer = pointers.get(0);
+            isGrabbingMap = true;
 
             // check is dragging of objects in foreObjectLists
             for (MovableGameObject gameObject : getAllForeObjects()) {
                 gameObject.moveStarted(singlePointer);
-                if (Common.isInObjectScope(singlePointer, gameObject))
+                if (Common.isInObjectScope(singlePointer, gameObject)){
                     gameObject.dragPressed(singlePointer);
+                    isGrabbingMap = false;
+                }
             }
 
             // for moving map
             backgroundSet.moveStarted();
             initForeX = imgFloor.getX();
             initPointerX = singlePointer.getX();
-            isGrabbingMap = true;
+
         }
         return true;
     }

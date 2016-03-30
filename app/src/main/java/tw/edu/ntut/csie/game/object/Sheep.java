@@ -3,7 +3,10 @@ package tw.edu.ntut.csie.game.object;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
+import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.extend.Animation;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
@@ -12,7 +15,7 @@ import tw.edu.ntut.csie.game.physics.Lib25D;
 
 public class Sheep extends MovableGameObject {
 
-    private Animation body_rest, body_walk, head_rest,head_walk, tail, eye_happy;
+    private Animation body_rest, body_walk, head_rest, head_walk, head_drag, body_drag, tail, eye_happy;
     private boolean isWalk, isRest, isDrag, isFall, isLand;
     private List<Animation> animations;
     private List<Animation> animations_body;
@@ -26,6 +29,8 @@ public class Sheep extends MovableGameObject {
     private int EYE_SHIFT_POS_X = 17;
     private int EYE_SHIFT_POS_Y = -2;
     private int x, y, count;
+    private int initImageX, initImageY;
+
 
     public Sheep(int x, int y) {
         this.width = 100;
@@ -53,7 +58,7 @@ public class Sheep extends MovableGameObject {
         body_rest.addFrame(R.drawable.sheep_default_2);
         body_rest.addFrame(R.drawable.sheep_default_1);
 
-        body_walk = new Animation();
+        body_walk = new Animation(5);
         animations.add(body_walk);
         animations_body.add(body_walk);
         body_walk.addFrame(R.drawable.sheep_walk_0);
@@ -79,8 +84,17 @@ public class Sheep extends MovableGameObject {
         animations_eye.add(eye_happy);
         eye_happy.addFrame(R.drawable.eye_default);
 
-        tail = new Animation();
+        body_drag = new Animation(5);
+        animations.add(body_drag);
+        animations_body.add(body_drag);
+        body_drag.addFrame(R.drawable.sheep_drag_0);
+        body_drag.addFrame(R.drawable.sheep_drag_1);
 
+
+        head_drag = new Animation();
+        animations.add(head_drag);
+        animations_head.add(head_drag);
+        head_drag.addFrame(R.drawable.face_drag);
         this.setLocation(x,y);
     }
 
@@ -97,6 +111,8 @@ public class Sheep extends MovableGameObject {
             if(direction) item.setLocation(x - HEAD_SHIFT_POS_X + EYE_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + EYE_SHIFT_POS_Y);
             else item.setLocation(x + HEAD_SHIFT_POS_X - EYE_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + EYE_SHIFT_POS_Y);
         }
+        if(direction) head_drag.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y+10);
+        else head_drag.setLocation(x + HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y+10);
     }
 
     private void setAnimation() {
@@ -111,6 +127,11 @@ public class Sheep extends MovableGameObject {
             body_walk.setVisible(true);
             head_walk.setVisible(true);
             eye_happy.setVisible(true);
+        }
+        else if(isDrag){
+            for (Animation item : animations) item.setVisible(false);
+            body_drag.setVisible(true);
+            head_drag.setVisible(true);
         }
         else {
             for (Animation item : animations) item.setVisible(false);
@@ -129,24 +150,25 @@ public class Sheep extends MovableGameObject {
         isWalk = true;
         isRest = false;
         setAnimation();
-        for (count = 0 ; count < 200 ; count++) {
-
-        }
+        for (count = 0 ; count < 200 ; count++) {}
         if (count == 200) {
-            this.setLocation(--x, y);
+            if (direction) this.setLocation(--x, y);
+            else this.setLocation(++x, y);
             count = 0;
         }
     }
     public void drag() {
+        isWalk = false;
+        isRest = false;
         isDrag = true;
+        setAnimation();
     }
 
     private void aiMove() {
-        if (this.dragging) isDrag = true;
+        if (this.dragging) this.drag();
         else {
             isDrag = false;
             this.walk();
-
         }
     }
 
@@ -169,5 +191,25 @@ public class Sheep extends MovableGameObject {
             item.release();
             item = null;
         }
+    }
+
+    @Override
+    public void dragPressed(Pointer pointer){
+        super.dragPressed(pointer);
+        Pointer singlePointer = pointer;
+        initImageX = this.getX();
+        initImageY = this.getY();
+        initialX = singlePointer.getX();
+        initialY = singlePointer.getY();
+    }
+
+    @Override
+    public void dragMoved(Pointer pointer){
+        Pointer singlePointer = pointer;
+        int deltaX = singlePointer.getX() - initialX;
+        int deltaY = singlePointer.getY() - initialY;
+        x = initImageX + deltaX;
+        y = initImageY + deltaY;
+        this.setLocation(x, y);
     }
 }
