@@ -1,40 +1,45 @@
 package tw.edu.ntut.csie.game.object;
 
+import android.widget.ImageView;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Vector;
 
 import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
+import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.extend.Animation;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
 
-import tw.edu.ntut.csie.game.physics.Lib25D;
 
 public class Sheep extends MovableGameObject {
 
-    private Animation body_rest, body_walk, head_rest, head_walk, head_drag, body_drag, tail, eye_happy;
+    private Animation body_rest, body_walk, head_rest, head_walk, head_drag, body_drag, tail, eye_happy, body_fall, body_land;
+    private Animation head_fall, head_land;
     private boolean isWalk, isRest, isDrag, isFall, isLand;
     private List<Animation> animations;
     private List<Animation> animations_body;
     private List<Animation> animations_head;
     private List<Animation> animations_eye;
-    private Random rand;
+    private Random random;
     //direction = true = Left
     private boolean direction;
     private int HEAD_SHIFT_POS_X = 30;
     private int HEAD_SHIFT_POS_Y = -2;
     private int EYE_SHIFT_POS_X = 17;
     private int EYE_SHIFT_POS_Y = -2;
-    private int x, y, count;
+    private int TIME_DELAY = 100;
+    private int x, y, count, aiCount=0, instr=0;
     private int initImageX, initImageY;
-
+    private MovingBitmap image;
+    private boolean dragRealese;
+    private int realeseY;
 
     public Sheep(int x, int y) {
         this.width = 100;
-        this.height = 200;
+        this.height = 85;
         this.direction = true;
         this.x = x;
         this.y = y;
@@ -90,12 +95,49 @@ public class Sheep extends MovableGameObject {
         body_drag.addFrame(R.drawable.sheep_drag_0);
         body_drag.addFrame(R.drawable.sheep_drag_1);
 
-
         head_drag = new Animation();
         animations.add(head_drag);
         animations_head.add(head_drag);
         head_drag.addFrame(R.drawable.face_drag);
-        this.setLocation(x,y);
+        this.setLocation(x, y);
+
+        body_fall = new Animation();
+        animations.add(body_fall);
+        animations_body.add(body_fall);
+        body_fall.addFrame(R.drawable.sheep_fall_0);
+        body_fall.addFrame(R.drawable.sheep_fall_1);
+        //body_fall.setRepeating(false);
+
+        body_land = new Animation();
+        animations.add(body_land);
+        animations_body.add(body_land);
+        body_land.addFrame(R.drawable.sheep_landing_0);
+        body_land.addFrame(R.drawable.sheep_landing_1);
+        body_land.addFrame(R.drawable.sheep_landing_2);
+        //body_land.setRepeating(false);
+
+        head_fall = new Animation();
+        animations.add(head_fall);
+        animations_head.add(head_fall);
+        head_fall.addFrame(R.drawable.face_fall_0);
+        head_fall.addFrame(R.drawable.face_fall_1);
+        head_fall.addFrame(R.drawable.face_fall_2);
+        //head_fall.setRepeating(false);
+
+        head_land = new Animation();
+        animations.add(head_land);
+        animations_head.add(head_land);
+        head_land.addFrame(R.drawable.face_landing_0);
+        head_land.addFrame(R.drawable.face_landing_1);
+        head_land.addFrame(R.drawable.face_landing_2);
+        //head_land.setRepeating(false);
+    }
+
+    public void clearActions() {
+        isRest = false;
+        isWalk = false;
+        isFall = false;
+        isLand = false;
     }
 
     public void setLocation(int x, int y) {
@@ -111,27 +153,37 @@ public class Sheep extends MovableGameObject {
             if(direction) item.setLocation(x - HEAD_SHIFT_POS_X + EYE_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + EYE_SHIFT_POS_Y);
             else item.setLocation(x + HEAD_SHIFT_POS_X - EYE_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + EYE_SHIFT_POS_Y);
         }
-        if(direction) head_drag.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y+10);
-        else head_drag.setLocation(x + HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y+10);
+        if(direction) head_drag.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y+20);
+        else head_drag.setLocation(x + HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y+20);
     }
 
     private void setAnimation() {
-        if(isRest){
+        if (isRest) {
             for (Animation item : animations) item.setVisible(false);
             body_rest.setVisible(true);
             head_rest.setVisible(true);
             eye_happy.setVisible(true);
         }
-        else if(isWalk){
+        else if (isWalk) {
             for (Animation item : animations) item.setVisible(false);
             body_walk.setVisible(true);
             head_walk.setVisible(true);
             eye_happy.setVisible(true);
         }
-        else if(isDrag){
+        else if (isDrag) {
             for (Animation item : animations) item.setVisible(false);
             body_drag.setVisible(true);
             head_drag.setVisible(true);
+        }
+        else if (isFall) {
+            for (Animation item : animations) item.setVisible(false);
+            body_fall.setVisible(true);
+            head_fall.setVisible(true);
+        }
+        else if (isLand) {
+            for (Animation item : animations) item.setVisible(false);
+            body_land.setVisible(true);
+            head_land.setVisible(true);
         }
         else {
             for (Animation item : animations) item.setVisible(false);
@@ -142,13 +194,13 @@ public class Sheep extends MovableGameObject {
     }
 
     public void rest() {
+        clearActions();
         isRest = true;
-        isWalk = false;
         setAnimation();
     }
     public void walk() {
+        clearActions();
         isWalk = true;
-        isRest = false;
         setAnimation();
         for (count = 0 ; count < 200 ; count++) {}
         if (count == 200) {
@@ -158,17 +210,48 @@ public class Sheep extends MovableGameObject {
         }
     }
     public void drag() {
-        isWalk = false;
-        isRest = false;
+        clearActions();
         isDrag = true;
         setAnimation();
     }
+    public void fall() {
+        clearActions();
+        isFall = true;
+//        head_fall.setDelay(30);
+//        body_fall.setDelay();
+        setAnimation();
+
+        if (y < 280) this.setLocation(x, y+=20);
+        else this.land();
+
+    }
+    public void land() {
+        y = 280;
+        clearActions();
+        isLand = true;
+        dragRealese = false;
+    }
+
 
     private void aiMove() {
-        if (this.dragging) this.drag();
+        if (this.dragging) {
+            this.drag();
+            dragRealese = true;
+        }
         else {
             isDrag = false;
-            this.walk();
+            if (dragRealese) {
+                realeseY = y;
+                this.fall();
+            }
+            else {
+                if (--aiCount <= 0) {
+                    aiCount = TIME_DELAY;
+                    instr = (int)(Math.random()*100);
+                }
+                if (instr > 80) this.walk();
+                else this.rest();
+            }
         }
     }
 
@@ -188,8 +271,8 @@ public class Sheep extends MovableGameObject {
     @Override
     public void release() {
         for (Animation item : animations) {
-            item.release();
             item = null;
+            item.release();
         }
     }
 
