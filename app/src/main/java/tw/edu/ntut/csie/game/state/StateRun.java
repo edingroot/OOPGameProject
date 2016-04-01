@@ -74,7 +74,7 @@ public class StateRun extends GameState {
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 130, 110));
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 200, 180));
         // sheep
-        addToForeObjectTable(new Sheep(imgFloor.getX() + MAP_LEFT_MARGIN + 500, 280));
+        addToForeObjectTable(new Sheep(imgFloor.getX() + MAP_LEFT_MARGIN + 500, 250));
     }
 
     @Override
