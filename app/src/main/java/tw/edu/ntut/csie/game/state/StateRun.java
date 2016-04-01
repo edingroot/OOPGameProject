@@ -14,6 +14,7 @@ import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.engine.GameEngine;
 import tw.edu.ntut.csie.game.object.BackgroundSet;
+import tw.edu.ntut.csie.game.object.Sheep;
 import tw.edu.ntut.csie.game.object.Cloud;
 import tw.edu.ntut.csie.game.object.Stone;
 import tw.edu.ntut.csie.game.object.Tree;
@@ -60,26 +61,26 @@ public class StateRun extends GameState {
         // ---------- game objects ----------
         // clouds
         addToForeObjectTable(new Cloud(10, 0, Cloud.TYPE_WHITE, Cloud.LEVEL_SMALL));
-        // stones
-        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 45, 240));
-        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 30, 280));
-        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 15, 320));
-        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 95, 240));
-        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 80, 280));
-        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 65, 320));
-        // trees
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 200));
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 210));
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 130, 110));
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 200, 180));
+//        // stones
+//        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 45, 240));
+//        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 30, 280));
+//        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 15, 320));
+//        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 95, 240));
+//        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 80, 280));
+//        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 65, 320));
+//        // trees
+//        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 200));
+//        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 210));
+//        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 130, 110));
+//        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 200, 180));
+//        // sheep
+//        addToForeObjectTable(new Sheep(imgFloor.getX() + MAP_LEFT_MARGIN + 500, 280));
     }
 
     @Override
     public void move() {
         List<MovableGameObject> foreObjects = getAllForeObjects();
-        // move foreground objects with map
         for (MovableGameObject gameObject : foreObjects) {
-
             gameObject.move();
         }
 
@@ -103,10 +104,10 @@ public class StateRun extends GameState {
                 MovableGameObject gameObject = it.next();
                 int deltaX25D = calForeObjectHorizontalMove(foreDeltaX, gameObject.getY());
                 setForeObjectLocation(gameObject, gameObject.getX() + deltaX25D, gameObject.getY());
-                if (Common.isOutOfBouds(gameObject, backgroundSet.WRAP_WIDTH, backgroundSet.WRAP_HEIGHT)) {
-                     foreObjects.remove(gameObject);
-                     gameObject.release();
-                     gameObject = null;
+                if (Common.isOutOfBounds(gameObject, imgFloor.getX(), BackgroundSet.WRAP_WIDTH, Game.GAME_FRAME_HEIGHT)) {
+                    System.out.println("Release out of bounds object: " + gameObject.getClass().getSimpleName());
+                    removeFromForeObjectTable(gameObject);
+                    it.remove();
                 }
             }
         }
@@ -123,6 +124,8 @@ public class StateRun extends GameState {
         for (MovableGameObject gameObject : getAllForeObjects()) {
             gameObject.show();
         }
+
+
     }
 
     @Override
@@ -149,19 +152,22 @@ public class StateRun extends GameState {
     public boolean pointerPressed(List<Pointer> pointers) {
         if (pointers.size() == 1) {
             Pointer singlePointer = pointers.get(0);
+            isGrabbingMap = true;
 
             // check is dragging of objects in foreObjectLists
             for (MovableGameObject gameObject : getAllForeObjects()) {
                 gameObject.moveStarted(singlePointer);
-                if (Common.isInObjectScope(singlePointer, gameObject))
+                if (Common.isInObjectScope(singlePointer, gameObject)){
                     gameObject.dragPressed(singlePointer);
+                    isGrabbingMap = false;
+                }
             }
 
             // for moving map
             backgroundSet.moveStarted();
             initForeX = imgFloor.getX();
             initPointerX = singlePointer.getX();
-            isGrabbingMap = true;
+
         }
         return true;
     }
@@ -250,13 +256,27 @@ public class StateRun extends GameState {
     }
 
     private void addToForeObjectTable(MovableGameObject gameObject) {
-        int y = gameObject.getY();
+        int py = gameObject.getY() + gameObject.getHeight();
         // put new item
-        List<MovableGameObject> list = foreObjectTable.get(y);
+        List<MovableGameObject> list = foreObjectTable.get(py);
         if (list == null)
             list = new ArrayList<>();
         list.add(gameObject);
-        foreObjectTable.put(y, list);
+        foreObjectTable.put(py, list);
+    }
+
+    private void removeFromForeObjectTable(MovableGameObject gameObject) {
+        int py = gameObject.getY() + gameObject.getHeight();
+        // put new item
+        List<MovableGameObject> list = foreObjectTable.get(py);
+        Iterator<MovableGameObject> it = list.iterator();
+        while (it.hasNext()) {
+            MovableGameObject obj = it.next();
+            if (obj == gameObject)
+                it.remove();
+        }
+        if (list.size() == 0)
+            foreObjectTable.remove(py);
     }
 
     /**
@@ -267,14 +287,15 @@ public class StateRun extends GameState {
      * @param y
      */
     public void setForeObjectLocation(MovableGameObject gameObject, int x, int y) {
-        if (y == gameObject.getY()) {
+        int py = gameObject.getY() + gameObject.getHeight();
+
+        if (y + gameObject.getHeight() == py) {
             gameObject.setLocation(x, y);
             return;
         }
-        List<MovableGameObject> list;
 
+        List<MovableGameObject> list;
         // remove old item
-        int py = gameObject.getY();
         list = foreObjectTable.get(py);
         if (list != null)
             list.remove(gameObject);
@@ -291,6 +312,6 @@ public class StateRun extends GameState {
 
     private int calForeObjectHorizontalMove(int deltaX, int y) {
         double D = Game.GAME_FRAME_HEIGHT - y;
-        return (int) Lib25D.horizontalMoveAdj(Constants.EYE_TO_FRAME_Y, D, deltaX);
+        return (int) Lib25D.horizontalMoveAdj(D, deltaX);
     }
 }

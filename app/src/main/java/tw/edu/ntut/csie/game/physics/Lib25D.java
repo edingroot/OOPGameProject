@@ -1,17 +1,18 @@
 package tw.edu.ntut.csie.game.physics;
 
+import tw.edu.ntut.csie.game.util.Constants;
+
 public class Lib25D {
 
     /**
      * Calculate horizontal displacement adjustment of 2.5D
      *
-     * @param E distance of eye to the nearest object(dObject = 0)
      * @param D distance of the object
      * @param M horizontal movement in 3D
      * @return the new deltaX
      */
-    public static double horizontalMoveAdj(double E, double D, double M) {
-        return M - (M * D) / (E + D);
+    public static double horizontalMoveAdj(double D, double M) {
+        return M - (M * D) / (Constants.EYE_TO_FRAME_Y + D);
     }
 
     /**
@@ -38,13 +39,12 @@ public class Lib25D {
     /**
      * Calculate height adjustment of 2.5D
      *
-     * @param E distance of eye to the nearest object(dObject = 0)
      * @param H height of the object
      * @param F vertical movement in 3D
      * @return new height of the object
      */
-    public static double heightAdj(double E, double H, double F) {
-        return E * H / (E + F);
+    public static double heightAdj(double H, double F) {
+        return Constants.EYE_TO_FRAME_Y * H / (Constants.EYE_TO_FRAME_Y + F);
     }
 
 }
