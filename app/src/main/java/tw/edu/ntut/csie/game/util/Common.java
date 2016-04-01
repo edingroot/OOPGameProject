@@ -12,8 +12,7 @@ public class Common {
     public static boolean isOutOfBounds(MovableGameObject object, int floorX, int wrapWidth, int wrapHeight) {
         int globalX = object.getX() - floorX;
         int globalY = object.getY();
-        System.out.println(globalX);
-        return (globalX < 0 || globalX > wrapWidth ||
-                globalY < 0 || globalY >= wrapHeight);
+        return (globalX < 0 || globalX + object.getWidth() > wrapWidth ||
+                globalY + object.getHeight() < 0 || globalY >= wrapHeight);
     }
 }

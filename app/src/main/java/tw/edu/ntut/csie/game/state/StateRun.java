@@ -267,16 +267,19 @@ public class StateRun extends GameState {
 
     private void removeFromForeObjectTable(MovableGameObject gameObject) {
         int py = gameObject.getY() + gameObject.getHeight();
-        // put new item
         List<MovableGameObject> list = foreObjectTable.get(py);
-        Iterator<MovableGameObject> it = list.iterator();
-        while (it.hasNext()) {
-            MovableGameObject obj = it.next();
-            if (obj == gameObject)
-                it.remove();
+        if (list != null) {
+            Iterator<MovableGameObject> it = list.iterator();
+            while (it.hasNext()) {
+                MovableGameObject obj = it.next();
+                if (obj == gameObject)
+                    it.remove();
+            }
+            if (list.size() == 0)
+                foreObjectTable.remove(py);
         }
-        if (list.size() == 0)
-            foreObjectTable.remove(py);
+        gameObject.release();
+        gameObject = null;
     }
 
     /**
