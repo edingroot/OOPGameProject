@@ -14,6 +14,7 @@ import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.engine.GameEngine;
 import tw.edu.ntut.csie.game.object.BackgroundSet;
+import tw.edu.ntut.csie.game.object.Sheep;
 import tw.edu.ntut.csie.game.object.Cloud;
 import tw.edu.ntut.csie.game.object.Stone;
 import tw.edu.ntut.csie.game.object.Tree;
@@ -72,6 +73,8 @@ public class StateRun extends GameState {
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 210));
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 130, 110));
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 200, 180));
+        // sheep
+        addToForeObjectTable(new Sheep(imgFloor.getX() + MAP_LEFT_MARGIN + 500, 280));
     }
 
     @Override
@@ -123,6 +126,8 @@ public class StateRun extends GameState {
         for (MovableGameObject gameObject : getAllForeObjects()) {
             gameObject.show();
         }
+
+
     }
 
     @Override
@@ -149,19 +154,22 @@ public class StateRun extends GameState {
     public boolean pointerPressed(List<Pointer> pointers) {
         if (pointers.size() == 1) {
             Pointer singlePointer = pointers.get(0);
+            isGrabbingMap = true;
 
             // check is dragging of objects in foreObjectLists
             for (MovableGameObject gameObject : getAllForeObjects()) {
                 gameObject.moveStarted(singlePointer);
-                if (Common.isInObjectScope(singlePointer, gameObject))
+                if (Common.isInObjectScope(singlePointer, gameObject)){
                     gameObject.dragPressed(singlePointer);
+                    isGrabbingMap = false;
+                }
             }
 
             // for moving map
             backgroundSet.moveStarted();
             initForeX = imgFloor.getX();
             initPointerX = singlePointer.getX();
-            isGrabbingMap = true;
+
         }
         return true;
     }
@@ -291,6 +299,6 @@ public class StateRun extends GameState {
 
     private int calForeObjectHorizontalMove(int deltaX, int y) {
         double D = Game.GAME_FRAME_HEIGHT - y;
-        return (int) Lib25D.horizontalMoveAdj(Constants.EYE_TO_FRAME_Y, D, deltaX);
+        return (int) Lib25D.horizontalMoveAdj(D, deltaX);
     }
 }

@@ -39,7 +39,6 @@ public class BackgroundSet implements GameObject {
 
         for (int i = 0; i < backImages.length; i++) {
             int deltaX = (int) Lib25D.horizontalMoveAdj(
-                    Constants.EYE_TO_FRAME_Y,
                     DEPTH_TO_FRAME[i],
                     foreDeltaX
             );
@@ -65,7 +64,6 @@ public class BackgroundSet implements GameObject {
 
         for (int i = 0; i < backImages.length; i++) {
             int deltaX = (int) Lib25D.horizontalMoveAdj(
-                    Constants.EYE_TO_FRAME_Y,
                     DEPTH_TO_FRAME[i],
                     foreDeltaX
             );
