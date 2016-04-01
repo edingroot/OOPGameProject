@@ -30,14 +30,9 @@ public class Cloud extends MovableGameObject {
         updateImageFromState();
     }
 
-    /**
-     * Set object location with BOTTOM LEFT reference point
-     * @param x
-     * @param y
-     */
     public void setLocation(int x, int y) {
         super.setLocation(x, y);
-        image.setLocation(x, y - image.getHeight());
+        image.setLocation(x, y);
     }
 
     public void resize(int width, int height) {

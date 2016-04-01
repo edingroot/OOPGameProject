@@ -1,12 +1,14 @@
 package tw.edu.ntut.csie.game.state;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import tw.edu.ntut.csie.game.Game;
+import tw.edu.ntut.csie.game.GameObject;
 import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
@@ -57,7 +59,7 @@ public class StateRun extends GameState {
 
         // ---------- game objects ----------
         // clouds
-        addToForeObjectTable(new Cloud(10, 100, Cloud.TYPE_WHITE, Cloud.LEVEL_SMALL));
+        addToForeObjectTable(new Cloud(10, 0, Cloud.TYPE_WHITE, Cloud.LEVEL_SMALL));
         // stones
         addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 45, 240));
         addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 30, 280));
@@ -66,10 +68,10 @@ public class StateRun extends GameState {
         addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 80, 280));
         addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 65, 320));
         // trees
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 320));
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 330));
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 130, 230));
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 200, 300));
+        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 200));
+        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 210));
+        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 130, 110));
+        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 200, 180));
     }
 
     @Override
@@ -77,6 +79,7 @@ public class StateRun extends GameState {
         List<MovableGameObject> foreObjects = getAllForeObjects();
         // move foreground objects with map
         for (MovableGameObject gameObject : foreObjects) {
+
             gameObject.move();
         }
 
@@ -95,9 +98,16 @@ public class StateRun extends GameState {
             imgFloor.setLocation(imgFloor.getX() + foreDeltaX, imgFloor.getY());
 
             // move foreground objects with map
-            for (MovableGameObject gameObject : foreObjects) {
+            Iterator<MovableGameObject> it = foreObjects.iterator();
+            while (it.hasNext()) {
+                MovableGameObject gameObject = it.next();
                 int deltaX25D = calForeObjectHorizontalMove(foreDeltaX, gameObject.getY());
                 setForeObjectLocation(gameObject, gameObject.getX() + deltaX25D, gameObject.getY());
+                if (Common.isOutOfBouds(gameObject, backgroundSet.WRAP_WIDTH, backgroundSet.WRAP_HEIGHT)) {
+                     foreObjects.remove(gameObject);
+                     gameObject.release();
+                     gameObject = null;
+                }
             }
         }
     }

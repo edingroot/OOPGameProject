@@ -4,8 +4,13 @@ import tw.edu.ntut.csie.game.Pointer;
 
 public class Common {
 
-    public static boolean isInObjectScope(Pointer pointer, MovableGameObject image) {
-        return (pointer.getX() > image.getX() && pointer.getX() < image.getX() + image.getWidth() &&
-                pointer.getY() > image.getY() && pointer.getY() < image.getY() + image.getHeight());
+    public static boolean isInObjectScope(Pointer pointer, MovableGameObject object) {
+        return (pointer.getX() > object.getX() && pointer.getX() < object.getX() + object.getWidth() &&
+                pointer.getY() > object.getY() && pointer.getY() < object.getY() + object.getHeight());
+    }
+
+    public static boolean isOutOfBouds(MovableGameObject object, int wrapWidth, int wrapHeight) {
+        return (object.getX() < 0 || object.getX() + object.getWidth() > wrapWidth &&
+                object.getY() < 0 || object.getY() + object.getHeight() > wrapHeight);
     }
 }
