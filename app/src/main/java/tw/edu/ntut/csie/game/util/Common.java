@@ -9,8 +9,11 @@ public class Common {
                 pointer.getY() > object.getY() && pointer.getY() < object.getY() + object.getHeight());
     }
 
-    public static boolean isOutOfBouds(MovableGameObject object, int wrapWidth, int wrapHeight) {
-        return (object.getX() < 0 || object.getX() + object.getWidth() > wrapWidth &&
-                object.getY() < 0 || object.getY() + object.getHeight() > wrapHeight);
+    public static boolean isOutOfBounds(MovableGameObject object, int floorX, int wrapWidth, int wrapHeight) {
+        int globalX = object.getX() - floorX;
+        int globalY = object.getY();
+        System.out.println(globalX);
+        return (globalX < 0 || globalX > wrapWidth ||
+                globalY < 0 || globalY >= wrapHeight);
     }
 }

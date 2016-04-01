@@ -80,9 +80,7 @@ public class StateRun extends GameState {
     @Override
     public void move() {
         List<MovableGameObject> foreObjects = getAllForeObjects();
-        // move foreground objects with map
         for (MovableGameObject gameObject : foreObjects) {
-
             gameObject.move();
         }
 
@@ -106,10 +104,10 @@ public class StateRun extends GameState {
                 MovableGameObject gameObject = it.next();
                 int deltaX25D = calForeObjectHorizontalMove(foreDeltaX, gameObject.getY());
                 setForeObjectLocation(gameObject, gameObject.getX() + deltaX25D, gameObject.getY());
-                if (Common.isOutOfBouds(gameObject, backgroundSet.WRAP_WIDTH, backgroundSet.WRAP_HEIGHT)) {
-                     foreObjects.remove(gameObject);
-                     gameObject.release();
-                     gameObject = null;
+                if (Common.isOutOfBounds(gameObject, imgFloor.getX(), BackgroundSet.WRAP_WIDTH, Game.GAME_FRAME_HEIGHT)) {
+                    System.out.println("Release out of bounds object: " + gameObject.getClass().getSimpleName());
+                    removeFromForeObjectTable(gameObject);
+                    it.remove();
                 }
             }
         }
@@ -258,13 +256,27 @@ public class StateRun extends GameState {
     }
 
     private void addToForeObjectTable(MovableGameObject gameObject) {
-        int y = gameObject.getY();
+        int py = gameObject.getY() + gameObject.getHeight();
         // put new item
-        List<MovableGameObject> list = foreObjectTable.get(y);
+        List<MovableGameObject> list = foreObjectTable.get(py);
         if (list == null)
             list = new ArrayList<>();
         list.add(gameObject);
-        foreObjectTable.put(y, list);
+        foreObjectTable.put(py, list);
+    }
+
+    private void removeFromForeObjectTable(MovableGameObject gameObject) {
+        int py = gameObject.getY() + gameObject.getHeight();
+        // put new item
+        List<MovableGameObject> list = foreObjectTable.get(py);
+        Iterator<MovableGameObject> it = list.iterator();
+        while (it.hasNext()) {
+            MovableGameObject obj = it.next();
+            if (obj == gameObject)
+                it.remove();
+        }
+        if (list.size() == 0)
+            foreObjectTable.remove(py);
     }
 
     /**
@@ -275,14 +287,15 @@ public class StateRun extends GameState {
      * @param y
      */
     public void setForeObjectLocation(MovableGameObject gameObject, int x, int y) {
-        if (y == gameObject.getY()) {
+        int py = gameObject.getY() + gameObject.getHeight();
+
+        if (y + gameObject.getHeight() == py) {
             gameObject.setLocation(x, y);
             return;
         }
-        List<MovableGameObject> list;
 
+        List<MovableGameObject> list;
         // remove old item
-        int py = gameObject.getY();
         list = foreObjectTable.get(py);
         if (list != null)
             list.remove(gameObject);
