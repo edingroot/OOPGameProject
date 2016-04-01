@@ -14,17 +14,6 @@ public abstract class MovableGameObject implements GameObject {
     public void setLocation(int x, int y) {
         this.x = x;
         this.y = y;
-
-        int newHeight = this.height;
-//
-//        if (y <= Game.GAME_FRAME_HEIGHT) {
-//            newHeight = (int) Lib25D.heightAdj(
-//                    Constants.EYE_TO_FRAME_Y,
-//                    this.height,
-//                    Game.GAME_FRAME_HEIGHT - y
-//            );
-//        }
-        this.resize(this.getWidth(), newHeight);
     }
 
     public void resize(int width, int height) {

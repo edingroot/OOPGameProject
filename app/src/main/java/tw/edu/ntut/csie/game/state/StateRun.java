@@ -61,6 +61,7 @@ public class StateRun extends GameState {
         // ---------- game objects ----------
         // clouds
         addToForeObjectTable(new Cloud(10, 0, Cloud.TYPE_WHITE, Cloud.LEVEL_SMALL));
+        addToForeObjectTable(new Cloud(40, 10, Cloud.TYPE_GRAY, Cloud.LEVEL_MEDIUM));
         // stones
         addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 45, 240));
         addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 30, 280));
@@ -69,10 +70,9 @@ public class StateRun extends GameState {
         addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 80, 280));
         addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 65, 320));
         // trees
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 200));
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 210));
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 130, 110));
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 200, 180));
+        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 300));
+        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 260));
+        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 400, 200));
         // sheep
         addToForeObjectTable(new Sheep(imgFloor.getX() + MAP_LEFT_MARGIN + 500, 250));
     }
@@ -184,7 +184,7 @@ public class StateRun extends GameState {
                 gameObject.dragMoved(singlePointer);
         }
 
-        // move background
+        // moving background
         if (isGrabbingMap) {
             int newForeX = initForeX + deltaX;
             if (newForeX < 0 - Constants.FRAME_LEFT_MARGIN &&
@@ -306,11 +306,11 @@ public class StateRun extends GameState {
 
         // put new item
         gameObject.setLocation(x, y);
-        list = foreObjectTable.get(y);
+        list = foreObjectTable.get(py);
         if (list == null)
             list = new ArrayList<>();
         list.add(gameObject);
-        foreObjectTable.put(y, list);
+        foreObjectTable.put(py, list);
     }
 
     private int calForeObjectHorizontalMove(int deltaX, int y) {

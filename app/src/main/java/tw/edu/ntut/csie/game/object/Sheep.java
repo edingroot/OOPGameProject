@@ -1,20 +1,20 @@
 package tw.edu.ntut.csie.game.object;
 
-import android.widget.ImageView;
-
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.Vector;
 
 import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
-import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.extend.Animation;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
 
 
 public class Sheep extends MovableGameObject {
+    private static final int HEAD_SHIFT_POS_X = 30;
+    private static final int HEAD_SHIFT_POS_Y = -2;
+    private static final int EYE_SHIFT_POS_X = 17;
+    private static final int EYE_SHIFT_POS_Y = -2;
+    private static final int TIME_DELAY = 100;
 
     private Animation body_rest, body_walk, head_rest, head_walk, head_drag, body_drag, tail, eye_happy, body_fall, body_land;
     private Animation head_fall, head_land;
@@ -23,19 +23,12 @@ public class Sheep extends MovableGameObject {
     private List<Animation> animations_body;
     private List<Animation> animations_head;
     private List<Animation> animations_eye;
-    private Random random;
-    //direction = true = Left
-    private boolean direction;
-    private int HEAD_SHIFT_POS_X = 30;
-    private int HEAD_SHIFT_POS_Y = -2;
-    private int EYE_SHIFT_POS_X = 17;
-    private int EYE_SHIFT_POS_Y = -2;
-    private int TIME_DELAY = 100;
+    private boolean direction; // true: Left
+
     private int x, y, count, aiCount=0, instr=0;
     private int initImageX, initImageY;
-    private MovingBitmap image;
-    private boolean dragRealese;
-    private int realeseY;
+    private boolean dragRelease;
+    private int releaseY;
 
     public Sheep(int x, int y) {
         this.width = 100;
@@ -206,12 +199,12 @@ public class Sheep extends MovableGameObject {
         clearActions();
         isWalk = true;
         setAnimation();
-        for (count = 0 ; count < 200 ; count++) {}
-        if (count == 200) {
+        // count = 200;
+        // if (count == 200) {
             if (direction) this.setLocation(--x, y);
             else this.setLocation(++x, y);
-            count = 0;
-        }
+        //    count = 0;
+        // }
     }
     public void drag() {
         clearActions();
@@ -227,7 +220,7 @@ public class Sheep extends MovableGameObject {
 
         if (y < 260) this.setLocation(x, y+=20);
         else {
-            dragRealese = false;
+            dragRelease = false;
             isFall = false;
             isLand = true;
         }
@@ -245,12 +238,12 @@ public class Sheep extends MovableGameObject {
         if (this.dragging) {
             instr = 0;
             this.drag();
-            dragRealese = true;
+            dragRelease = true;
         }
         else {
             isDrag = false;
-            if (dragRealese) {
-                realeseY = y;
+            if (dragRelease) {
+                releaseY = y;
                 this.fall();
             }
             else if (isLand) {
@@ -261,7 +254,7 @@ public class Sheep extends MovableGameObject {
                     aiCount = TIME_DELAY;
                     instr = (int)(Math.random()*100);
                 }
-                if (instr > 80) this.walk();
+                if (instr > 66) this.walk();
                 else this.rest();
             }
         }
@@ -283,26 +276,24 @@ public class Sheep extends MovableGameObject {
     @Override
     public void release() {
         for (Animation item : animations) {
-            item = null;
             item.release();
+            item = null;
         }
     }
 
     @Override
     public void dragPressed(Pointer pointer){
         super.dragPressed(pointer);
-        Pointer singlePointer = pointer;
         initImageX = this.getX();
         initImageY = this.getY();
-        initialX = singlePointer.getX();
-        initialY = singlePointer.getY();
+        initialX = pointer.getX();
+        initialY = pointer.getY();
     }
 
     @Override
     public void dragMoved(Pointer pointer){
-        Pointer singlePointer = pointer;
-        int deltaX = singlePointer.getX() - initialX;
-        int deltaY = singlePointer.getY() - initialY;
+        int deltaX = pointer.getX() - initialX;
+        int deltaY = pointer.getY() - initialY;
         x = initImageX + deltaX;
         y = initImageY + deltaY;
         this.setLocation(x, y);
