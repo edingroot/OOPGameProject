@@ -7,7 +7,7 @@ import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.extend.Animation;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
-
+import tw.edu.ntut.csie.game.util.SheepState;
 
 public class Sheep extends MovableGameObject {
     private static final int HEAD_SHIFT_POS_X = 30;
@@ -16,8 +16,11 @@ public class Sheep extends MovableGameObject {
     private static final int EYE_SHIFT_POS_Y = -2;
     private static final int TIME_DELAY = 100;
 
+    private SheepState state;
+
     private Animation body_rest, body_walk, head_rest, head_walk, head_drag, body_drag, tail, eye_happy, body_fall, body_land;
     private Animation head_fall, head_land;
+    private Animation head_sad_rest, head_sad_walk, eye_sad;
     private boolean isWalk, isRest, isDrag, isFall, isLand;
     private List<Animation> animations;
     private List<Animation> animations_body;
@@ -69,6 +72,11 @@ public class Sheep extends MovableGameObject {
         animations_head.add(head_rest);
         head_rest.addFrame(R.drawable.face_default);
 
+        head_sad_rest = new Animation();
+        animations.add(head_sad_rest);
+        animations_head.add(head_rest);
+        head_sad_rest.addFrame(R.drawable.face_sad_default);
+
         head_walk = new Animation();
         animations.add(head_walk);
         animations_head.add(head_walk);
@@ -77,10 +85,28 @@ public class Sheep extends MovableGameObject {
         head_walk.addFrame(R.drawable.face_walk_2);
         head_walk.addFrame(R.drawable.face_walk_1);
 
+        head_sad_walk = new Animation();
+        animations.add(head_sad_walk);
+        animations_head.add(head_sad_walk);
+        head_sad_walk.addFrame(R.drawable.face_sad_walk_0);
+        head_sad_walk.addFrame(R.drawable.face_sad_walk_1);
+        head_sad_walk.addFrame(R.drawable.face_sad_walk_2);
+        head_sad_walk.addFrame(R.drawable.face_sad_walk_1);
+
         eye_happy = new Animation();
         animations.add(eye_happy);
         animations_eye.add(eye_happy);
-        eye_happy.addFrame(R.drawable.eye_default);
+        eye_happy.addFrame(R.drawable.eye_happy);
+        eye_happy.addFrame(R.drawable.eye_happy_1);
+        eye_happy.addFrame(R.drawable.eye_happy_2);
+
+        eye_sad = new Animation();
+        animations.add(eye_sad);
+        animations_eye.add(eye_sad);
+        eye_sad.addFrame(R.drawable.eye_sad_0);
+        eye_sad.addFrame(R.drawable.eye_sad_1);
+        eye_sad.addFrame(R.drawable.eye_sad_2);
+        eye_sad.addFrame(R.drawable.eye_sad_1);
 
         body_drag = new Animation(2);
         animations.add(body_drag);
@@ -99,7 +125,6 @@ public class Sheep extends MovableGameObject {
         animations_body.add(body_fall);
         body_fall.addFrame(R.drawable.sheep_fall_0);
         body_fall.addFrame(R.drawable.sheep_fall_1);
-        //body_fall.setRepeating(false);
 
         body_land = new Animation(3);
         animations.add(body_land);
@@ -108,7 +133,6 @@ public class Sheep extends MovableGameObject {
         body_land.addFrame(R.drawable.sheep_landing_1);
         body_land.addFrame(R.drawable.sheep_landing_2);
         body_land.addFrame(R.drawable.sheep_landing_2);
-        //body_land.setRepeating(false);
 
         head_fall = new Animation();
         animations.add(head_fall);
@@ -116,7 +140,6 @@ public class Sheep extends MovableGameObject {
         head_fall.addFrame(R.drawable.face_fall_0);
         head_fall.addFrame(R.drawable.face_fall_1);
         head_fall.addFrame(R.drawable.face_fall_2);
-        //head_fall.setRepeating(false);
 
         head_land = new Animation(3);
         animations.add(head_land);
@@ -125,7 +148,8 @@ public class Sheep extends MovableGameObject {
         head_land.addFrame(R.drawable.face_landing_1);
         head_land.addFrame(R.drawable.face_landing_2);
         head_land.addFrame(R.drawable.face_landing_2);
-        //head_land.setRepeating(false);
+
+
     }
 
     public void clearActions() {
@@ -199,12 +223,10 @@ public class Sheep extends MovableGameObject {
         clearActions();
         isWalk = true;
         setAnimation();
-        // count = 200;
-        // if (count == 200) {
-            if (direction) this.setLocation(--x, y);
-            else this.setLocation(++x, y);
-        //    count = 0;
-        // }
+
+        if (direction) this.setLocation(--x, y);
+        else this.setLocation(++x, y);
+
     }
     public void drag() {
         clearActions();
@@ -214,8 +236,6 @@ public class Sheep extends MovableGameObject {
     public void fall() {
         clearActions();
         isFall = true;
-//        head_fall.setDelay(30);
-//        body_fall.setDelay();
         setAnimation();
 
         if (y < 260) this.setLocation(x, y+=20);
@@ -276,8 +296,8 @@ public class Sheep extends MovableGameObject {
     @Override
     public void release() {
         for (Animation item : animations) {
-            item.release();
             item = null;
+            item.release();
         }
     }
 
