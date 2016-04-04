@@ -12,15 +12,22 @@ import tw.edu.ntut.csie.game.util.SheepState;
 public class Sheep extends MovableGameObject {
     private static final int HEAD_SHIFT_POS_X = 30;
     private static final int HEAD_SHIFT_POS_Y = -2;
+    private static final int HEAD_DRAG_SHIFT_POS_Y = 40;
+    private static final int R_HEAD_SHIFT_POS_X = 60;
     private static final int EYE_SHIFT_POS_X = 17;
     private static final int EYE_SHIFT_POS_Y = -2;
+    private static final int R_EYE_SHIFT_POS_X = 17;
     private static final int TIME_DELAY = 100;
+    private static final int WALK_DELAY = 50;
 
     private SheepState state;
 
     private Animation body_rest, body_walk, head_rest, head_walk, head_drag, body_drag, tail, eye_happy, body_fall, body_land;
     private Animation head_fall, head_land;
     private Animation head_sad_rest, head_sad_walk, eye_sad;
+    private Animation r_body_rest, r_body_walk, r_head_rest, r_head_walk, r_head_drag, r_body_drag, r_tail, r_eye_happy, r_body_fall, r_body_land;
+    private Animation r_head_fall, r_head_land;
+    private Animation r_head_sad_rest, r_head_sad_walk, r_eye_sad;
     private boolean isWalk, isRest, isDrag, isFall, isLand;
     private List<Animation> animations;
     private List<Animation> animations_body;
@@ -28,10 +35,10 @@ public class Sheep extends MovableGameObject {
     private List<Animation> animations_eye;
     private boolean direction; // true: Left
 
-    private int x, y, count, aiCount=0, instr=0;
-    private int initImageX, initImageY;
+    private int x, y, walkCount, aiCount=0, instr=0;
+    private int initImageX, initImageY, releaseY;
     private boolean dragRelease;
-    private int releaseY;
+
 
     public Sheep(int x, int y) {
         this.width = 100;
@@ -46,10 +53,14 @@ public class Sheep extends MovableGameObject {
         isFall = false;
         isLand = false;
 
+        state = new SheepState();
+
         animations = new ArrayList<>();
         animations_body = new ArrayList<>();
         animations_head = new ArrayList<>();
         animations_eye = new ArrayList<>();
+
+        //region AnimationLeft
 
         body_rest = new Animation();
         animations.add(body_rest);
@@ -149,7 +160,109 @@ public class Sheep extends MovableGameObject {
         head_land.addFrame(R.drawable.face_landing_2);
         head_land.addFrame(R.drawable.face_landing_2);
 
+        //endregion
 
+        //region AnimationRight
+
+        r_body_rest = new Animation();
+        animations.add(r_body_rest);
+        animations_body.add(r_body_rest);
+        r_body_rest.addFrame(R.drawable.r_sheep_default_0);
+        r_body_rest.addFrame(R.drawable.r_sheep_default_1);
+        r_body_rest.addFrame(R.drawable.r_sheep_default_2);
+        r_body_rest.addFrame(R.drawable.r_sheep_default_1);
+
+        r_body_walk = new Animation(5);
+        animations.add(r_body_walk);
+        animations_body.add(r_body_walk);
+        r_body_walk.addFrame(R.drawable.r_sheep_walk_0);
+        r_body_walk.addFrame(R.drawable.r_sheep_walk_1);
+        r_body_walk.addFrame(R.drawable.r_sheep_walk_2);
+        r_body_walk.addFrame(R.drawable.r_sheep_walk_3);
+
+        r_head_rest = new Animation();
+        animations.add(r_head_rest);
+        animations_head.add(r_head_rest);
+        r_head_rest.addFrame(R.drawable.r_face_default);
+
+        r_head_sad_rest = new Animation();
+        animations.add(r_head_sad_rest);
+        animations_head.add(r_head_rest);
+        r_head_sad_rest.addFrame(R.drawable.r_face_sad_default);
+
+        r_head_walk = new Animation();
+        animations.add(r_head_walk);
+        animations_head.add(r_head_walk);
+        r_head_walk.addFrame(R.drawable.r_face_walk_0);
+        r_head_walk.addFrame(R.drawable.r_face_walk_1);
+        r_head_walk.addFrame(R.drawable.r_face_walk_2);
+        r_head_walk.addFrame(R.drawable.r_face_walk_1);
+
+        r_head_sad_walk = new Animation();
+        animations.add(r_head_sad_walk);
+        animations_head.add(r_head_sad_walk);
+        r_head_sad_walk.addFrame(R.drawable.r_face_sad_walk_0);
+        r_head_sad_walk.addFrame(R.drawable.r_face_sad_walk_1);
+        r_head_sad_walk.addFrame(R.drawable.r_face_sad_walk_2);
+        r_head_sad_walk.addFrame(R.drawable.r_face_sad_walk_1);
+
+        r_eye_happy = new Animation();
+        animations.add(r_eye_happy);
+        animations_eye.add(r_eye_happy);
+        r_eye_happy.addFrame(R.drawable.r_eye_happy);
+        r_eye_happy.addFrame(R.drawable.r_eye_happy_1);
+        r_eye_happy.addFrame(R.drawable.r_eye_happy_2);
+
+        r_eye_sad = new Animation();
+        animations.add(r_eye_sad);
+        animations_eye.add(r_eye_sad);
+        r_eye_sad.addFrame(R.drawable.r_eye_sad_0);
+        r_eye_sad.addFrame(R.drawable.r_eye_sad_1);
+        r_eye_sad.addFrame(R.drawable.r_eye_sad_2);
+        r_eye_sad.addFrame(R.drawable.r_eye_sad_1);
+
+        r_body_drag = new Animation(2);
+        animations.add(r_body_drag);
+        animations_body.add(r_body_drag);
+        r_body_drag.addFrame(R.drawable.r_sheep_drag_0);
+        r_body_drag.addFrame(R.drawable.r_sheep_drag_1);
+
+        r_head_drag = new Animation();
+        animations.add(r_head_drag);
+        animations_head.add(r_head_drag);
+        r_head_drag.addFrame(R.drawable.r_face_drag);
+        this.setLocation(x, y);
+
+        r_body_fall = new Animation();
+        animations.add(r_body_fall);
+        animations_body.add(r_body_fall);
+        r_body_fall.addFrame(R.drawable.r_sheep_fall_0);
+        r_body_fall.addFrame(R.drawable.r_sheep_fall_1);
+
+        r_body_land = new Animation(3);
+        animations.add(r_body_land);
+        animations_body.add(r_body_land);
+        r_body_land.addFrame(R.drawable.r_sheep_landing_0);
+        r_body_land.addFrame(R.drawable.r_sheep_landing_1);
+        r_body_land.addFrame(R.drawable.r_sheep_landing_2);
+        r_body_land.addFrame(R.drawable.r_sheep_landing_2);
+
+        r_head_fall = new Animation();
+        animations.add(r_head_fall);
+        animations_head.add(r_head_fall);
+        r_head_fall.addFrame(R.drawable.r_face_fall_0);
+        r_head_fall.addFrame(R.drawable.r_face_fall_1);
+        r_head_fall.addFrame(R.drawable.r_face_fall_2);
+
+        r_head_land = new Animation(3);
+        animations.add(r_head_land);
+        animations_head.add(r_head_land);
+        r_head_land.addFrame(R.drawable.r_face_landing_0);
+        r_head_land.addFrame(R.drawable.r_face_landing_1);
+        r_head_land.addFrame(R.drawable.r_face_landing_2);
+        r_head_land.addFrame(R.drawable.r_face_landing_2);
+
+        //endregion
     }
 
     public void clearActions() {
@@ -166,48 +279,91 @@ public class Sheep extends MovableGameObject {
         }
         for (Animation item : animations_head) {
             if(direction) item.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y);
-            else item.setLocation(x + HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y);
+            else item.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y);
         }
         for (Animation item : animations_eye) {
             if(direction) item.setLocation(x - HEAD_SHIFT_POS_X + EYE_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + EYE_SHIFT_POS_Y);
-            else item.setLocation(x + HEAD_SHIFT_POS_X - EYE_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + EYE_SHIFT_POS_Y);
+            else item.setLocation(x + R_HEAD_SHIFT_POS_X + R_EYE_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + EYE_SHIFT_POS_Y);
         }
-        if(direction) head_drag.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y+20);
-        else head_drag.setLocation(x + HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y+20);
+        if(direction) head_drag.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_DRAG_SHIFT_POS_Y);
+        else r_head_drag.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_DRAG_SHIFT_POS_Y);
     }
 
     private void setAnimation() {
         if (isRest) {
             for (Animation item : animations) item.setVisible(false);
-            body_rest.setVisible(true);
-            head_rest.setVisible(true);
-            eye_happy.setVisible(true);
+
+            if (direction) {
+                body_rest.setVisible(true);
+                head_rest.setVisible(true);
+                if (state.isGoodMood()) eye_happy.setVisible(true);
+                else eye_sad.setVisible(true);
+            }else {
+                r_body_rest.setVisible(true);
+                r_head_rest.setVisible(true);
+                if (state.isGoodMood()) r_eye_happy.setVisible(true);
+                else r_eye_sad.setVisible(true);
+            }
         }
         else if (isWalk) {
             for (Animation item : animations) item.setVisible(false);
-            body_walk.setVisible(true);
-            head_walk.setVisible(true);
-            eye_happy.setVisible(true);
+
+            if (direction) {
+                body_walk.setVisible(true);
+                head_walk.setVisible(true);
+                if (state.isGoodMood()) eye_happy.setVisible(true);
+                else eye_sad.setVisible(true);
+            }else {
+                r_body_walk.setVisible(true);
+                r_head_walk.setVisible(true);
+                if (state.isGoodMood()) r_eye_happy.setVisible(true);
+                else r_eye_sad.setVisible(true);
+            }
+
         }
         else if (isDrag) {
             for (Animation item : animations) item.setVisible(false);
-            body_drag.setVisible(true);
-            head_drag.setVisible(true);
+
+            if (direction) {
+                body_drag.setVisible(true);
+                head_drag.setVisible(true);
+            }else {
+                r_body_drag.setVisible(true);
+                r_head_drag.setVisible(true);
+            }
         }
         else if (isLand) {
             for (Animation item : animations) item.setVisible(false);
-            body_land.setVisible(true);
-            head_land.setVisible(true);
+
+            if (direction) {
+                body_land.setVisible(true);
+                head_land.setVisible(true);
+            }else {
+                r_body_land.setVisible(true);
+                r_head_land.setVisible(true);
+            }
         }
         else if (isFall) {
             for (Animation item : animations) item.setVisible(false);
-            body_fall.setVisible(true);
-            head_fall.setVisible(true);
+
+            if (direction) {
+                body_fall.setVisible(true);
+                head_fall.setVisible(true);
+            }else {
+                r_body_fall.setVisible(true);
+                r_head_fall.setVisible(true);
+            }
         }
         else {
             for (Animation item : animations) item.setVisible(false);
-            body_rest.setVisible(true);
-            head_rest.setVisible(true);
+
+            if (direction) {
+                body_rest.setVisible(true);
+                head_rest.setVisible(true);
+            }else {
+                r_body_rest.setVisible(true);
+                r_head_rest.setVisible(true);
+            }
         }
 
     }
@@ -215,6 +371,8 @@ public class Sheep extends MovableGameObject {
     public void rest() {
         body_land.reset();
         head_land.reset();
+        r_body_land.reset();
+        r_head_land.reset();
         clearActions();
         isRest = true;
         setAnimation();
@@ -223,6 +381,12 @@ public class Sheep extends MovableGameObject {
         clearActions();
         isWalk = true;
         setAnimation();
+
+        if (--walkCount <= 0) {
+            if (Math.random()*10 > 5) direction = true;
+            else direction = false;
+            walkCount = WALK_DELAY;
+        }
 
         if (direction) this.setLocation(--x, y);
         else this.setLocation(++x, y);
@@ -250,7 +414,8 @@ public class Sheep extends MovableGameObject {
         setLocation(x, y);
         isLand = true;
         setAnimation();
-        if (body_land.isLastFrame()) this.rest();
+        if (body_land.isLastFrame() || r_body_land.isLastFrame()) this.rest();
+
     }
 
 
@@ -274,7 +439,7 @@ public class Sheep extends MovableGameObject {
                     aiCount = TIME_DELAY;
                     instr = (int)(Math.random()*100);
                 }
-                if (instr > 66) this.walk();
+                if (instr > 33) this.walk();
                 else this.rest();
             }
         }
