@@ -54,8 +54,8 @@ public class Sheep extends MovableGameObject {
     private boolean isWalk, isRest, isDrag, isFall, isLand;
     private boolean direction; // true: Left
 
-    private int x, y, walkCount=0, aiCount=0, blinkCount=0, blinkTimeCount=0, instr=0;
-    private int initImageX, initImageY, releaseY;
+    private int walkCount=0, aiCount=0, blinkCount=0, blinkTimeCount=0, instr=0;
+    private int initImageX, initImageY, releaseY, initialPointerX, initialPointerY;
     private boolean dragRelease;
     private boolean isBlink;
 
@@ -543,10 +543,14 @@ public class Sheep extends MovableGameObject {
             else direction = false;
             walkCount = WALK_DELAY;
         }
-
-        if (direction) this.setLocation(--x, y);
-        else this.setLocation(++x, y);
-
+        if(!stateRun.isGrabbingMap) {
+            if (direction) this.setLocation(--x, y);
+            else this.setLocation(++x, y);
+        }
+        else {
+            if (direction) --moveX;
+            else ++moveX;
+        }
     }
     public void drag() {
         clearActions();
@@ -558,7 +562,10 @@ public class Sheep extends MovableGameObject {
         isFall = true;
         setAnimation();
 
-        if (y < 260) this.setLocation(x, y+=20);
+        if (y < 260) {
+            if (!stateRun.isGrabbingMap) this.setLocation(x, y+=20);
+            else moveY += 20;
+        }
         else {
             dragRelease = false;
             isFall = false;
@@ -628,14 +635,14 @@ public class Sheep extends MovableGameObject {
         super.dragPressed(pointer);
         initImageX = this.getX();
         initImageY = this.getY();
-        initialX = pointer.getX();
-        initialY = pointer.getY();
+        initialPointerX = pointer.getX();
+        initialPointerY = pointer.getY();
     }
 
     @Override
     public void dragMoved(Pointer pointer){
-        int deltaX = pointer.getX() - initialX;
-        int deltaY = pointer.getY() - initialY;
+        int deltaX = pointer.getX() - initialPointerX;
+        int deltaY = pointer.getY() - initialPointerY;
         x = initImageX + deltaX;
         y = initImageY + deltaY;
         this.setLocation(x, y);
