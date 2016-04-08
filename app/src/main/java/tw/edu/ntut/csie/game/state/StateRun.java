@@ -31,8 +31,8 @@ public class StateRun extends GameState {
     private MovingBitmap staticBackground;
     private BackgroundSet backgroundSet;
     private MovingBitmap imgFloor;
-    // NavigableMap foreObjectTable: index = y-axis of object
-    private NavigableMap<Integer, List<MovableGameObject>> foreObjectTable;
+    // NavigableMap foreObjectTable: index = lower-left y-axis of object
+    private final NavigableMap<Integer, List<MovableGameObject>> foreObjectTable;
 
     private boolean isGrabbingMap = false;
     private int initForeX = 0;
@@ -74,7 +74,8 @@ public class StateRun extends GameState {
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 260));
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 400, 200));
         // sheep
-        addToForeObjectTable(new Sheep(imgFloor.getX() + MAP_LEFT_MARGIN + 500, 250));
+        addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 500, 250));
+        addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 100, 200));
     }
 
     @Override
@@ -103,11 +104,16 @@ public class StateRun extends GameState {
             while (it.hasNext()) {
                 MovableGameObject gameObject = it.next();
                 int deltaX25D = calForeObjectHorizontalMove(foreDeltaX, gameObject.getY());
-                setForeObjectLocation(gameObject, gameObject.getX() + deltaX25D, gameObject.getY());
+                int x = gameObject.getX() + deltaX25D;
+                gameObject.setLocation(x, gameObject.getY());
+
+                // release fore objects if it's out of map bounds
                 if (Common.isOutOfBounds(gameObject, imgFloor.getX(), BackgroundSet.WRAP_WIDTH, Game.GAME_FRAME_HEIGHT)) {
-                    System.out.println("Release out of bounds object: " + gameObject.getClass().getSimpleName());
-                    removeFromForeObjectTable(gameObject);
-                    it.remove();
+                    if (gameObject.getClass().getName().equals("Cloud")) {
+                        System.out.println("Release out of bounds cloud: " + gameObject.getClass().getSimpleName());
+                        removeFromForeObjectTable(gameObject);
+                        it.remove();
+                    }
                 }
             }
         }
@@ -195,7 +201,8 @@ public class StateRun extends GameState {
                 // move foreground objects with foreground
                 for (MovableGameObject gameObject : foreObjects) {
                     int deltaX25D = calForeObjectHorizontalMove(deltaX, gameObject.getY());
-                    setForeObjectLocation(gameObject, gameObject.getInitialX() + deltaX25D, gameObject.getY());
+                    int x = gameObject.getInitialX() + deltaX25D;
+                    gameObject.setLocation(x, gameObject.getY());
                 }
             }
         }
@@ -289,28 +296,42 @@ public class StateRun extends GameState {
      * @param x
      * @param y
      */
-    public void setForeObjectLocation(MovableGameObject gameObject, int x, int y) {
-        int py = gameObject.getY() + gameObject.getHeight();
-
-        if (y + gameObject.getHeight() == py) {
-            gameObject.setLocation(x, y);
-            return;
+    public void updateForeObjectLocation(MovableGameObject gameObject, int x, int y) {
+        int py = y + gameObject.getHeight();
+        int originalY = -1;
+        for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
+            List<MovableGameObject> list = entry.getValue();
+            for (MovableGameObject object : list) {
+                if (object == gameObject) {
+                    originalY = entry.getKey();
+                }
+            }
+            if (originalY != -1)
+                break;
         }
 
-        List<MovableGameObject> list;
-        // remove old item
-        list = foreObjectTable.get(py);
-        if (list != null)
-            list.remove(gameObject);
-        foreObjectTable.put(py, list);
+        if (originalY == py)
+            return;
+
+        // remove old item if exists
+        if (originalY != -1) {
+            List<MovableGameObject> oldList = foreObjectTable.get(originalY);
+            oldList.remove(gameObject);
+            foreObjectTable.put(originalY, oldList);
+        }
 
         // put new item
-        gameObject.setLocation(x, y);
-        list = foreObjectTable.get(py);
-        if (list == null)
-            list = new ArrayList<>();
-        list.add(gameObject);
-        foreObjectTable.put(py, list);
+        List<MovableGameObject> newList = foreObjectTable.get(py);
+        if (newList == null)
+            newList = new ArrayList<>();
+        newList.add(gameObject);
+        foreObjectTable.put(py, newList);
+        // resize
+//        double ratio = Lib25D.sizeAdj(y);
+//        gameObject.resize((int) (gameObject.getWidth() * ratio), (int) (gameObject.getHeight() * ratio));
+
+//        int height = (int) Lib25D.heightAdj(gameObject.getHeight(), y);
+//        gameObject.resize(gameObject.getWidth(), height);
     }
 
     private int calForeObjectHorizontalMove(int deltaX, int y) {

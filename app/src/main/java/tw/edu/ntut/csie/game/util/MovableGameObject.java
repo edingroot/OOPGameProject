@@ -1,9 +1,7 @@
 package tw.edu.ntut.csie.game.util;
 
-import tw.edu.ntut.csie.game.Game;
 import tw.edu.ntut.csie.game.GameObject;
 import tw.edu.ntut.csie.game.Pointer;
-import tw.edu.ntut.csie.game.physics.Lib25D;
 
 public abstract class MovableGameObject implements GameObject {
     protected int x = 0, y = 0;

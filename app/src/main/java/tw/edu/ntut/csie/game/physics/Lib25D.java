@@ -49,4 +49,16 @@ public class Lib25D {
         return Constants.EYE_TO_FRAME_Y * H / (Constants.EYE_TO_FRAME_Y + F);
     }
 
+    /**
+     * Calculate size adjustment ratio of 2.5D
+     *
+     * @param Y vertical movement in 2D
+     * @return new height of the object
+     */
+    public static double sizeAdj(double Y) {
+        double F = Y * (Constants.EYE_TO_FLOOR_H) / (Constants.EYE_TO_FLOOR_H - Y);
+
+        return Constants.EYE_TO_FRAME_Y / (Constants.EYE_TO_FRAME_Y + F);
+    }
+
 }

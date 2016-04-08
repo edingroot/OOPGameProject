@@ -6,6 +6,7 @@ import java.util.List;
 import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.extend.Animation;
+import tw.edu.ntut.csie.game.state.StateRun;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
 import tw.edu.ntut.csie.game.util.SheepState;
 
@@ -49,6 +50,7 @@ public class Sheep extends MovableGameObject {
     private List<Animation> animations_tail;
     //endregion
 
+    private StateRun stateRun;
     private boolean isWalk, isRest, isDrag, isFall, isLand;
     private boolean direction; // true: Left
 
@@ -57,10 +59,10 @@ public class Sheep extends MovableGameObject {
     private boolean dragRelease;
     private boolean isBlink;
 
-
-    public Sheep(int x, int y) {
+    public Sheep(StateRun stateRun, int x, int y) {
         this.width = 100;
-        this.height = 85;
+        this.height = 100;
+        this.stateRun = stateRun;
         this.direction = true;
         this.x = x;
         this.y = y;
@@ -307,6 +309,8 @@ public class Sheep extends MovableGameObject {
 
     public void setLocation(int x, int y) {
         super.setLocation(x, y);
+        stateRun.updateForeObjectLocation(this, x, y);
+
         for (Animation item : animations_body) {
             item.setLocation(x, y);
         }
@@ -614,8 +618,8 @@ public class Sheep extends MovableGameObject {
     @Override
     public void release() {
         for (Animation item : animations) {
-            item = null;
             item.release();
+            item = null;
         }
     }
 
