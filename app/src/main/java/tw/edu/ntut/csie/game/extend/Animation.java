@@ -109,6 +109,7 @@ public class Animation implements GameObject {
     }
 
     public void release() {
+        if (_frames == null) return;
         for (MovingBitmap frame : _frames) {
             frame.release();
         }
