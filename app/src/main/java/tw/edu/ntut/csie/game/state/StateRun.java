@@ -61,8 +61,8 @@ public class StateRun extends GameState {
 
         // ---------- game objects ----------
         // clouds
-        addToForeObjectTable(new Cloud(10, 0, Cloud.TYPE_WHITE, Cloud.LEVEL_SMALL));
-        addToForeObjectTable(new Cloud(40, 10, Cloud.TYPE_GRAY, Cloud.LEVEL_MEDIUM));
+        addToForeObjectTable(new Cloud(this, 10, 0, Cloud.TYPE_WHITE, Cloud.LEVEL_SMALL));
+        addToForeObjectTable(new Cloud(this, 40, 10, Cloud.TYPE_GRAY, Cloud.LEVEL_MEDIUM));
         // stones
         addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 45, 240));
         addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 30, 280));
@@ -176,7 +176,6 @@ public class StateRun extends GameState {
             backgroundSet.moveStarted();
             initForeX = imgFloor.getX();
             initPointerX = singlePointer.getX();
-
         }
         return true;
     }

@@ -2,6 +2,7 @@ package tw.edu.ntut.csie.game.object;
 
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
+import tw.edu.ntut.csie.game.state.StateRun;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
 
 public class Cloud extends MovableGameObject {
@@ -17,12 +18,14 @@ public class Cloud extends MovableGameObject {
             {R.drawable.cloud_black1_1, R.drawable.cloud_black1_2, R.drawable.cloud_black1_3}
     };
 
+    private StateRun appStateRun;
     private int type;
     private int level; // (1~3): how big it is
     private int speed = 1; // (<0): moving left
     private MovingBitmap image;
 
-    public Cloud(int x, int y, int type, int level) {
+    public Cloud(StateRun appStateRun, int x, int y, int type, int level) {
+        this.appStateRun = appStateRun;
         this.x = x;
         this.y = y;
         this.type = type;
@@ -58,7 +61,7 @@ public class Cloud extends MovableGameObject {
 
     @Override
     public void move() {
-        if (!dragging) {
+        if (!appStateRun.isGrabbingMap) {
             this.setLocation(x + speed, y);
         }
     }
