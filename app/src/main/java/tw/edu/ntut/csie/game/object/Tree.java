@@ -8,6 +8,7 @@ public class Tree extends MovableGameObject {
     private MovingBitmap image;
 
     public Tree(int x, int y) {
+        this.draggable = false;
         image = new MovingBitmap(R.drawable.tree1);
         this.width = image.getWidth();
         this.height = image.getHeight();

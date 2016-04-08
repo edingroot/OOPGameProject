@@ -8,6 +8,7 @@ public class Stone extends MovableGameObject {
     private MovingBitmap image;
 
     public Stone(int x, int y) {
+        this.draggable = false;
         image = new MovingBitmap(R.drawable.stone);
         this.width = image.getWidth();
         this.height = image.getHeight();

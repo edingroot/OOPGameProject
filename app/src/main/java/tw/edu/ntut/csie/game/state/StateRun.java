@@ -130,8 +130,6 @@ public class StateRun extends GameState {
         for (MovableGameObject gameObject : getAllForeObjects()) {
             gameObject.show();
         }
-
-
     }
 
     @Override
@@ -164,7 +162,7 @@ public class StateRun extends GameState {
             // check is dragging of objects in foreObjectLists
             for (MovableGameObject gameObject : getAllForeObjects()) {
                 gameObject.moveStarted(singlePointer);
-                if (Common.isInObjectScope(singlePointer, gameObject)){
+                if (gameObject.isDraggable() && Common.isInObjectScope(singlePointer, gameObject)){
                     inScopeObjects.add(gameObject);
                 }
             }
