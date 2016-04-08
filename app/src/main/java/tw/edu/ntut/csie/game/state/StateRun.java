@@ -160,13 +160,17 @@ public class StateRun extends GameState {
             Pointer singlePointer = pointers.get(0);
             isGrabbingMap = true;
 
+            List<MovableGameObject> inScopeObjects = new ArrayList<>();
             // check is dragging of objects in foreObjectLists
             for (MovableGameObject gameObject : getAllForeObjects()) {
                 gameObject.moveStarted(singlePointer);
                 if (Common.isInObjectScope(singlePointer, gameObject)){
-                    gameObject.dragPressed(singlePointer);
-                    isGrabbingMap = false;
+                    inScopeObjects.add(gameObject);
                 }
+            }
+            if (inScopeObjects.size() > 0) {
+                inScopeObjects.get(inScopeObjects.size() - 1).dragPressed(singlePointer);
+                isGrabbingMap = false;
             }
 
             // for moving map
@@ -270,6 +274,9 @@ public class StateRun extends GameState {
             list = new ArrayList<>();
         list.add(gameObject);
         foreObjectTable.put(py, list);
+        // resize
+//        double ratio = Lib25D.sizeAdj(gameObject.getY());
+//        gameObject.resize((int) (gameObject.getWidth() * ratio), (int) (gameObject.getHeight() * ratio));
     }
 
     private void removeFromForeObjectTable(MovableGameObject gameObject) {
@@ -329,9 +336,6 @@ public class StateRun extends GameState {
         // resize
 //        double ratio = Lib25D.sizeAdj(y);
 //        gameObject.resize((int) (gameObject.getWidth() * ratio), (int) (gameObject.getHeight() * ratio));
-
-//        int height = (int) Lib25D.heightAdj(gameObject.getHeight(), y);
-//        gameObject.resize(gameObject.getWidth(), height);
     }
 
     private int calForeObjectHorizontalMove(int deltaX, int y) {
