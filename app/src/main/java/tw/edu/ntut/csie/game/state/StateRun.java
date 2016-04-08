@@ -28,13 +28,14 @@ public class StateRun extends GameState {
     private final int MAP_RIGHT_MARGIN = 150 + Constants.FRAME_RIGHT_MARGIN;
     private final int MAP_AUTO_ROLL_RATE = 50;
 
+    public boolean isGrabbingMap = false;
+
     private MovingBitmap staticBackground;
     private BackgroundSet backgroundSet;
     private MovingBitmap imgFloor;
     // NavigableMap foreObjectTable: index = lower-left y-axis of object
     private final NavigableMap<Integer, List<MovableGameObject>> foreObjectTable;
 
-    private boolean isGrabbingMap = false;
     private int initForeX = 0;
     private int initPointerX = 0;
 
@@ -203,7 +204,7 @@ public class StateRun extends GameState {
                 // move foreground objects with foreground
                 for (MovableGameObject gameObject : foreObjects) {
                     int deltaX25D = calForeObjectHorizontalMove(deltaX, gameObject.getY());
-                    int x = gameObject.getInitialX() + deltaX25D;
+                    int x = gameObject.getInitialX() + deltaX25D + gameObject.getDeltaX();
                     gameObject.setLocation(x, gameObject.getY());
                 }
             }
