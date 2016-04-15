@@ -5,28 +5,44 @@ package tw.edu.ntut.csie.game.util;
  */
 public class SheepState {
 
-    private boolean isHungry, isThirsty;
-    private int hungry, thirsty;
+    private static final int HEALTH_DELAY = 10;
+    private boolean hungry, thirsty, sad;
+    private int hungryValue, thirstyValue;
     private int health;
+    private int healthCount;
 
 
     public SheepState() {
-        isHungry = false;
-        isThirsty = false;
-        hungry = 0;
-        thirsty = 0;
+        hungry = false;
+        thirsty = false;
+        hungryValue = 0;
+        thirstyValue = 0;
         health = 100;
     }
 
+    public void healthDecline() {
+        if(--healthCount <= 0){
+            healthCount = HEALTH_DELAY;
+            health--;
+        }
+    }
+
+
     public String getState() {
 
-        if (isHungry) return "hungry";
-        else if (isThirsty) return "thirsty";
-        return "happy";
+        if (!isGoodMood()) return "sad";
+//        if (hungry) return "hungry";
+//        else if (thirsty) return "thirsty";
+        else return "happy";
     }
 
     public boolean isGoodMood() {
+
         if (health > 70) return true;
         else return false;
+    }
+
+    public void setHealth(int num){
+        health = num;
     }
 }
