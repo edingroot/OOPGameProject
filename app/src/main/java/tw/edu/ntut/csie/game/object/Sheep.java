@@ -51,6 +51,7 @@ public class Sheep extends MovableGameObject {
     //endregion
 
     private StateRun stateRun;
+    private int id;
     private boolean isWalk, isRest, isDrag, isFall, isLand;
     private boolean direction; // true: Left
 
@@ -58,6 +59,11 @@ public class Sheep extends MovableGameObject {
     private int initImageX, initImageY, releaseY, initialPointerX, initialPointerY;
     private boolean dragRelease;
     private boolean isBlink;
+
+    public Sheep(StateRun stateRun, int x, int y, int id) {
+        this(stateRun, x, y);
+        this.id = id;
+    }
 
     public Sheep(StateRun stateRun, int x, int y) {
         this.width = 100;
@@ -564,7 +570,7 @@ public class Sheep extends MovableGameObject {
 
         if (y < 260) {
             if (!stateRun.isGrabbingMap) this.setLocation(x, y+=20);
-            else moveY += 20;
+            else y += 20;
         }
         else {
             dragRelease = false;
@@ -646,5 +652,13 @@ public class Sheep extends MovableGameObject {
         x = initImageX + deltaX;
         y = initImageY + deltaY;
         this.setLocation(x, y);
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 }

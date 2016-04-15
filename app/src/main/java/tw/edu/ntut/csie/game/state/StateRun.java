@@ -61,22 +61,22 @@ public class StateRun extends GameState {
 
         // ---------- game objects ----------
         // clouds
-        addToForeObjectTable(new Cloud(this, 10, 0, Cloud.TYPE_WHITE, Cloud.LEVEL_SMALL));
-        addToForeObjectTable(new Cloud(this, 40, 10, Cloud.TYPE_GRAY, Cloud.LEVEL_MEDIUM));
+//        addToForeObjectTable(new Cloud(this, 10, 0, Cloud.TYPE_WHITE, Cloud.LEVEL_SMALL));
+//        addToForeObjectTable(new Cloud(this, 40, 10, Cloud.TYPE_GRAY, Cloud.LEVEL_MEDIUM));
         // stones
-        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 45, 240));
-        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 30, 280));
-        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 15, 320));
-        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 95, 240));
-        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 80, 280));
-        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 65, 320));
+//        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 45, 240));
+//        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 30, 280));
+//        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 15, 320));
+//        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 95, 240));
+//        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 80, 280));
+//        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 65, 320));
         // trees
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 300));
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 260));
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 400, 200));
+//        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 300));
+//        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 260));
+//        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 400, 200));
         // sheep
-        addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 500, 250));
-        addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 100, 200));
+        addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 500, 250, 1));
+        addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 100, 200, 2));
     }
 
     @Override
@@ -265,16 +265,7 @@ public class StateRun extends GameState {
     }
 
     private void addToForeObjectTable(MovableGameObject gameObject) {
-        int py = gameObject.getY() + gameObject.getHeight();
-        // put new item
-        List<MovableGameObject> list = foreObjectTable.get(py);
-        if (list == null)
-            list = new ArrayList<>();
-        list.add(gameObject);
-        foreObjectTable.put(py, list);
-        // resize
-//        double ratio = Lib25D.sizeAdj(gameObject.getY());
-//        gameObject.resize((int) (gameObject.getWidth() * ratio), (int) (gameObject.getHeight() * ratio));
+        updateForeObjectLocation(gameObject, gameObject.getX(), gameObject.getY(), true);
     }
 
     private void removeFromForeObjectTable(MovableGameObject gameObject) {
@@ -302,38 +293,46 @@ public class StateRun extends GameState {
      * @param y
      */
     public void updateForeObjectLocation(MovableGameObject gameObject, int x, int y) {
-        int py = y + gameObject.getHeight();
-        int originalY = -1;
-        for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
-            List<MovableGameObject> list = entry.getValue();
-            for (MovableGameObject object : list) {
-                if (object == gameObject) {
-                    originalY = entry.getKey();
+        updateForeObjectLocation(gameObject, x, y, false);
+    }
+    public void updateForeObjectLocation(MovableGameObject gameObject, int x, int y, boolean createNew) {
+        synchronized (foreObjectTable) {
+            int py = y + gameObject.getHeight();
+            int originalY = -1;
+            for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
+                List<MovableGameObject> list = entry.getValue();
+                for (MovableGameObject object : list) {
+                    if (object == gameObject) {
+                        originalY = entry.getKey();
+                    }
                 }
+                if (originalY != -1)
+                    break;
             }
-            if (originalY != -1)
-                break;
-        }
 
-        if (originalY == py)
-            return;
+            if (originalY == py)
+                return;
 
-        // remove old item if exists
-        if (originalY != -1) {
-            List<MovableGameObject> oldList = foreObjectTable.get(originalY);
-            oldList.remove(gameObject);
-            foreObjectTable.put(originalY, oldList);
-        }
+            // remove old item if exists
+            if (originalY != -1) {
+                List<MovableGameObject> oldList = foreObjectTable.get(originalY);
+                oldList.remove(gameObject);
+                if (oldList.size() == 0)
+                    foreObjectTable.remove(originalY);
+                else
+                    foreObjectTable.put(originalY, oldList);
+            }
 
-        // put new item
-        List<MovableGameObject> newList = foreObjectTable.get(py);
-        if (newList == null)
-            newList = new ArrayList<>();
-        newList.add(gameObject);
-        foreObjectTable.put(py, newList);
-        // resize
+            // put new item
+            List<MovableGameObject> newList = foreObjectTable.get(py);
+            if (newList == null)
+                newList = new ArrayList<>();
+            newList.add(gameObject);
+            foreObjectTable.put(py, newList);
+            // resize
 //        double ratio = Lib25D.sizeAdj(y);
 //        gameObject.resize((int) (gameObject.getWidth() * ratio), (int) (gameObject.getHeight() * ratio));
+        }
     }
 
     private int calForeObjectHorizontalMove(int deltaX, int y) {
