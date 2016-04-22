@@ -322,6 +322,7 @@ public class Sheep extends MovableGameObject {
         isLand = false;
     }
 
+    @Override
     public void setLocation(int x, int y) {
         super.setLocation(x, y);
         stateRun.updateForeObjectLocation(this, x, y);

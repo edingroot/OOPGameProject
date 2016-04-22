@@ -61,19 +61,19 @@ public class StateRun extends GameState {
 
         // ---------- game objects ----------
         // clouds
-//        addToForeObjectTable(new Cloud(this, 10, 0, Cloud.TYPE_WHITE, Cloud.LEVEL_SMALL));
-//        addToForeObjectTable(new Cloud(this, 40, 10, Cloud.TYPE_GRAY, Cloud.LEVEL_MEDIUM));
+        addToForeObjectTable(new Cloud(this, 10, 0, Cloud.TYPE_WHITE, Cloud.LEVEL_SMALL));
+        addToForeObjectTable(new Cloud(this, 40, 10, Cloud.TYPE_GRAY, Cloud.LEVEL_MEDIUM));
         // stones
-//        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 45, 240));
-//        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 30, 280));
-//        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 15, 320));
-//        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 95, 240));
-//        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 80, 280));
-//        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 65, 320));
+        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 45, 240));
+        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 30, 280));
+        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 15, 320));
+        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 95, 240));
+        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 80, 280));
+        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 65, 320));
         // trees
-//        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 300));
-//        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 260));
-//        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 400, 200));
+        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 300));
+        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 260));
+        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 400, 200));
         // sheep
         addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 500, 250, 1));
         addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 100, 200, 2));

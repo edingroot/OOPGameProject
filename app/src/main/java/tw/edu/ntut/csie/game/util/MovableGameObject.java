@@ -5,7 +5,7 @@ import tw.edu.ntut.csie.game.Pointer;
 
 public abstract class MovableGameObject implements GameObject {
     protected int x = 0, y = 0, moveX = 0, moveY = 0;
-    protected int initialX, initialY;
+    protected int initialX, initialY, initialPointerX, initialPointerY;
     protected int width, height;
     protected boolean draggable = true;
     protected boolean dragging = false;
@@ -27,6 +27,8 @@ public abstract class MovableGameObject implements GameObject {
     public void moveStarted(Pointer pointer) {
         this.initialX = this.x;
         this.initialY = this.y;
+        this.initialPointerX = pointer.getX();
+        this.initialPointerY = pointer.getY();
         this.moveX = this.x;
         this.moveY = this.y;
     }
@@ -57,6 +59,14 @@ public abstract class MovableGameObject implements GameObject {
 
     public int getInitialY() {
         return initialY;
+    }
+
+    public int getInitialPointerX() {
+        return initialPointerX;
+    }
+
+    public int getInitialPointerY() {
+        return initialPointerY;
     }
 
     public int getDeltaX() { return moveX - initialX; }
