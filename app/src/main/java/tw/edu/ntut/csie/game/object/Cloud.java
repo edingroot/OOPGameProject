@@ -7,8 +7,9 @@ import tw.edu.ntut.csie.game.state.StateRun;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
 
 public class Cloud extends MovableGameObject {
-    public static final int SHAKE_THRESHOLD = 45;
-    public static final int MOVE_DETECT_DELAY = 5;
+    public static final int SHAKE_THRESHOLD = 100;
+    public static final int SHAKE_COUNT_THRESHOLD = 8;
+    public static final int SHAKE_CHECK_DELAY = 1;
     public static final int CMP_MAX_XY = 1000;
     
     public static final int TYPE_WHITE = 1; // 白雲
@@ -28,8 +29,9 @@ public class Cloud extends MovableGameObject {
     private int level; // (1~3): how big it is
     private int speed = 1; // (<0): moving left
     private MovingBitmap image;
-    private int moveEventCounter = 0;
-    private int moveMaxX = 0, moveMinX = CMP_MAX_XY, moveMaxY = 0, moveMinY = CMP_MAX_XY;
+    private int checkShakeCounter = 0, directionChangedCounter = 0;
+    private int lastShakeDirection = 1; // right: 1; left: -1
+    private int lastCheckX = CMP_MAX_XY;
 
     public Cloud(StateRun appStateRun, int x, int y, int type, int level) {
         this.appStateRun = appStateRun;
@@ -53,11 +55,6 @@ public class Cloud extends MovableGameObject {
 
     @Override
     public void dragMoved(Pointer pointer) {
-        moveMaxX = pointer.getX() > moveMaxX ? pointer.getX() : moveMaxX;
-        moveMinX = pointer.getX() < moveMinX ? pointer.getX() : moveMinX;
-        moveMaxY = pointer.getY() > moveMaxY ? pointer.getY() : moveMaxY;
-        moveMinY = pointer.getY() < moveMinY ? pointer.getY() : moveMinY;
-
         int newX = initialX + pointer.getX() - initialPointerX;
         int newY = initialY + pointer.getY() - initialPointerY;
         this.setLocation(newX, newY);
@@ -81,15 +78,7 @@ public class Cloud extends MovableGameObject {
 
     @Override
     public void move() {
-        moveEventCounter = (moveEventCounter + 1) % MOVE_DETECT_DELAY;
-        if (moveEventCounter == 0) {
-            if (moveMaxX - moveMinX > SHAKE_THRESHOLD || moveMaxY - moveMinY > SHAKE_THRESHOLD) {
-                System.out.println("Cloud shake exceed threshold!");
-                System.out.printf("moveX=%d\n", moveMaxX - moveMinX);
-            }
-            moveMaxX = moveMaxY = 0;
-            moveMinX = moveMinY = CMP_MAX_XY;
-        }
+        detectShaking();
 
 //        if (!appStateRun.isGrabbingMap && !dragging) {
 //            this.setLocation(x + speed, y);
@@ -115,5 +104,30 @@ public class Cloud extends MovableGameObject {
         image = new MovingBitmap(CLOUD_IMAGE[type - 1][level - 1], x, y);
         this.width = image.getWidth();
         this.height = image.getHeight();
+    }
+
+    private void detectShaking() {
+        checkShakeCounter = (checkShakeCounter + 1) % SHAKE_CHECK_DELAY;
+        if (!dragging || checkShakeCounter != 0)
+            return;
+
+        if (lastCheckX == CMP_MAX_XY) {
+            lastCheckX = this.x;
+            return;
+        }
+
+        int delta = this.x - lastCheckX;
+        if (Math.abs(delta) < SHAKE_THRESHOLD) {
+            if (lastShakeDirection * delta < 0) { // different direction
+                lastShakeDirection = -lastShakeDirection;
+                directionChangedCounter = (directionChangedCounter + 1) % SHAKE_COUNT_THRESHOLD;
+                if (directionChangedCounter == 0) {
+                    System.out.println("Cloud shake exceed threshold!");
+                }
+            }
+        } else {
+            checkShakeCounter = 0;
+        }
+        lastCheckX = this.x;
     }
 }
