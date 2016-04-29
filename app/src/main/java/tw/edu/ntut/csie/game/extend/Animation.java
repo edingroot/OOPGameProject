@@ -66,7 +66,10 @@ public class Animation implements GameObject {
      * @param resId 新的畫格
      */
     public void addFrame(int resId) {
-        _frames.add(new MovingBitmap(resId));
+
+        MovingBitmap temp = new MovingBitmap(resId);
+        temp.resize((int) (temp.getWidth() * 0.8), (int) (temp.getHeight() * 0.8));
+        _frames.add(temp);
     }
 
     /**
@@ -75,7 +78,9 @@ public class Animation implements GameObject {
      * @param filename 新的畫格
      */
     public void addFrame(String filename) {
+
         _frames.add(new MovingBitmap(filename));
+
     }
 
     /**
@@ -250,5 +255,11 @@ public class Animation implements GameObject {
      */
     public void setVisible(boolean visible) {
         _visible = visible;
+    }
+
+    public void resize(double ratio) {
+        for (MovingBitmap image : _frames){
+            image.resize((int)(image.getWidth()*ratio), (int)(image.getHeight()*ratio));
+        }
     }
 }

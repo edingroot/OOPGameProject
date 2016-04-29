@@ -43,9 +43,16 @@ public class Lib25D {
      * @return new height of the object
      */
     public static double sizeAdj(double Y) {
-        double F = Y * (Constants.EYE_TO_FRAME_Y) / (Constants.EYE_TO_FLOOR_H - Y);
+        //double F = Y * (Constants.EYE_TO_FRAME_Y) / (Constants.EYE_TO_FLOOR_H - Y);
+        double F = (Constants.EYE_TO_FLOOR_H - Y) * Constants.EYE_TO_FRAME_Y / Y;
 
-        return -Constants.EYE_TO_FRAME_Y / (Constants.EYE_TO_FRAME_Y + F);
+//        if(Constants.EYE_TO_FRAME_Y / (Constants.EYE_TO_FRAME_Y + F) > 0) return Constants.EYE_TO_FRAME_Y / (Constants.EYE_TO_FRAME_Y + F);
+//        else return -(Constants.EYE_TO_FRAME_Y / (Constants.EYE_TO_FRAME_Y + F));
+
+        return 1;
     }
 
+    public static double sizePersentage(double persentage){
+        return persentage/100;
+    }
 }

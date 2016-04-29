@@ -13,22 +13,23 @@ import tw.edu.ntut.csie.game.util.SheepState;
 public class Sheep extends MovableGameObject {
 
     //region imagePositionConst
-    private static final int HEAD_SHIFT_POS_X = 30;
-    private static final int HEAD_SHIFT_POS_Y = 8;
-    private static final int HEAD_DRAG_SHIFT_POS_Y = 40;
-    private static final int R_HEAD_SHIFT_POS_X = 60;
-    private static final int R_HEAD_SAD_SHIFT_POS_X = 51;
-    private static final int EYE_SHIFT_POS_X = 17;
-    private static final int EYE_SHIFT_POS_Y = -2;
-    private static final int R_EYE_SHIFT_POS_X = 17;
-    private static final int HEAD_FALL_SHIFT_POS_Y = 15;
-    private static final int TAIL_SHIFT_X = 82;
-    private static final int R_TAIL_SHIFT_X = 15;
-    private static final int TAIL_SHIFT_Y = 30;
-    private static final int TAIL_SHAKE_Y = 1;
-    private static final int TAIL_DRAG_POS_X = 5;
-    private static final int TAIL_DRAG_POS_Y = 40;
-    private static final int TAIL_LAND_POS_Y0 = 5, TAIL_LAND_POS_Y2 = -5;
+    private static final double ratio = 0.9;
+    private static final int HEAD_SHIFT_POS_X = (int)(ratio*30);
+    private static final int HEAD_SHIFT_POS_Y = (int)ratio*8;
+    private static final int HEAD_DRAG_SHIFT_POS_Y = (int)ratio*40;
+    private static final int R_HEAD_SHIFT_POS_X = 54;
+    private static final int R_HEAD_SAD_SHIFT_POS_X = (int)ratio*51;
+    private static final int EYE_SHIFT_POS_X = (int)ratio*17;
+    private static final int EYE_SHIFT_POS_Y = (int)ratio*(-2);
+    private static final int R_EYE_SHIFT_POS_X = (int)ratio*17;
+    private static final int HEAD_FALL_SHIFT_POS_Y = (int)ratio*15;
+    private static final int TAIL_SHIFT_X = (int)ratio*82;
+    private static final int R_TAIL_SHIFT_X = (int)ratio*15;
+    private static final int TAIL_SHIFT_Y = (int)ratio*30;
+    private static final int TAIL_SHAKE_Y = (int)ratio*1;
+    private static final int TAIL_DRAG_POS_X = (int)ratio*5;
+    private static final int TAIL_DRAG_POS_Y = (int)ratio*40;
+    private static final int TAIL_LAND_POS_Y0 = (int)ratio*5, TAIL_LAND_POS_Y2 = (int)ratio*(-5);
     //endregion
 
     private static final int TIME_DELAY = 100;
@@ -60,6 +61,7 @@ public class Sheep extends MovableGameObject {
     private int initImageX, initImageY, releaseY, initialPointerX, initialPointerY;
     private boolean dragRelease;
     private boolean isBlink;
+    private int tmpY = 0;
 
     public Sheep(StateRun stateRun, int x, int y, int id) {
         this(stateRun, x, y);
@@ -693,7 +695,7 @@ public class Sheep extends MovableGameObject {
         isFall = true;
         setAnimation();
 
-        if (y < 260) {
+        if (y < tmpY+30) {
             if (!stateRun.isGrabbingMap) this.setLocation(x, y+=20);
             else y += 20;
         }
@@ -704,7 +706,7 @@ public class Sheep extends MovableGameObject {
         }
     }
     public void land() {
-        y = 250;
+        y = tmpY + 20;
         setLocation(x, y);
         isLand = true;
         setAnimation();
@@ -718,12 +720,14 @@ public class Sheep extends MovableGameObject {
             instr = 0;
             this.drag();
             dragRelease = true;
+            tmpY = y;
         }
         else {
             isDrag = false;
             if (dragRelease) {
                 releaseY = y;
                 this.fall();
+
             }
             else if (isLand) {
                 this.land();
@@ -779,6 +783,14 @@ public class Sheep extends MovableGameObject {
         x = initImageX + deltaX;
         y = initImageY + deltaY;
         this.setLocation(x, y);
+    }
+
+    @Override
+    public void resize(double ratio){
+        super.resize(ratio);
+        for(Animation item : animations){
+            item.resize(ratio);
+        }
     }
 
     public int getId() {

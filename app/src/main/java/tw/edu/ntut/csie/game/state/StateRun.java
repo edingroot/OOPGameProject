@@ -128,7 +128,7 @@ public class StateRun extends GameState {
         backgroundSet.show();
 
         // show objects in foreObjectLists ordering by Y-axis
-        for (MovableGameObject gameObject : getAllForeObjects()) {
+        for (MovableGameObject gameObject : getAllForeObjects()){
             gameObject.show();
         }
     }
@@ -330,8 +330,8 @@ public class StateRun extends GameState {
             newList.add(gameObject);
             foreObjectTable.put(py, newList);
             // resize
-//        double ratio = Lib25D.sizeAdj(y);
-//        gameObject.resize((int) (gameObject.getWidth() * ratio), (int) (gameObject.getHeight() * ratio));
+            double ratio = Lib25D.sizeAdj(y);
+            gameObject.resize(ratio);
         }
     }
 
