@@ -61,7 +61,7 @@ public class StateRun extends GameState {
 
         // ---------- game objects ----------
         // clouds
-        addToForeObjectTable(new Cloud(this, 10, 0, Cloud.TYPE_WHITE, Cloud.LEVEL_SMALL));
+        addToForeObjectTable(new Cloud(this, 10, 0, Cloud.TYPE_WHITE, Cloud.LEVEL_BIG));
         addToForeObjectTable(new Cloud(this, 40, 10, Cloud.TYPE_GRAY, Cloud.LEVEL_MEDIUM));
         // stones
         addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 45, 240));
@@ -264,11 +264,11 @@ public class StateRun extends GameState {
         return listAll;
     }
 
-    private void addToForeObjectTable(MovableGameObject gameObject) {
+    public void addToForeObjectTable(MovableGameObject gameObject) {
         updateForeObjectLocation(gameObject, gameObject.getX(), gameObject.getY(), true);
     }
 
-    private void removeFromForeObjectTable(MovableGameObject gameObject) {
+    public void removeFromForeObjectTable(MovableGameObject gameObject) {
         int py = gameObject.getY() + gameObject.getHeight();
         List<MovableGameObject> list = foreObjectTable.get(py);
         if (list != null) {

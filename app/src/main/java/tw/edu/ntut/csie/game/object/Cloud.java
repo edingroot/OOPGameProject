@@ -15,13 +15,13 @@ public class Cloud extends MovableGameObject {
     public static final int TYPE_WHITE = 1; // 白雲
     public static final int TYPE_GRAY = 2; // 烏雲
     public static final int TYPE_BLACK = 3; // 雨雲
-    public static final int LEVEL_BIG = 1;
+    public static final int LEVEL_BIG = 3;
     public static final int LEVEL_MEDIUM = 2;
-    public static final int LEVEL_SMALL = 3;
+    public static final int LEVEL_SMALL = 1;
     private static final int CLOUD_IMAGE[][] = {
-            {R.drawable.cloud_white1_1, R.drawable.cloud_white1_2, R.drawable.cloud_white1_3},
-            {R.drawable.cloud_gray1_1, R.drawable.cloud_gray1_2, R.drawable.cloud_gray1_3},
-            {R.drawable.cloud_black1_1, R.drawable.cloud_black1_2, R.drawable.cloud_black1_3}
+            {R.drawable.cloud_white1_3, R.drawable.cloud_white1_2, R.drawable.cloud_white1_1},
+            {R.drawable.cloud_gray1_3, R.drawable.cloud_gray1_2, R.drawable.cloud_gray1_1},
+            {R.drawable.cloud_black1_3, R.drawable.cloud_black1_2, R.drawable.cloud_black1_1}
     };
 
     private StateRun appStateRun;
@@ -45,7 +45,7 @@ public class Cloud extends MovableGameObject {
     public void setLocation(int x, int y) {
         super.setLocation(x, y);
         image.setLocation(x, y);
-        // appStateRun.updateForeObjectLocation(this, x, y);
+         appStateRun.updateForeObjectLocation(this, x, y);
     }
 
     public void resize(int width, int height) {
@@ -80,9 +80,9 @@ public class Cloud extends MovableGameObject {
     public void move() {
         detectShaking();
 
-//        if (!appStateRun.isGrabbingMap && !dragging) {
-//            this.setLocation(x + speed, y);
-//        }
+        if (!appStateRun.isGrabbingMap && !dragging) {
+            this.setLocation(x + speed, y);
+        }
     }
 
     @Override
@@ -123,11 +123,23 @@ public class Cloud extends MovableGameObject {
                 directionChangedCounter = (directionChangedCounter + 1) % SHAKE_COUNT_THRESHOLD;
                 if (directionChangedCounter == 0) {
                     System.out.println("Cloud shake exceed threshold!");
+                    spreadToClouds();
                 }
             }
         } else {
             checkShakeCounter = 0;
         }
         lastCheckX = this.x;
+    }
+
+    private void spreadToClouds() {
+        if (level == LEVEL_SMALL)
+            return;
+
+        int newType = type == TYPE_WHITE ? TYPE_WHITE : type - 1;
+        int x1 = this.x, x2 = this.x + this.width / 3;
+        appStateRun.addToForeObjectTable(new Cloud(appStateRun, x1, y, newType, level - 1));
+        appStateRun.addToForeObjectTable(new Cloud(appStateRun, x2, y, newType, level - 1));
+//        appStateRun.removeFromForeObjectTable(this);
     }
 }
