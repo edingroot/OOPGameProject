@@ -1,5 +1,7 @@
 package tw.edu.ntut.csie.game.extend;
 
+import java.lang.*;
+import java.lang.Integer;
 import java.util.ArrayList;
 
 import tw.edu.ntut.csie.game.GameObject;
@@ -42,6 +44,7 @@ public class Animation implements GameObject {
      * 實際用來繪製動畫的畫格。
      */
     private ArrayList<MovingBitmap> _frames;
+    private ArrayList<Integer> _filename;
 
     /**
      * 使用預設的設定建立一段動畫.
@@ -58,6 +61,7 @@ public class Animation implements GameObject {
     public Animation(int delay) {
         setDelay(delay);
         _frames = new ArrayList<MovingBitmap>();
+        _filename = new ArrayList<Integer>();
     }
 
     /**
@@ -67,9 +71,10 @@ public class Animation implements GameObject {
      */
     public void addFrame(int resId) {
 
-        MovingBitmap temp = new MovingBitmap(resId);
-        temp.resize((int) (temp.getWidth() * 0.8), (int) (temp.getHeight() * 0.8));
-        _frames.add(temp);
+        _filename.add(resId);
+        MovingBitmap temp2 = new MovingBitmap(resId);
+        temp2.resize((int) (temp2.getWidth() * 0.8), (int) (temp2.getHeight() * 0.8));
+        _frames.add(temp2);
     }
 
     /**
@@ -258,8 +263,13 @@ public class Animation implements GameObject {
     }
 
     public void resize(double ratio) {
-        for (MovingBitmap image : _frames){
-            image.resize((int)(image.getWidth()*ratio), (int)(image.getHeight()*ratio));
+
+        for (int i = 0 ; i < _frames.size() ; i++){
+
+            MovingBitmap temp = new MovingBitmap(_filename.get(i));
+            temp.resize((int) (temp.getWidth() * ratio), (int) (temp.getHeight() * ratio));
+            _frames.set(i, temp);
+
         }
     }
 }

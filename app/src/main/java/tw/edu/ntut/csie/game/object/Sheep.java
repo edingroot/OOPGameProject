@@ -41,9 +41,11 @@ public class Sheep extends MovableGameObject {
     private Animation body_rest, body_walk, head_rest, head_walk, head_drag, body_drag, tail, eye_happy, body_fall, body_land;
     private Animation head_fall, head_land;
     private Animation head_sad_rest, head_sad_walk, eye_sad;
+    private Animation head_eat, head_chew;
     private Animation r_body_rest, r_body_walk, r_head_rest, r_head_walk, r_head_drag, r_body_drag, r_tail, r_eye_happy, r_body_fall, r_body_land;
     private Animation r_head_fall, r_head_land;
     private Animation r_head_sad_rest, r_head_sad_walk, r_eye_sad;
+    private Animation r_head_eat, r_head_chew;
 
     private List<Animation> animations;
     private List<Animation> animations_body;
@@ -56,6 +58,9 @@ public class Sheep extends MovableGameObject {
     private int id;
     private boolean isWalk, isRest, isDrag, isFall, isLand;
     private boolean direction; // true: Left
+    private boolean direction_vertical; // true: forward;
+    private double walkDir;
+    private double rx, ry;
 
     private int walkCount=0, aiCount=0, blinkCount=0, blinkTimeCount=0, instr=0;
     private int initImageX, initImageY, releaseY, initialPointerX, initialPointerY;
@@ -201,6 +206,18 @@ public class Sheep extends MovableGameObject {
         head_land.addFrame(R.drawable.face_landing_2);
         head_land.addFrame(R.drawable.face_landing_2);
 
+        head_eat = new Animation();
+        animations.add(head_eat);
+        animations_head.add(head_eat);
+        head_eat.addFrame(R.drawable.face_eat_0);
+        head_eat.addFrame(R.drawable.face_eat_1);
+
+        head_chew = new Animation();
+        animations.add(head_chew);
+        animations_head.add(head_chew);
+        head_chew.addFrame(R.drawable.face_chew_0);
+        head_chew.addFrame(R.drawable.face_chew_1);
+        head_chew.addFrame(R.drawable.face_chew_2);
         //endregion
 
         //region AnimationRight
@@ -314,6 +331,18 @@ public class Sheep extends MovableGameObject {
         r_head_land.addFrame(R.drawable.r_face_landing_2);
         r_head_land.addFrame(R.drawable.r_face_landing_2);
 
+        r_head_eat = new Animation();
+        animations.add(r_head_eat);
+        animations.add(r_head_eat);
+        r_head_eat.addFrame(R.drawable.r_face_eat_0);
+        r_head_eat.addFrame(R.drawable.r_face_eat_1);
+
+        r_head_chew = new Animation();
+        animations.add(r_head_chew);
+        animations_head.add(r_head_chew);
+        r_head_chew.addFrame(R.drawable.r_face_chew_0);
+        r_head_chew.addFrame(R.drawable.r_face_chew_1);
+        r_head_chew.addFrame(R.drawable.r_face_chew_2);
         //endregion
     }
 
@@ -672,17 +701,30 @@ public class Sheep extends MovableGameObject {
         setAnimation();
 
         if (--walkCount <= 0) {
-            if (Math.random()*10 > 5) direction = true;
-            else direction = false;
+            walkDir = Math.random()*100;
+            rx = Math.cos(walkDir * 3.6);
+            ry = Math.sin(walkDir * 3.6);
+            direction = rx < 0;
             walkCount = WALK_DELAY;
         }
         if(!stateRun.isGrabbingMap) {
-            if (direction) this.setLocation(--x, y);
-            else this.setLocation(++x, y);
+
+            System.out.println("x: " + x + " y: " + y);
+            if (y>190 && y<300) {
+                x = (int)(x + rx);
+                y = (int)(y + ry);
+                this.setLocation(x, y);
+            }
+            else this.rest();
         }
         else {
-            if (direction) --moveX;
-            else ++moveX;
+            int tmpX, tmpY;
+            tmpX = (int)(moveX + rx);
+            tmpY = (int)(moveY + ry);
+            if (y>160 && y<310) {
+                moveX = tmpX;
+                moveY = tmpY;
+            }
         }
     }
     public void drag() {
@@ -787,10 +829,11 @@ public class Sheep extends MovableGameObject {
 
     @Override
     public void resize(double ratio){
-        super.resize(ratio);
+        //super.resize(ratio);
         for(Animation item : animations){
             item.resize(ratio);
         }
+
     }
 
     public int getId() {

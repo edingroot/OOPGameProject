@@ -48,7 +48,7 @@ public class Cloud extends MovableGameObject {
 
     public void resize(double ratio) {
         super.resize(ratio);
-        image.resize((int)(width*ratio), (int)(height*ratio));
+//        image.resize((int)(width*ratio), (int)(height*ratio));
     }
 
     @Override
