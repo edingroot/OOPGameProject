@@ -13,24 +13,27 @@ import tw.edu.ntut.csie.game.util.SheepState;
 public class Sheep extends MovableGameObject {
 
     //region imagePositionConst
-    private static final double ratio = 0.9;
-    private static final int HEAD_SHIFT_POS_X = (int)(ratio*30);
-    private static final int HEAD_SHIFT_POS_Y = (int)ratio*8;
-    private static final int HEAD_DRAG_SHIFT_POS_Y = (int)ratio*40;
+
+    private static final int HEAD_SHIFT_POS_X = 30;
+    private static final int HEAD_SHIFT_POS_Y = 8;
+    private static final int HEAD_DRAG_SHIFT_POS_Y = 40;
     private static final int R_HEAD_SHIFT_POS_X = 54;
-    private static final int R_HEAD_SAD_SHIFT_POS_X = (int)ratio*51;
-    private static final int EYE_SHIFT_POS_X = (int)ratio*17;
-    private static final int EYE_SHIFT_POS_Y = (int)ratio*(-2);
-    private static final int R_EYE_SHIFT_POS_X = (int)ratio*17;
-    private static final int HEAD_FALL_SHIFT_POS_Y = (int)ratio*15;
-    private static final int TAIL_SHIFT_X = (int)ratio*82;
-    private static final int R_TAIL_SHIFT_X = (int)ratio*15;
-    private static final int TAIL_SHIFT_Y = (int)ratio*30;
-    private static final int TAIL_SHAKE_Y = (int)ratio*1;
-    private static final int TAIL_DRAG_POS_X = (int)ratio*5;
-    private static final int TAIL_DRAG_POS_Y = (int)ratio*40;
-    private static final int TAIL_LAND_POS_Y0 = (int)ratio*5, TAIL_LAND_POS_Y2 = (int)ratio*(-5);
+    private static final int R_HEAD_SAD_SHIFT_POS_X = 51;
+    private static final int EYE_SHIFT_POS_X = 17;
+    private static final int EYE_SHIFT_POS_Y = -2;
+    private static final int R_EYE_SHIFT_POS_X = 17;
+    private static final int HEAD_FALL_SHIFT_POS_Y = 15;
+    private static final int TAIL_SHIFT_X = 82;
+    private static final int R_TAIL_SHIFT_X = 15;
+    private static final int TAIL_SHIFT_Y = 30;
+    private static final int TAIL_SHAKE_Y = 1;
+    private static final int TAIL_DRAG_POS_X = 5;
+    private static final int TAIL_DRAG_POS_Y = 40;
+    private static final int TAIL_LAND_POS_Y0 = 5, TAIL_LAND_POS_Y2 = -5;
+
     //endregion
+
+    private static final int oriWidth = 100, oriHeight = 100;
 
     private static final int TIME_DELAY = 100;
     private static final int WALK_DELAY = 50;
@@ -54,11 +57,11 @@ public class Sheep extends MovableGameObject {
     private List<Animation> animations_tail;
     //endregion
 
+    private double ratio;
     private StateRun stateRun;
     private int id;
     private boolean isWalk, isRest, isDrag, isFall, isLand;
     private boolean direction; // true: Left
-    private boolean direction_vertical; // true: forward;
     private double walkDir;
     private double rx, ry;
 
@@ -74,8 +77,8 @@ public class Sheep extends MovableGameObject {
     }
 
     public Sheep(StateRun stateRun, int x, int y) {
-        this.width = 100;
-        this.height = 100;
+        width = oriWidth;
+        height = oriHeight;
         this.stateRun = stateRun;
         this.direction = true;
         this.x = x;
@@ -702,14 +705,27 @@ public class Sheep extends MovableGameObject {
 
         if (--walkCount <= 0) {
             walkDir = Math.random()*100;
-            rx = Math.cos(walkDir * 3.6);
-            ry = Math.sin(walkDir * 3.6);
+            if (walkDir < 6.25) {rx = 0.924; ry = -0.383;}
+            else if (walkDir < 12.5) {rx = 0.707; ry = -0.707;}
+            else if (walkDir < 18.75) {rx = 0.383; ry = -0.924;}
+            else if (walkDir < 25) {rx = 0; ry = -1;}
+            else if (walkDir < 61.25) {rx = -0.383; ry = -0.924;}
+            else if (walkDir < 37.5) {rx = ry = -0.707;}
+            else if (walkDir < 43.75) {rx = -0.924; ry = -0.383;}
+            else if (walkDir < 50) {rx = -1; ry = 0;}
+            else if (walkDir < 56.25) {rx = -0.924; ry = 0.383;}
+            else if (walkDir < 62.5) {rx = -0.707; ry = 0.707;}
+            else if (walkDir < 68.75) {rx = -0.383; ry = 0.924;}
+            else if (walkDir < 75) {rx = 0; ry = 1;}
+            else if (walkDir < 81.25) {rx = 0.383; ry = 0.924;}
+            else if (walkDir < 87.5) {rx = ry = 0.707;}
+            else if (walkDir < 93.75) {rx = 0.924; ry = 0.383;}
+            else {rx = 1; ry = 0;}
             direction = rx < 0;
             walkCount = WALK_DELAY;
         }
         if(!stateRun.isGrabbingMap) {
 
-            System.out.println("x: " + x + " y: " + y);
             if (y>190 && y<300) {
                 x = (int)(x + rx);
                 y = (int)(y + ry);
@@ -829,9 +845,11 @@ public class Sheep extends MovableGameObject {
 
     @Override
     public void resize(double ratio){
-        //super.resize(ratio);
+        width = (int)(oriWidth * ratio);
+        height = (int)(oriHeight * ratio);
+        System.out.println("w: " + width + " h: " + height);
         for(Animation item : animations){
-            item.resize(ratio);
+            item.resize(ratio*0.8);
         }
 
     }

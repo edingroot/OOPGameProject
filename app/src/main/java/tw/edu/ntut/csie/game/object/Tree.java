@@ -7,6 +7,7 @@ import tw.edu.ntut.csie.game.util.MovableGameObject;
 public class Tree extends MovableGameObject {
     private MovingBitmap image;
 
+
     public Tree(int x, int y) {
         this.draggable = false;
         image = new MovingBitmap(R.drawable.tree1);

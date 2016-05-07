@@ -46,10 +46,10 @@ public class Lib25D {
         //double F = Y * (Constants.EYE_TO_FRAME_Y) / (Constants.EYE_TO_FLOOR_H - Y);
         double F = (Constants.EYE_TO_FLOOR_H - Y) * Constants.EYE_TO_FRAME_Y / Y;
 
-//        if(Constants.EYE_TO_FRAME_Y / (Constants.EYE_TO_FRAME_Y + F) > 0) return Constants.EYE_TO_FRAME_Y / (Constants.EYE_TO_FRAME_Y + F);
-//        else return -(Constants.EYE_TO_FRAME_Y / (Constants.EYE_TO_FRAME_Y + F));
-        System.out.println(Y);
-        return Y / 369;
+//       if(Constants.EYE_TO_FRAME_Y / (Constants.EYE_TO_FRAME_Y + F) > 0) return Constants.EYE_TO_FRAME_Y / (Constants.EYE_TO_FRAME_Y + F) *0.8;
+//       else return -(Constants.EYE_TO_FRAME_Y / (Constants.EYE_TO_FRAME_Y + F));
+//       System.out.println(Y);
+       return (Math.sqrt(Y)*20) / 369;
     }
 
     public static double sizePersentage(double persentage){
