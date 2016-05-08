@@ -7,6 +7,7 @@ import tw.edu.ntut.csie.game.util.MovableGameObject;
 public class Tree extends MovableGameObject {
     private MovingBitmap image;
 
+
     public Tree(int x, int y) {
         this.draggable = false;
         image = new MovingBitmap(R.drawable.tree1);
@@ -20,9 +21,9 @@ public class Tree extends MovableGameObject {
         image.setLocation(x, y);
     }
 
-    public void resize(int width, int height) {
-        super.resize(width, height);
-        image.resize(width, height);
+    public void resize(double ratio) {
+        super.resize(ratio);
+        image.resize((int)(width*ratio), (int)(height*ratio));
     }
 
     @Override

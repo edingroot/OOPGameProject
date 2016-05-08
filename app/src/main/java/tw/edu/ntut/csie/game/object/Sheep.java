@@ -3,6 +3,8 @@ package tw.edu.ntut.csie.game.object;
 import java.util.ArrayList;
 import java.util.List;
 
+import tw.edu.ntut.csie.game.core.MovingBitmap;
+import tw.edu.ntut.csie.game.util.SheepPos;
 import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.extend.Animation;
@@ -13,10 +15,11 @@ import tw.edu.ntut.csie.game.util.SheepState;
 public class Sheep extends MovableGameObject {
 
     //region imagePositionConst
+
     private static final int HEAD_SHIFT_POS_X = 30;
     private static final int HEAD_SHIFT_POS_Y = 8;
     private static final int HEAD_DRAG_SHIFT_POS_Y = 40;
-    private static final int R_HEAD_SHIFT_POS_X = 60;
+    private static final int R_HEAD_SHIFT_POS_X = 54;
     private static final int R_HEAD_SAD_SHIFT_POS_X = 51;
     private static final int EYE_SHIFT_POS_X = 17;
     private static final int EYE_SHIFT_POS_Y = -2;
@@ -29,7 +32,22 @@ public class Sheep extends MovableGameObject {
     private static final int TAIL_DRAG_POS_X = 5;
     private static final int TAIL_DRAG_POS_Y = 40;
     private static final int TAIL_LAND_POS_Y0 = 5, TAIL_LAND_POS_Y2 = -5;
+
+    private static final int eyeW = 30, eyeH = 26;
     //endregion
+
+    private SheepPos p_body = new SheepPos(0, 0, 100, 94);
+    private SheepPos p_head = new SheepPos(165, 40, 64, 57);
+    private SheepPos p_head_sad = new SheepPos(165, 40, 75, 58);
+    private SheepPos p_r_head_sad = new SheepPos(165, 38, 75, 58);
+    private SheepPos p_head_fall = new SheepPos(165, 40, 58, 95);
+    private SheepPos p_head_drag = new SheepPos(210, 40, 65, 71);
+    private SheepPos p_eye = new SheepPos(150, 44, 31, 26);
+    private SheepPos p_tail = new SheepPos(0, 40, 29, 27);
+    private SheepPos p_shadow = new SheepPos(250, 30, 130, 32);
+
+
+    private static final int oriWidth = 100, oriHeight = 100;
 
     private static final int TIME_DELAY = 100;
     private static final int WALK_DELAY = 50;
@@ -40,26 +58,34 @@ public class Sheep extends MovableGameObject {
     private Animation body_rest, body_walk, head_rest, head_walk, head_drag, body_drag, tail, eye_happy, body_fall, body_land;
     private Animation head_fall, head_land;
     private Animation head_sad_rest, head_sad_walk, eye_sad;
+    private Animation head_eat, head_chew;
     private Animation r_body_rest, r_body_walk, r_head_rest, r_head_walk, r_head_drag, r_body_drag, r_tail, r_eye_happy, r_body_fall, r_body_land;
     private Animation r_head_fall, r_head_land;
     private Animation r_head_sad_rest, r_head_sad_walk, r_eye_sad;
+    private Animation r_head_eat, r_head_chew;
+    private Animation shadow, r_shadow;
 
     private List<Animation> animations;
     private List<Animation> animations_body;
     private List<Animation> animations_head;
     private List<Animation> animations_eye;
     private List<Animation> animations_tail;
+
     //endregion
 
+    private double ratio;
     private StateRun stateRun;
     private int id;
     private boolean isWalk, isRest, isDrag, isFall, isLand;
     private boolean direction; // true: Left
+    private double walkDir;
+    private double rx, ry;
 
     private int walkCount=0, aiCount=0, blinkCount=0, blinkTimeCount=0, instr=0;
     private int initImageX, initImageY, releaseY, initialPointerX, initialPointerY;
     private boolean dragRelease;
     private boolean isBlink;
+    private int tmpY = 0;
 
     public Sheep(StateRun stateRun, int x, int y, int id) {
         this(stateRun, x, y);
@@ -67,8 +93,8 @@ public class Sheep extends MovableGameObject {
     }
 
     public Sheep(StateRun stateRun, int x, int y) {
-        this.width = 100;
-        this.height = 100;
+        width = oriWidth;
+        height = oriHeight;
         this.stateRun = stateRun;
         this.direction = true;
         this.x = x;
@@ -90,6 +116,10 @@ public class Sheep extends MovableGameObject {
 
 
         //region AnimationLeft
+
+        shadow = new Animation();
+        animations.add(shadow);
+        shadow.addFrame(R.drawable.shadow_sheep);
 
         tail = new Animation();
         animations.add(tail);
@@ -119,6 +149,7 @@ public class Sheep extends MovableGameObject {
 
         head_sad_rest = new Animation();
         animations.add(head_sad_rest);
+        animations_head.add(head_sad_rest);
         animations_head.add(head_sad_rest);
         head_sad_rest.addFrame(R.drawable.face_sad_default);
 
@@ -163,7 +194,7 @@ public class Sheep extends MovableGameObject {
 
         head_drag = new Animation();
         animations.add(head_drag);
-        animations_head.add(head_drag);
+//        animations_head.add(head_drag);
         head_drag.addFrame(R.drawable.face_drag);
 
         body_fall = new Animation();
@@ -174,7 +205,7 @@ public class Sheep extends MovableGameObject {
 
         body_land = new Animation(2);
         animations.add(body_land);
-//        animations_body.add(body_land);
+        animations_body.add(body_land);
         body_land.addFrame(R.drawable.sheep_landing_0);
         body_land.addFrame(R.drawable.sheep_landing_0);
         body_land.addFrame(R.drawable.sheep_landing_1);
@@ -184,14 +215,14 @@ public class Sheep extends MovableGameObject {
 
         head_fall = new Animation();
         animations.add(head_fall);
-        animations_head.add(head_fall);
+//        animations_head.add(head_fall);
         head_fall.addFrame(R.drawable.face_fall_0);
         head_fall.addFrame(R.drawable.face_fall_1);
         head_fall.addFrame(R.drawable.face_fall_2);
 
         head_land = new Animation(2);
         animations.add(head_land);
-//        animations_head.add(head_land);
+        animations_head.add(head_land);
         head_land.addFrame(R.drawable.face_landing_0);
         head_land.addFrame(R.drawable.face_landing_0);
         head_land.addFrame(R.drawable.face_landing_1);
@@ -199,9 +230,25 @@ public class Sheep extends MovableGameObject {
         head_land.addFrame(R.drawable.face_landing_2);
         head_land.addFrame(R.drawable.face_landing_2);
 
+        head_eat = new Animation();
+        animations.add(head_eat);
+        animations_head.add(head_eat);
+        head_eat.addFrame(R.drawable.face_eat_0);
+        head_eat.addFrame(R.drawable.face_eat_1);
+
+        head_chew = new Animation();
+        animations.add(head_chew);
+        animations_head.add(head_chew);
+        head_chew.addFrame(R.drawable.face_chew_0);
+        head_chew.addFrame(R.drawable.face_chew_1);
+        head_chew.addFrame(R.drawable.face_chew_2);
         //endregion
 
         //region AnimationRight
+
+        r_shadow = new Animation();
+        animations.add(r_shadow);
+        r_shadow.addFrame(R.drawable.r_shadow_sheep);
 
         r_tail = new Animation();
         animations.add(r_tail);
@@ -231,7 +278,8 @@ public class Sheep extends MovableGameObject {
 
         r_head_sad_rest = new Animation();
         animations.add(r_head_sad_rest);
-//        animations_head.add(r_head_sad_rest);
+        animations_head.add(r_head_sad_rest);
+        animations_head.add(r_head_sad_rest);
         r_head_sad_rest.addFrame(R.drawable.r_face_sad_default);
 
         r_head_walk = new Animation();
@@ -244,7 +292,7 @@ public class Sheep extends MovableGameObject {
 
         r_head_sad_walk = new Animation();
         animations.add(r_head_sad_walk);
-//        animations_head.add(r_head_sad_walk);
+        animations_head.add(r_head_sad_walk);
         r_head_sad_walk.addFrame(R.drawable.r_face_sad_walk_0);
         r_head_sad_walk.addFrame(R.drawable.r_face_sad_walk_1);
         r_head_sad_walk.addFrame(R.drawable.r_face_sad_walk_2);
@@ -275,9 +323,8 @@ public class Sheep extends MovableGameObject {
 
         r_head_drag = new Animation();
         animations.add(r_head_drag);
-        animations_head.add(r_head_drag);
+//        animations_head.add(r_head_drag);
         r_head_drag.addFrame(R.drawable.r_face_drag);
-//        this.setLocation(x, y);
 
         r_body_fall = new Animation();
         animations.add(r_body_fall);
@@ -287,7 +334,7 @@ public class Sheep extends MovableGameObject {
 
         r_body_land = new Animation(2);
         animations.add(r_body_land);
-//        animations_body.add(r_body_land);
+        animations_body.add(r_body_land);
         r_body_land.addFrame(R.drawable.r_sheep_landing_0);
         r_body_land.addFrame(R.drawable.r_sheep_landing_0);
         r_body_land.addFrame(R.drawable.r_sheep_landing_1);
@@ -297,14 +344,14 @@ public class Sheep extends MovableGameObject {
 
         r_head_fall = new Animation();
         animations.add(r_head_fall);
-        animations_head.add(r_head_fall);
+//        animations_head.add(r_head_fall);
         r_head_fall.addFrame(R.drawable.r_face_fall_0);
         r_head_fall.addFrame(R.drawable.r_face_fall_1);
         r_head_fall.addFrame(R.drawable.r_face_fall_2);
 
         r_head_land = new Animation(2);
         animations.add(r_head_land);
-//        animations_head.add(r_head_land);
+        animations_head.add(r_head_land);
         r_head_land.addFrame(R.drawable.r_face_landing_0);
         r_head_land.addFrame(R.drawable.r_face_landing_0);
         r_head_land.addFrame(R.drawable.r_face_landing_1);
@@ -312,6 +359,18 @@ public class Sheep extends MovableGameObject {
         r_head_land.addFrame(R.drawable.r_face_landing_2);
         r_head_land.addFrame(R.drawable.r_face_landing_2);
 
+        r_head_eat = new Animation();
+        animations.add(r_head_eat);
+        animations.add(r_head_eat);
+        r_head_eat.addFrame(R.drawable.r_face_eat_0);
+        r_head_eat.addFrame(R.drawable.r_face_eat_1);
+
+        r_head_chew = new Animation();
+        animations.add(r_head_chew);
+        animations_head.add(r_head_chew);
+        r_head_chew.addFrame(R.drawable.r_face_chew_0);
+        r_head_chew.addFrame(R.drawable.r_face_chew_1);
+        r_head_chew.addFrame(R.drawable.r_face_chew_2);
         //endregion
     }
 
@@ -322,6 +381,8 @@ public class Sheep extends MovableGameObject {
         isLand = false;
     }
 
+    //region origin setLocation
+    /*
     @Override
     public void setLocation(int x, int y) {
         super.setLocation(x, y);
@@ -523,6 +584,46 @@ public class Sheep extends MovableGameObject {
         }
         //endregion
     }
+    */
+    //endregion
+
+    @Override
+    public void setLocation(int x, int y) {
+        super.setLocation(x, y);
+        stateRun.updateForeObjectLocation(this, p_body.px, p_body.py);
+
+
+        p_body.set(x,y,direction,ratio);
+        p_head.set(x,y,direction,ratio);
+        p_head_sad.set(x,y,direction,ratio);
+        p_r_head_sad.set(x,y,direction,ratio);
+        p_head_drag.set(x,y,direction,ratio);
+        p_head_fall.set(x,y,direction,ratio);
+        p_eye.set(x,y,direction,ratio);
+        p_tail.set(x,y,direction,ratio);
+        p_shadow.set(x,y,direction,ratio);
+
+        //System.out.println(p_shadow.cy);
+
+        for (Animation item : animations_body) item.setLocation(p_body.px, p_body.py);
+        for (Animation item : animations_head) item.setLocation(p_head.px, p_head.py);
+        for (Animation item : animations_eye) item.setLocation(p_eye.px, p_eye.py);
+        tail.setLocation(p_tail.px, p_tail.py);
+        r_tail.setLocation(p_tail.px, p_tail.py);
+        r_head_sad_rest.setLocation(p_r_head_sad.px, p_r_head_sad.py);
+        r_head_sad_walk.setLocation(p_r_head_sad.px, p_r_head_sad.py);
+        head_drag.setLocation(p_head_drag.px, p_head_drag.py);
+        head_fall.setLocation(p_head_fall.px, p_head_fall.py);
+        r_head_drag.setLocation(p_head_drag.px, p_head_drag.py);
+        r_head_fall.setLocation(p_head_fall.px, p_head_fall.py);
+        if(y>210) {
+            shadow.setLocation(p_shadow.px, p_shadow.py);
+            r_shadow.setLocation(p_shadow.px, p_shadow.py);
+        }else {
+            shadow.setLocation(p_shadow.px, 220);
+            r_shadow.setLocation(p_shadow.px, 220);
+        }
+    }
 
     private void setAnimation() {
         if (isRest) {
@@ -531,6 +632,7 @@ public class Sheep extends MovableGameObject {
             if (direction) {
                 body_rest.setVisible(true);
                 tail.setVisible(true);
+                shadow.setVisible(true);
                 if (state.getState() == "happy") {
                     eye_happy.setVisible(true);
                     head_rest.setVisible(true);
@@ -542,6 +644,7 @@ public class Sheep extends MovableGameObject {
             }else {
                 r_body_rest.setVisible(true);
                 r_tail.setVisible(true);
+                r_shadow.setVisible(true);
                 if (state.getState() == "happy") {
                     r_eye_happy.setVisible(true);
                     r_head_rest.setVisible(true);
@@ -558,6 +661,7 @@ public class Sheep extends MovableGameObject {
             if (direction) {
                 body_walk.setVisible(true);
                 tail.setVisible(true);
+                shadow.setVisible(true);
                 if (state.getState() == "happy") {
                     eye_happy.setVisible(true);
                     head_walk.setVisible(true);
@@ -570,6 +674,7 @@ public class Sheep extends MovableGameObject {
                 r_body_walk.setVisible(true);
 
                 r_tail.setVisible(true);
+                r_shadow.setVisible(true);
                 if (state.isGoodMood()) {
                     r_eye_happy.setVisible(true);
                     r_head_walk.setVisible(true);
@@ -588,10 +693,12 @@ public class Sheep extends MovableGameObject {
                 body_drag.setVisible(true);
                 head_drag.setVisible(true);
                 tail.setVisible(true);
+                shadow.setVisible(true);
             }else {
                 r_body_drag.setVisible(true);
                 r_head_drag.setVisible(true);
                 r_tail.setVisible(true);
+                r_shadow.setVisible(true);
             }
         }
         else if (isLand) {
@@ -601,10 +708,12 @@ public class Sheep extends MovableGameObject {
                 body_land.setVisible(true);
                 head_land.setVisible(true);
                 tail.setVisible(true);
+                shadow.setVisible(true);
             }else {
                 r_body_land.setVisible(true);
                 r_head_land.setVisible(true);
                 r_tail.setVisible(true);
+                r_shadow.setVisible(true);
             }
         }
         else if (isFall) {
@@ -614,10 +723,12 @@ public class Sheep extends MovableGameObject {
                 body_fall.setVisible(true);
                 head_fall.setVisible(true);
                 tail.setVisible(true);
+                shadow.setVisible(true);
             }else {
                 r_body_fall.setVisible(true);
                 r_head_fall.setVisible(true);
                 r_tail.setVisible(true);
+                r_shadow.setVisible(true);
             }
         }
         else {
@@ -627,10 +738,12 @@ public class Sheep extends MovableGameObject {
                 body_rest.setVisible(true);
                 head_rest.setVisible(true);
                 tail.setVisible(true);
+                shadow.setVisible(true);
             }else {
                 r_body_rest.setVisible(true);
                 r_head_rest.setVisible(true);
                 r_tail.setVisible(true);
+                r_shadow.setVisible(true);
             }
         }
 
@@ -670,17 +783,44 @@ public class Sheep extends MovableGameObject {
         setAnimation();
 
         if (--walkCount <= 0) {
-            if (Math.random()*10 > 5) direction = true;
-            else direction = false;
+            walkDir = Math.random()*100;
+            if (walkDir < 6.25) {rx = 0.924; ry = -0.383;}
+            else if (walkDir < 12.5) {rx = 0.707; ry = -0.707;}
+            else if (walkDir < 18.75) {rx = 0.383; ry = -0.924;}
+            else if (walkDir < 25) {rx = 0; ry = -1;}
+            else if (walkDir < 61.25) {rx = -0.383; ry = -0.924;}
+            else if (walkDir < 37.5) {rx = ry = -0.707;}
+            else if (walkDir < 43.75) {rx = -0.924; ry = -0.383;}
+            else if (walkDir < 50) {rx = -1; ry = 0;}
+            else if (walkDir < 56.25) {rx = -0.924; ry = 0.383;}
+            else if (walkDir < 62.5) {rx = -0.707; ry = 0.707;}
+            else if (walkDir < 68.75) {rx = -0.383; ry = 0.924;}
+            else if (walkDir < 75) {rx = 0; ry = 1;}
+            else if (walkDir < 81.25) {rx = 0.383; ry = 0.924;}
+            else if (walkDir < 87.5) {rx = ry = 0.707;}
+            else if (walkDir < 93.75) {rx = 0.924; ry = 0.383;}
+            else {rx = 1; ry = 0;}
+            direction = rx < 0;
             walkCount = WALK_DELAY;
         }
         if(!stateRun.isGrabbingMap) {
-            if (direction) this.setLocation(--x, y);
-            else this.setLocation(++x, y);
+
+            if (y>210 && y<300) {
+                x = (int)(x + rx);
+                y = (int)(y + ry);
+                this.setLocation(x, y);
+            }
+            else this.rest();
         }
         else {
-            if (direction) --moveX;
-            else ++moveX;
+            int tmpX, tmpY;
+            tmpX = (int)(moveX + rx);
+            tmpY = (int)(moveY + ry);
+            if (y>210 && y<300) {
+                moveX = tmpX;
+                moveY = tmpY;
+            }
+            else this.rest();
         }
     }
     public void drag() {
@@ -693,7 +833,11 @@ public class Sheep extends MovableGameObject {
         isFall = true;
         setAnimation();
 
-        if (y < 260) {
+        if (y < 210){
+            if (!stateRun.isGrabbingMap) this.setLocation(x, y+=20);
+            else y += 20;
+        }
+        else if (y < tmpY+30) {
             if (!stateRun.isGrabbingMap) this.setLocation(x, y+=20);
             else y += 20;
         }
@@ -704,7 +848,8 @@ public class Sheep extends MovableGameObject {
         }
     }
     public void land() {
-        y = 250;
+        if (tmpY +20 > 210) y = tmpY + 20;
+        else y = 210;
         setLocation(x, y);
         isLand = true;
         setAnimation();
@@ -718,12 +863,14 @@ public class Sheep extends MovableGameObject {
             instr = 0;
             this.drag();
             dragRelease = true;
+            tmpY = y;
         }
         else {
             isDrag = false;
             if (dragRelease) {
                 releaseY = y;
                 this.fall();
+
             }
             else if (isLand) {
                 this.land();
@@ -779,6 +926,18 @@ public class Sheep extends MovableGameObject {
         x = initImageX + deltaX;
         y = initImageY + deltaY;
         this.setLocation(x, y);
+    }
+
+    @Override
+    public void resize(double ratio){
+        this.ratio = ratio;
+        if (y > 210) {
+            width = (int) (oriWidth * ratio);
+            height = (int) (oriHeight * ratio);
+            for (Animation item : animations) {
+                item.resize(ratio * 0.8);
+            }
+        }
     }
 
     public int getId() {

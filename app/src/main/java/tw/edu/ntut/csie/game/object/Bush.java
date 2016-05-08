@@ -4,15 +4,15 @@ import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
 
-public class Stone extends MovableGameObject {
+public class Bush extends MovableGameObject {
     private MovingBitmap image;
     private double random = Math.random()*100;
 
-    public Stone(int x, int y) {
+    public Bush(int x, int y) {
         this.draggable = false;
-        if (random < 50)image = new MovingBitmap(R.drawable.border1);
-        else image = new MovingBitmap(R.drawable.border2);
-        image.resize((int)(image.getWidth()*0.8), (int)(image.getHeight()*0.8));
+        if (random < 50) image = new MovingBitmap(R.drawable.bush1);
+        else image = new MovingBitmap(R.drawable.bush2);
+        image.resize((int)(image.getWidth()*0.7), (int)(image.getHeight()*0.7));
         this.width = image.getWidth();
         this.height = image.getHeight();
         this.setLocation(x, y);

@@ -14,6 +14,8 @@ import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.engine.GameEngine;
 import tw.edu.ntut.csie.game.object.BackgroundSet;
+import tw.edu.ntut.csie.game.object.Bush;
+import tw.edu.ntut.csie.game.object.Rock;
 import tw.edu.ntut.csie.game.object.Sheep;
 import tw.edu.ntut.csie.game.object.Cloud;
 import tw.edu.ntut.csie.game.object.Stone;
@@ -71,12 +73,13 @@ public class StateRun extends GameState {
         addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 80, 280));
         addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 65, 320));
         // trees
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 300));
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 100, 260));
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 400, 200));
+        addToForeObjectTable(new Rock(imgFloor.getX() + MAP_LEFT_MARGIN + 200, 170));
+        addToForeObjectTable(new Bush(imgFloor.getX() + MAP_LEFT_MARGIN + 240, 250));
+        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 600, 190));
+        //addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 410, 220));
         // sheep
         addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 500, 250, 1));
-        addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 100, 200, 2));
+        addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 100, 211, 2));
     }
 
     @Override
@@ -128,9 +131,11 @@ public class StateRun extends GameState {
         backgroundSet.show();
 
         // show objects in foreObjectLists ordering by Y-axis
-        for (MovableGameObject gameObject : getAllForeObjects()) {
+        for (MovableGameObject gameObject : getAllForeObjects()){
+
             gameObject.show();
         }
+
     }
 
     @Override
@@ -330,9 +335,10 @@ public class StateRun extends GameState {
                 newList = new ArrayList<>();
             newList.add(gameObject);
             foreObjectTable.put(py, newList);
+
             // resize
-//        double ratio = Lib25D.sizeAdj(y);
-//        gameObject.resize((int) (gameObject.getWidth() * ratio), (int) (gameObject.getHeight() * ratio));
+            double ratio = Lib25D.sizeAdj(gameObject.getY());
+            gameObject.resize(ratio);
         }
     }
 

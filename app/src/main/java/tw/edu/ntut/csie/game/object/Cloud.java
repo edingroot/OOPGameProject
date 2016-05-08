@@ -48,9 +48,9 @@ public class Cloud extends MovableGameObject {
          appStateRun.updateForeObjectLocation(this, x, y);
     }
 
-    public void resize(int width, int height) {
-        super.resize(width, height);
-        image.resize(width, height);
+    public void resize(double ratio) {
+        super.resize(ratio);
+//        image.resize((int)(width*ratio), (int)(height*ratio));
     }
 
     @Override
