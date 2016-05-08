@@ -220,7 +220,8 @@ public class StateRun extends GameState {
 
         // trigger dragReleased event on dragging objects in foreObjectLists
         for (MovableGameObject gameObject : getAllForeObjects()) {
-            gameObject.dragReleased(singlePointer);
+            if (gameObject.isDragging())
+                gameObject.dragReleased(singlePointer);
         }
 
         isGrabbingMap = false;

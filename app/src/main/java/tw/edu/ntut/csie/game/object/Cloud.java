@@ -30,7 +30,7 @@ public class Cloud extends MovableGameObject {
     private int speed = 1; // (<0): moving left
     private MovingBitmap image;
     private int checkShakeCounter = 0, directionChangedCounter = 0;
-    private int lastShakeDirection = 1; // right: 1; left: -1
+    private int lastDragDirection = 1; // right: 1; left: -1
     private int lastCheckX = CMP_MAX_XY;
 
     public Cloud(StateRun appStateRun, int x, int y, int type, int level) {
@@ -58,6 +58,15 @@ public class Cloud extends MovableGameObject {
         int newX = initialX + pointer.getX() - initialPointerX;
         int newY = initialY + pointer.getY() - initialPointerY;
         this.setLocation(newX, newY);
+    }
+
+    @Override
+    public void dragReleased(Pointer pointer) {
+        super.dragReleased(pointer);
+
+        // determine moving direction after dragging
+        if (speed * lastDragDirection < 0)
+            speed = -speed;
     }
 
     public int getType() {
@@ -118,8 +127,8 @@ public class Cloud extends MovableGameObject {
 
         int delta = this.x - lastCheckX;
         if (Math.abs(delta) < SHAKE_THRESHOLD) {
-            if (lastShakeDirection * delta < 0) { // different direction
-                lastShakeDirection = -lastShakeDirection;
+            if (lastDragDirection * delta < 0) { // different direction
+                lastDragDirection = -lastDragDirection;
                 directionChangedCounter = (directionChangedCounter + 1) % SHAKE_COUNT_THRESHOLD;
                 if (directionChangedCounter == 0) {
                     System.out.println("Cloud shake exceed threshold!");
@@ -140,6 +149,5 @@ public class Cloud extends MovableGameObject {
         int x1 = this.x, x2 = this.x + this.width / 3;
         appStateRun.addToForeObjectTable(new Cloud(appStateRun, x1, y, newType, level - 1));
         appStateRun.addToForeObjectTable(new Cloud(appStateRun, x2, y, newType, level - 1));
-//        appStateRun.removeFromForeObjectTable(this);
     }
 }
