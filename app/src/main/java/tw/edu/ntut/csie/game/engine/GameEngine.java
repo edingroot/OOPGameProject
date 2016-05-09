@@ -267,7 +267,10 @@ public class GameEngine implements Runnable {
                 }
                 waitUntil(timeToSleep);
             } catch (Throwable t) {
-                addDebugInfo(t.getMessage());
+                if (t.getMessage() != null)
+                    addDebugInfo(t.getMessage());
+                else
+                    t.printStackTrace();
             } finally {
                 // 即使發生任何例外，還是需要釋放螢幕的鎖定，所以放在finally的區塊內
                 if (canvas != null) {
