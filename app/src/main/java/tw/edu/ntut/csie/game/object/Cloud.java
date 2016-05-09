@@ -28,7 +28,9 @@ public class Cloud extends MovableGameObject {
     private int type;
     private int level; // (1~3): how big it is
     private int speed = 1; // (<0): moving left
+    private boolean raining = false;
     private MovingBitmap image;
+    private Rain rain;
     private int checkShakeCounter = 0, directionChangedCounter = 0;
     private int lastDragDirection = 1; // right: 1; left: -1
     private int lastCheckX = CMP_MAX_XY;
@@ -45,11 +47,14 @@ public class Cloud extends MovableGameObject {
     public void setLocation(int x, int y) {
         super.setLocation(x, y);
         image.setLocation(x, y);
-         appStateRun.updateForeObjectLocation(this, x, y);
+        appStateRun.updateForeObjectLocation(this, x, y);
+        if (raining) {
+            rain.setLocation(x, y + this.height);
+        }
     }
 
     public void resize(double ratio) {
-        super.resize(ratio);
+//        super.resize(ratio);
 //        image.resize((int)(width*ratio), (int)(height*ratio));
     }
 
@@ -58,6 +63,9 @@ public class Cloud extends MovableGameObject {
         int newX = initialX + pointer.getX() - initialPointerX;
         int newY = initialY + pointer.getY() - initialPointerY;
         this.setLocation(newX, newY);
+        if (raining) {
+            rain.setLocation(newX, newY + this.height);
+        }
     }
 
     @Override
@@ -85,24 +93,52 @@ public class Cloud extends MovableGameObject {
         this.level = level;
     }
 
+    public boolean isRaining() {
+        return raining;
+    }
+
+    public void setRaining(boolean rainning) {
+        if (rainning) {
+            rain = new Rain(this.x, this.y + this.height, this.width, 300);
+        } else {
+            rain.release();
+            rain = null;
+        }
+        this.raining = rainning;
+    }
+
     @Override
     public void move() {
         detectShaking();
 
         if (!appStateRun.isGrabbingMap && !dragging) {
-            this.setLocation(x + speed, y);
+            int newX = x + speed;
+            this.setLocation(newX, y);
+            if (raining) {
+                 rain.setLocation(newX, y);
+            }
+        }
+        if (raining) {
+            rain.move();
         }
     }
 
     @Override
     public void show() {
         image.show();
+        if (raining) {
+            rain.show();
+        }
     }
 
     @Override
     public void release() {
         image.release();
         image = null;
+        if (rain != null) {
+            rain.release();
+            rain = null;
+        }
     }
 
     private void updateImageFromState() {

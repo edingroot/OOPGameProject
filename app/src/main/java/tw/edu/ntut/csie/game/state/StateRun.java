@@ -8,7 +8,6 @@ import java.util.NavigableMap;
 import java.util.TreeMap;
 
 import tw.edu.ntut.csie.game.Game;
-import tw.edu.ntut.csie.game.GameObject;
 import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
@@ -63,7 +62,9 @@ public class StateRun extends GameState {
 
         // ---------- game objects ----------
         // clouds
-        addToForeObjectTable(new Cloud(this, 10, 0, Cloud.TYPE_WHITE, Cloud.LEVEL_BIG));
+        Cloud cloud = new Cloud(this, 10, 0, Cloud.TYPE_WHITE, Cloud.LEVEL_BIG);
+        cloud.setRaining(true);
+        addToForeObjectTable(cloud);
         addToForeObjectTable(new Cloud(this, 40, 10, Cloud.TYPE_GRAY, Cloud.LEVEL_MEDIUM));
         // stones
         addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 45, 240));
