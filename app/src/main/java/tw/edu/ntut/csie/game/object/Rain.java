@@ -26,12 +26,8 @@ public class Rain extends MovableGameObject {
         generateDrops();
     }
 
+    @Override
     public void setLocation(int x, int y) {
-        int deltaX = x - this.x;
-        int deltaY = y - this.y;
-        for (MovingBitmap drop : drops) {
-            drop.setLocation(drop.getX() + deltaX, drop.getY() + deltaY);
-        }
         super.setLocation(x, y);
     }
 

@@ -105,14 +105,14 @@ public class Cloud extends MovableGameObject {
         return raining;
     }
 
-    public void toggleRainFall(boolean rainning) {
-        if (rainning) {
+    public void toggleRainFall(boolean raining) {
+        if (raining) {
             rain = new Rain(this.x, this.y + this.height, this.width, 300);
         } else {
             rain.release();
             rain = null;
         }
-        this.raining = rainning;
+        this.raining = raining;
     }
 
     @Override
@@ -123,7 +123,7 @@ public class Cloud extends MovableGameObject {
             int newX = x + speed;
             this.setLocation(newX, y);
             if (raining) {
-                 rain.setLocation(newX, y);
+                 rain.setLocation(newX, this.y + this.height);
             }
         }
         if (raining) {
