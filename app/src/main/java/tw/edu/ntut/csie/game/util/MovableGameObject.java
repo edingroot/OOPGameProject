@@ -9,6 +9,8 @@ public abstract class MovableGameObject implements GameObject {
     protected int width, height;
     protected boolean draggable = true;
     protected boolean dragging = false;
+    private long dragPressedMillis = 0;
+    private boolean dragHasMoved = false;
 
     public boolean isDraggable() {
         return draggable;
@@ -35,15 +37,23 @@ public abstract class MovableGameObject implements GameObject {
 
     public void dragPressed(Pointer pointer) {
         this.dragging = true;
+        this.dragPressedMillis = System.currentTimeMillis() % 1000;
+        this.dragHasMoved = false;
         this.moveStarted(pointer);
     }
 
     public void dragMoved(Pointer pointer) {
+        this.dragHasMoved = true;
     }
 
     public void dragReleased(Pointer pointer) {
         this.dragging = false;
+        long millis = System.currentTimeMillis() % 1000;
+        if (!this.dragHasMoved && Math.abs(millis - dragPressedMillis) < 300)
+            clicked(pointer);
     }
+
+    public void clicked(Pointer pointer) {}
 
     public int getX() {
         return x;

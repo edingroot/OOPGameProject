@@ -60,6 +60,7 @@ public class Cloud extends MovableGameObject {
 
     @Override
     public void dragMoved(Pointer pointer) {
+        super.dragMoved(pointer);
         int newX = initialX + pointer.getX() - initialPointerX;
         int newY = initialY + pointer.getY() - initialPointerY;
         this.setLocation(newX, newY);
@@ -75,6 +76,13 @@ public class Cloud extends MovableGameObject {
         // determine moving direction after dragging
         if (speed * lastDragDirection < 0)
             speed = -speed;
+    }
+
+    @Override
+    public void clicked(Pointer pointer) {
+        if (this.type == TYPE_GRAY && this.level == LEVEL_BIG) {
+            toggleRainFall(!raining);
+        }
     }
 
     public int getType() {
@@ -97,7 +105,7 @@ public class Cloud extends MovableGameObject {
         return raining;
     }
 
-    public void setRaining(boolean rainning) {
+    public void toggleRainFall(boolean rainning) {
         if (rainning) {
             rain = new Rain(this.x, this.y + this.height, this.width, 300);
         } else {

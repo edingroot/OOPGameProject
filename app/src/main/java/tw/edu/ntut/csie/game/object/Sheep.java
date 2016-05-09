@@ -920,7 +920,8 @@ public class Sheep extends MovableGameObject {
     }
 
     @Override
-    public void dragMoved(Pointer pointer){
+    public void dragMoved(Pointer pointer) {
+        super.dragMoved(pointer);
         int deltaX = pointer.getX() - initialPointerX;
         int deltaY = pointer.getY() - initialPointerY;
         x = initImageX + deltaX;
