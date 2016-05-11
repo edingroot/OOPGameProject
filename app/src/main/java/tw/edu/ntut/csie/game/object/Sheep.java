@@ -36,6 +36,9 @@ public class Sheep extends MovableGameObject {
     private static final int eyeW = 30, eyeH = 26;
     //endregion
 
+    private List<Grass> grasses;
+    private Grass grassTest;
+
     private SheepPos p_body = new SheepPos(0, 0, 100, 94);
     private SheepPos p_head = new SheepPos(165, 40, 64, 57);
     private SheepPos p_head_sad = new SheepPos(165, 40, 75, 58);
@@ -45,6 +48,7 @@ public class Sheep extends MovableGameObject {
     private SheepPos p_eye = new SheepPos(150, 44, 31, 26);
     private SheepPos p_tail = new SheepPos(0, 40, 29, 27);
     private SheepPos p_shadow = new SheepPos(250, 30, 130, 32);
+    private SheepPos p_state = new SheepPos(130, 60, 34, 35);
 
     private static final int oriWidth = 100, oriHeight = 100;
 
@@ -52,6 +56,7 @@ public class Sheep extends MovableGameObject {
     private static final int WALK_DELAY = 50;
     private static final int BLINK_DELAY = 150, BLINK_TIME = 10;
     private static final int CHEW_DELAY = 30;
+    private static final int GRASS_SHORTEST_DISTANCE = 300;
     private SheepState state;
 
     //region animationDeclaration
@@ -88,6 +93,8 @@ public class Sheep extends MovableGameObject {
     private boolean dragRelease;
     private boolean isBlink;
     private int tmpY = 0;
+    private double lx, ly;
+    private double angle;
 
     public Sheep(StateRun stateRun, int x, int y, int id) {
         this(stateRun, x, y);
@@ -112,11 +119,17 @@ public class Sheep extends MovableGameObject {
 
         state = new SheepState();
 
+        grasses = new ArrayList<>();
+
         animations = new ArrayList<>();
         animations_body = new ArrayList<>();
         animations_head = new ArrayList<>();
         animations_eye = new ArrayList<>();
         animations_tail = new ArrayList<>();
+
+        sign_hungry = new Animation();
+        animations.add(sign_hungry);
+        sign_hungry.addFrame(R.drawable.state_hungry);
 
 
         //region AnimationLeft
@@ -597,7 +610,7 @@ public class Sheep extends MovableGameObject {
         stateRun.updateForeObjectLocation(this, p_body.px, p_body.py);
 
 
-        p_body.set(x,y,direction,ratio);
+        p_body.set(x, y, direction, ratio);
         p_head.set(x,y,direction,ratio);
         p_head_sad.set(x,y,direction,ratio);
         p_r_head_sad.set(x,y,direction,ratio);
@@ -606,6 +619,7 @@ public class Sheep extends MovableGameObject {
         p_eye.set(x,y,direction,ratio);
         p_tail.set(x,y,direction,ratio);
         p_shadow.set(x,y,direction,ratio);
+        p_state.set(x,y,direction,ratio);
 
         //System.out.println(p_shadow.cy);
 
@@ -620,6 +634,7 @@ public class Sheep extends MovableGameObject {
         head_fall.setLocation(p_head_fall.px, p_head_fall.py);
         r_head_drag.setLocation(p_head_drag.px, p_head_drag.py);
         r_head_fall.setLocation(p_head_fall.px, p_head_fall.py);
+        sign_hungry.setLocation(p_state.px, p_state.py);
         if(y>210) {
             shadow.setLocation(p_shadow.px, p_shadow.py);
             r_shadow.setLocation(p_shadow.px, p_shadow.py);
@@ -739,7 +754,6 @@ public class Sheep extends MovableGameObject {
             for (Animation item : animations) item.setVisible(false);
 
             if (direction) {
-
                 body_rest.setVisible(true);
                 head_eat.setVisible(true);
                 tail.setVisible(true);
@@ -913,7 +927,13 @@ public class Sheep extends MovableGameObject {
         }
         else {
             arriveGrass = false;
+            state.satisfy("eat");
             this.rest();
+        }
+    }
+    public void showState() {
+        if (state.getState().equals("hungry")) {
+            sign_hungry.setVisible(true);
         }
     }
 
@@ -936,18 +956,13 @@ public class Sheep extends MovableGameObject {
             }
             else {
                 if (state.getState().equals("hungry")) {
-                    if (!arriveGrass && !isDrag && !isFall && !isLand) {
-                        if (direction) {
-                            r_sign_hungry.setVisible(false);
-                            sign_hungry.setVisible(true);
-                        }
-                        else {
-                            sign_hungry.setVisible(false);
-                            r_sign_hungry.setVisible(false);
-                        }
+                    if (arriveGrass) this.eat();
+                    else {
+                        this.walkToGrass();
+                        this.showState();
                     }
-                    else this.eat();
                 }
+
                 else {
                     this.blink();
                     if (--aiCount <= 0) {
@@ -1015,33 +1030,49 @@ public class Sheep extends MovableGameObject {
     }
 
     public int calcGrassDistance(Grass grass){
-        int disHor = grass.getX() - p_body.px;
-        int disVer = grass.getY() - p_body.py;
+        int disHor = grass.getX() - x;
+        int disVer = grass.getY() - y;
 
         return (int)(Math.sqrt(disHor * disHor + disVer * disVer));
     }
 
-    public void walkToGrass(List<Grass> grasses){
-        Grass closestGrass = new Grass(x,y);
-        int shortestDistance = 300;
-        for (Grass item : grasses) {
-            if (calcGrassDistance(item) < shortestDistance) {
-                shortestDistance = calcGrassDistance(item);
-                closestGrass = item;
-            }
-        }
-        double lx, ly;
-        double angle;
-        angle = Math.atan((closestGrass.getY() - y) / (closestGrass.getX() - x));
-        lx = Math.cos(angle);
-        ly = Math.sin(angle);
-        x += lx;
-        y -= ly;
+    public void setGrass(List<Grass> grassesFromStateRun){
+//        for (int i = 0 ; i < grassesFromStateRun.size() ; i++)
+//            grasses.set(i, grassesFromStateRun.get(i));
+
     }
 
-    private void showState() {
-        if(state.getState() == "hungry"){
+    public void walkToGrass(){
 
+        Grass closestGrass;
+//        for (Grass item : grasses) {
+//            if (calcGrassDistance(item) < shortestDistance) {
+//                shortestDistance = calcGrassDistance(item);
+//                closestGrass = item;
+//            }
+//        }h
+        if (calcGrassDistance(stateRun.grass) < 1) {
+            isWalk = false;
+            arriveGrass = true;
+        }
+        else if (calcGrassDistance(stateRun.grass) < GRASS_SHORTEST_DISTANCE) {
+            arriveGrass = false;
+            clearActions();
+            isWalk = true;
+            setAnimation();
+            //closestGrass = ;
+
+            angle = Math.atan((stateRun.grass.getY() - y) / (stateRun.grass.getX() - x));
+
+            lx = Math.cos(angle);
+            ly = Math.sin(angle);
+
+            System.out.println(stateRun.grass.getX() + " " + stateRun.grass.getY() +" " +Math.toDegrees(angle) + " "+ lx + " " + ly);
+
+            direction = (lx<0);
+            x += lx;
+            y -= ly;
+            setLocation(x,y);
         }
     }
 

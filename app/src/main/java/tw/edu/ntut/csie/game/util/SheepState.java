@@ -82,7 +82,7 @@ public class SheepState {
     }
 
     public void satisfy(String event) {
-        if (event == "eat") {
+        if (event.equals("eat")) {
             hungryValue -= 30;
             thirstyValue -= 10;
             happiness = 100;

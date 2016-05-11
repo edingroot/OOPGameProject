@@ -38,6 +38,8 @@ public class StateRun extends GameState {
     // NavigableMap foreObjectTable: index = lower-left y-axis of object
     private final NavigableMap<Integer, List<MovableGameObject>> foreObjectTable;
 
+    public Grass grass;
+
     private int initForeX = 0;
     private int initPointerX = 0;
 
@@ -83,7 +85,8 @@ public class StateRun extends GameState {
         addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 500, 250, 1));
         addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 100, 211, 2));
         //grass
-        addToForeObjectTable(new Grass(imgFloor.getX() + MAP_LEFT_MARGIN + 300, 260));
+        grass = new Grass(imgFloor.getX() + MAP_LEFT_MARGIN + 380, 280);
+        addToForeObjectTable(grass);
     }
 
     @Override
