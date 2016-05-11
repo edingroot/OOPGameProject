@@ -45,6 +45,7 @@ public class StateRun extends GameState {
 
     public StateRun(GameEngine engine) {
         super(engine);
+
         foreObjectTable = new TreeMap<>();
     }
 
@@ -87,6 +88,8 @@ public class StateRun extends GameState {
         //grass
         grass = new Grass(imgFloor.getX() + MAP_LEFT_MARGIN + 380, 280);
         addToForeObjectTable(grass);
+
+
     }
 
     @Override

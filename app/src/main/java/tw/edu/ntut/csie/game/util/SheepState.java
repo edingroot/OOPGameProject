@@ -1,5 +1,7 @@
 package tw.edu.ntut.csie.game.util;
 
+import android.provider.Settings;
+
 /**
  * Created by Lin on 2016/4/3.
  */
@@ -51,48 +53,49 @@ public class SheepState {
         }
     }
 
-    public String getState() {
+    public int getState() {
 
-        if (sad) return "sad";
-        if (hungry) return "hungry";
-        else if (thirsty) return "thirsty";
-        else return "happy";
+        if (sad) return 3;
+        if (hungry) return 1;
+        else if (thirsty) return 2;
+        else return 0;
     }
 
     public void work() {
-
+        //System.out.println(hungryValue);
         if (hungryValue > 30) {
             clearState();
             hungry = true;
         }
-        else if (thirstyValue > 40) {
+        else if (thirstyValue > 100) {
             clearState();
             thirsty = true;
-        }else if (happiness < 80) {
+        }else if (happiness < 70) {
             clearState();
             sad = true;
         }
         else {
+            happy = true;
             happinessDecline();
             satietyDecline();
             moistureDecline();
-
-            happy = true;
         }
     }
 
-    public void satisfy(String event) {
-        if (event.equals("eat")) {
-            hungryValue -= 30;
-            thirstyValue -= 10;
+    public void satisfy(int event) {
+        if (event == 1) {
+            hungryValue = 0;
+            thirstyValue = 0;
             happiness = 100;
+            clearState();
+            happy = true;
         }
-        else if (event == "drink") {
+        else if (event == 2) {
             thirstyValue -= 40;
             hungryValue -= 10;
             happiness = 100;
         }
-        else if (event == "drag") {
+        else if (event == 3) {
             happiness = 100;
         }
     }
