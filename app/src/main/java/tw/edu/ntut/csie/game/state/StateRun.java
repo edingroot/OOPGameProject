@@ -14,6 +14,7 @@ import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.engine.GameEngine;
 import tw.edu.ntut.csie.game.object.BackgroundSet;
 import tw.edu.ntut.csie.game.object.Bush;
+import tw.edu.ntut.csie.game.object.Grass;
 import tw.edu.ntut.csie.game.object.Rock;
 import tw.edu.ntut.csie.game.object.Sheep;
 import tw.edu.ntut.csie.game.object.Cloud;
@@ -81,6 +82,8 @@ public class StateRun extends GameState {
         // sheep
         addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 500, 250, 1));
         addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 100, 211, 2));
+        //grass
+        addToForeObjectTable(new Grass(imgFloor.getX() + MAP_LEFT_MARGIN + 300, 260));
     }
 
     @Override

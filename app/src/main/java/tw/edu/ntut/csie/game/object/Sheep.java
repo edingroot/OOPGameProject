@@ -46,12 +46,12 @@ public class Sheep extends MovableGameObject {
     private SheepPos p_tail = new SheepPos(0, 40, 29, 27);
     private SheepPos p_shadow = new SheepPos(250, 30, 130, 32);
 
-
     private static final int oriWidth = 100, oriHeight = 100;
 
     private static final int TIME_DELAY = 100;
     private static final int WALK_DELAY = 50;
     private static final int BLINK_DELAY = 150, BLINK_TIME = 10;
+    private static final int CHEW_DELAY = 30;
     private SheepState state;
 
     //region animationDeclaration
@@ -64,6 +64,7 @@ public class Sheep extends MovableGameObject {
     private Animation r_head_sad_rest, r_head_sad_walk, r_eye_sad;
     private Animation r_head_eat, r_head_chew;
     private Animation shadow, r_shadow;
+    private Animation sign_hungry, r_sign_hungry;
 
     private List<Animation> animations;
     private List<Animation> animations_body;
@@ -76,11 +77,12 @@ public class Sheep extends MovableGameObject {
     private double ratio;
     private StateRun stateRun;
     private int id;
-    private boolean isWalk, isRest, isDrag, isFall, isLand;
+    private boolean isWalk, isRest, isDrag, isFall, isLand, isEat, isChew;
     private boolean direction; // true: Left
     private double walkDir;
     private double rx, ry;
-
+    private int chewCount, chewTimer;
+    private boolean arriveGrass;
     private int walkCount=0, aiCount=0, blinkCount=0, blinkTimeCount=0, instr=0;
     private int initImageX, initImageY, releaseY, initialPointerX, initialPointerY;
     private boolean dragRelease;
@@ -105,6 +107,8 @@ public class Sheep extends MovableGameObject {
         isWalk = false;
         isFall = false;
         isLand = false;
+        isEat = false;
+        isChew = false;
 
         state = new SheepState();
 
@@ -675,7 +679,7 @@ public class Sheep extends MovableGameObject {
 
                 r_tail.setVisible(true);
                 r_shadow.setVisible(true);
-                if (state.isGoodMood()) {
+                if (state.getState() == "happy") {
                     r_eye_happy.setVisible(true);
                     r_head_walk.setVisible(true);
                 }
@@ -731,6 +735,38 @@ public class Sheep extends MovableGameObject {
                 r_shadow.setVisible(true);
             }
         }
+        else if (isEat) {
+            for (Animation item : animations) item.setVisible(false);
+
+            if (direction) {
+
+                body_rest.setVisible(true);
+                head_eat.setVisible(true);
+                tail.setVisible(true);
+                shadow.setVisible(true);
+            }else {
+                r_body_rest.setVisible(true);
+                r_head_eat.setVisible(true);
+                r_tail.setVisible(true);
+                r_shadow.setVisible(true);
+            }
+        }
+        else if (isChew) {
+            for (Animation item : animations) item.setVisible(false);
+
+            if (direction) {
+
+                body_rest.setVisible(true);
+                head_chew.setVisible(true);
+                tail.setVisible(true);
+                shadow.setVisible(true);
+            }else {
+                r_body_rest.setVisible(true);
+                r_head_chew.setVisible(true);
+                r_tail.setVisible(true);
+                r_shadow.setVisible(true);
+            }
+        }
         else {
             for (Animation item : animations) item.setVisible(false);
 
@@ -769,6 +805,7 @@ public class Sheep extends MovableGameObject {
         }
     }
     public void rest() {
+        chewCount = 0;
         body_land.reset();
         head_land.reset();
         r_body_land.reset();
@@ -856,7 +893,29 @@ public class Sheep extends MovableGameObject {
         if (body_land.isLastFrame() || r_body_land.isLastFrame()) this.rest();
 
     }
+    public void eat() {
+        chewCount++;
+        clearActions();
+        isEat = true;
+        setAnimation();
+        if(head_eat.isLastFrame() || r_head_eat.isLastFrame()) this.chew();
+    }
+    public void chew() {
+        if (chewCount < 3) {
+            clearActions();
+            isChew = true;
+            setAnimation();
 
+            if (--chewTimer<=0) {
+                chewTimer = CHEW_DELAY;
+                this.eat();
+            }
+        }
+        else {
+            arriveGrass = false;
+            this.rest();
+        }
+    }
 
     private void aiMove() {
         if (this.dragging) {
@@ -876,20 +935,35 @@ public class Sheep extends MovableGameObject {
                 this.land();
             }
             else {
-                this.blink();
-                if (--aiCount <= 0) {
-                    aiCount = TIME_DELAY;
-                    instr = (int)(Math.random()*100);
+                if (state.getState().equals("hungry")) {
+                    if (!arriveGrass && !isDrag && !isFall && !isLand) {
+                        if (direction) {
+                            r_sign_hungry.setVisible(false);
+                            sign_hungry.setVisible(true);
+                        }
+                        else {
+                            sign_hungry.setVisible(false);
+                            r_sign_hungry.setVisible(false);
+                        }
+                    }
+                    else this.eat();
                 }
-                if (instr > 33) this.walk();
-                else this.rest();
+                else {
+                    this.blink();
+                    if (--aiCount <= 0) {
+                        aiCount = TIME_DELAY;
+                        instr = (int) (Math.random() * 100);
+                    }
+                    if (instr > 33) this.walk();
+                    else this.rest();
+                }
             }
         }
     }
 
     @Override
     public void move() {
-        state.healthDecline();
+        state.work();
         aiMove();
     }
 
@@ -912,7 +986,7 @@ public class Sheep extends MovableGameObject {
     @Override
     public void dragPressed(Pointer pointer){
         super.dragPressed(pointer);
-        state.setHealth(100);
+        state.satisfy("drag");
         initImageX = this.getX();
         initImageY = this.getY();
         initialPointerX = pointer.getX();
@@ -937,6 +1011,37 @@ public class Sheep extends MovableGameObject {
             for (Animation item : animations) {
                 item.resize(ratio * 0.8);
             }
+        }
+    }
+
+    public int calcGrassDistance(Grass grass){
+        int disHor = grass.getX() - p_body.px;
+        int disVer = grass.getY() - p_body.py;
+
+        return (int)(Math.sqrt(disHor * disHor + disVer * disVer));
+    }
+
+    public void walkToGrass(List<Grass> grasses){
+        Grass closestGrass = new Grass(x,y);
+        int shortestDistance = 300;
+        for (Grass item : grasses) {
+            if (calcGrassDistance(item) < shortestDistance) {
+                shortestDistance = calcGrassDistance(item);
+                closestGrass = item;
+            }
+        }
+        double lx, ly;
+        double angle;
+        angle = Math.atan((closestGrass.getY() - y) / (closestGrass.getX() - x));
+        lx = Math.cos(angle);
+        ly = Math.sin(angle);
+        x += lx;
+        y -= ly;
+    }
+
+    private void showState() {
+        if(state.getState() == "hungry"){
+
         }
     }
 
