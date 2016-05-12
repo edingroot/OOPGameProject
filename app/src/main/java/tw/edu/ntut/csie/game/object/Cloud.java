@@ -10,6 +10,7 @@ public class Cloud extends MovableGameObject {
     public static final int SHAKE_THRESHOLD = 100;
     public static final int SHAKE_COUNT_THRESHOLD = 8;
     public static final int SHAKE_CHECK_DELAY = 1;
+    public static final int SHADOW_Y_OFFSET = 120;
     public static final int CMP_MAX_XY = 1000;
     
     public static final int TYPE_WHITE = 1; // 白雲
@@ -29,7 +30,8 @@ public class Cloud extends MovableGameObject {
     private int level; // (1~3): how big it is
     private int speed = 1; // (<0): moving left
     private boolean raining = false;
-    private MovingBitmap image;
+    private MovingBitmap cloudImage;
+    private MovingBitmap shadowImage;
     private Rain rain;
     private int checkShakeCounter = 0, directionChangedCounter = 0;
     private int lastDragDirection = 1; // right: 1; left: -1
@@ -37,25 +39,32 @@ public class Cloud extends MovableGameObject {
 
     public Cloud(StateRun appStateRun, int x, int y, int type, int level) {
         this.appStateRun = appStateRun;
-        this.x = x;
-        this.y = y;
         this.type = type;
         this.level = level;
         updateImageFromState();
+        setLocation(x, y);
     }
 
+    @Override
     public void setLocation(int x, int y) {
         super.setLocation(x, y);
-        image.setLocation(x, y);
-        appStateRun.updateForeObjectLocation(this, x, y);
+        cloudImage.setLocation(x, y);
+        shadowImage.setLocation(this.x, this.y + this.height + SHADOW_Y_OFFSET);
+        appStateRun.updateForeObjectLocation(this);
         if (raining) {
             rain.setLocation(x, y + this.height);
         }
     }
 
+    @Override
     public void resize(double ratio) {
 //        super.resize(ratio);
 //        image.resize((int)(width*ratio), (int)(height*ratio));
+    }
+
+    @Override
+    public int getY25D() {
+        return shadowImage.getY();
     }
 
     @Override
@@ -133,7 +142,7 @@ public class Cloud extends MovableGameObject {
 
     @Override
     public void show() {
-        image.show();
+        cloudImage.show();
         if (raining) {
             rain.show();
         }
@@ -141,8 +150,8 @@ public class Cloud extends MovableGameObject {
 
     @Override
     public void release() {
-        image.release();
-        image = null;
+        cloudImage.release();
+        cloudImage = null;
         if (rain != null) {
             rain.release();
             rain = null;
@@ -150,13 +159,16 @@ public class Cloud extends MovableGameObject {
     }
 
     private void updateImageFromState() {
-        if (image != null)
-            image.release();
+        if (cloudImage != null)
+            cloudImage.release();
 
         // TODO: Bumping animation
-        image = new MovingBitmap(CLOUD_IMAGE[type - 1][level - 1], x, y);
-        this.width = image.getWidth();
-        this.height = image.getHeight();
+        cloudImage = new MovingBitmap(CLOUD_IMAGE[type - 1][level - 1]);
+        this.width = cloudImage.getWidth();
+        this.height = cloudImage.getHeight();
+
+        shadowImage = new MovingBitmap(R.drawable.shadow_cloud);
+        shadowImage.resize((int) (shadowImage.getWidth() * 0.7), (int) (shadowImage.getWidth() * 0.7));
     }
 
     private void detectShaking() {

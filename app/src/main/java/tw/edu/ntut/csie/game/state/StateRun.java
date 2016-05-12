@@ -270,11 +270,11 @@ public class StateRun extends GameState {
     }
 
     public void addToForeObjectTable(MovableGameObject gameObject) {
-        updateForeObjectLocation(gameObject, gameObject.getX(), gameObject.getY(), true);
+        updateForeObjectLocation(gameObject);
     }
 
     public void removeFromForeObjectTable(MovableGameObject gameObject) {
-        int py = gameObject.getY() + gameObject.getHeight();
+        int py = gameObject.getY25D() + gameObject.getHeight();
         List<MovableGameObject> list = foreObjectTable.get(py);
         if (list != null) {
             Iterator<MovableGameObject> it = list.iterator();
@@ -291,18 +291,13 @@ public class StateRun extends GameState {
     }
 
     /**
-     * To set location of ANY OBJECT in foreground MUST use this method!
+     * To set location of ANY OBJECT in foreground MUST use this method AFTER updated self-location
      *
      * @param gameObject
-     * @param x
-     * @param y
      */
-    public void updateForeObjectLocation(MovableGameObject gameObject, int x, int y) {
-        updateForeObjectLocation(gameObject, x, y, false);
-    }
-    public void updateForeObjectLocation(MovableGameObject gameObject, int x, int y, boolean createNew) {
+    public void updateForeObjectLocation(MovableGameObject gameObject) {
         synchronized (foreObjectTable) {
-            int py = y + gameObject.getHeight();
+            int py = gameObject.getY25D() + gameObject.getHeight();
             int originalY = -1;
             for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
                 List<MovableGameObject> list = entry.getValue();
@@ -336,7 +331,7 @@ public class StateRun extends GameState {
             foreObjectTable.put(py, newList);
 
             // resize
-            double ratio = Lib25D.sizeAdj(gameObject.getY());
+            double ratio = Lib25D.sizeAdj(gameObject.getY25D());
             gameObject.resize(ratio);
         }
     }

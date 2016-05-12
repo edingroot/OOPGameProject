@@ -63,6 +63,14 @@ public abstract class MovableGameObject implements GameObject {
         return y;
     }
 
+    /**
+     * return y for determining how far the object is
+     * @return int y25d
+     */
+    public int getY25D() {
+        return y;
+    }
+
     public int getInitialX() {
         return initialX;
     }
