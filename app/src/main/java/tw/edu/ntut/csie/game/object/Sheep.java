@@ -1088,7 +1088,7 @@ public class Sheep extends MovableGameObject {
 
         if(disHor <= 3 && disHor >= -3) disHor = 0;
         if(disVer <= 3 && disVer >= -3) disVer = 0;
-        System.out.println(" deltaX = " + disHor + " deltaY=" + disVer);
+//        System.out.println(" deltaX = " + disHor + " deltaY=" + disVer);
         return (Math.sqrt(disHor * disHor + disVer * disVer));
     }
 

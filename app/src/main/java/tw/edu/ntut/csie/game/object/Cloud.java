@@ -1,8 +1,5 @@
 package tw.edu.ntut.csie.game.object;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
@@ -15,6 +12,8 @@ public class Cloud extends MovableGameObject {
     public static final int SHAKE_CHECK_DELAY = 1;
     public static final int SHADOW_Y_OFFSET = 220;
     public static final int MAX_Y = 60;
+    public static final int GNDWATER_STATE_THRESHOLD = 90; // times that move() was called before triggering groundwater state change
+    public static final int GNDWATER_MAX_MOVE = 5;
     public static final int CMP_MAX_XY = 1000;
     
     public static final int TYPE_WHITE = 1; // 白雲
@@ -28,12 +27,7 @@ public class Cloud extends MovableGameObject {
             {R.drawable.cloud_gray1_3, R.drawable.cloud_gray1_2, R.drawable.cloud_gray1_1},
             {R.drawable.cloud_black1_3, R.drawable.cloud_black1_2, R.drawable.cloud_black1_1}
     };
-    private static final Map<Integer, Double> SHADOW_SIZE_RATIO = new HashMap<>();
-    static {
-        SHADOW_SIZE_RATIO.put(LEVEL_BIG, 0.4);
-        SHADOW_SIZE_RATIO.put(LEVEL_MEDIUM, 0.2);
-        SHADOW_SIZE_RATIO.put(LEVEL_SMALL, 0.1);
-    }
+    private static final double[] SHADOW_SIZE_RATIO = {0.1, 0.2, 0.4};
 
     private StateRun appStateRun;
     private int type;
@@ -46,6 +40,8 @@ public class Cloud extends MovableGameObject {
     private int checkShakeCounter = 0, directionChangedCounter = 0;
     private int lastDragDirection = 1; // right: 1; left: -1
     private int lastCheckX = CMP_MAX_XY;
+    private int gndwaterStateCounter = 0;
+    private int shadowLastX = 0, shadowLastY = 0;
 
     public Cloud(StateRun appStateRun, int x, int y, int type, int level) {
         this.appStateRun = appStateRun;
@@ -150,6 +146,21 @@ public class Cloud extends MovableGameObject {
         }
         if (raining) {
             rain.move();
+
+            // for determining generating groundwater
+            if (Math.abs(shadowImage.getX() - shadowLastX) <= GNDWATER_MAX_MOVE &&
+                    Math.abs(shadowImage.getY() - shadowLastY) <= GNDWATER_MAX_MOVE) {
+                gndwaterStateCounter = (gndwaterStateCounter + 1) % GNDWATER_STATE_THRESHOLD;
+                if (gndwaterStateCounter == 0) {
+                    appStateRun.addToForeObjectTable(
+                            new Groundwater(shadowImage.getX(), shadowImage.getY())
+                    );
+                }
+            } else {
+                gndwaterStateCounter = 0;
+                shadowLastX = shadowImage.getX();
+                shadowLastY = shadowImage.getY();
+            }
         }
     }
 
@@ -183,7 +194,7 @@ public class Cloud extends MovableGameObject {
         this.height = cloudImage.getHeight();
 
         shadowImage = new MovingBitmap(R.drawable.shadow_cloud);
-        double ratio = SHADOW_SIZE_RATIO.get(level);
+        double ratio = SHADOW_SIZE_RATIO[level - 1];
         shadowImage.resize((int) (shadowImage.getWidth() * ratio), (int) (shadowImage.getHeight() * ratio));
     }
 
