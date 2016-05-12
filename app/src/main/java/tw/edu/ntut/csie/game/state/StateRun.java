@@ -287,7 +287,7 @@ public class StateRun extends GameState {
 
     public void addToForeObjectTable(MovableGameObject gameObject) {
         updateForeObjectLocation(gameObject);
-    }
+     }
 
     public void removeFromForeObjectTable(MovableGameObject gameObject) {
         int py = gameObject.getY25D() + gameObject.getHeight();
