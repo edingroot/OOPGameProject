@@ -12,7 +12,7 @@ public class Cloud extends MovableGameObject {
     public static final int SHAKE_CHECK_DELAY = 1;
     public static final int SHADOW_Y_OFFSET = 220;
     public static final int MAX_Y = 60;
-    public static final int GNDWATER_STATE_THRESHOLD = 90; // times that move() was called before triggering groundwater state change
+    public static final int GNDWATER_STATE_THRESHOLD = 80; // times that move() was called before triggering groundwater state change
     public static final int GNDWATER_MAX_MOVE = 5;
     public static final int CMP_MAX_XY = 1000;
     
@@ -152,9 +152,9 @@ public class Cloud extends MovableGameObject {
                     Math.abs(shadowImage.getY() - shadowLastY) <= GNDWATER_MAX_MOVE) {
                 gndwaterStateCounter = (gndwaterStateCounter + 1) % GNDWATER_STATE_THRESHOLD;
                 if (gndwaterStateCounter == 0) {
-                    appStateRun.addToForeObjectTable(
-                            new Groundwater(shadowImage.getX(), shadowImage.getY())
-                    );
+                    int x = shadowImage.getX() + shadowImage.getWidth() / 2 - 25;
+                    int y = shadowImage.getY() + shadowImage.getHeight() / 2 - 10;
+                    appStateRun.addToForeObjectTable(new Groundwater(x, y));
                 }
             } else {
                 gndwaterStateCounter = 0;
