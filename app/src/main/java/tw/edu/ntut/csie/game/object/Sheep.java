@@ -811,14 +811,8 @@ public class Sheep extends MovableGameObject {
                 this.land();
             }
             else {
-                if (state.getState()==1) {
 
-                    this.blink();
-                    if (isEat) this.eat();
-                    else if (isChew) this.chew();
-                    else this.walkToGrass();
-                }
-                else if (calcGrassDistance(stateRun.grass) >= GRASS_SHORTEST_DISTANCE || state.getState()==0){
+                if (calcGrassDistance(stateRun.grass) >= GRASS_SHORTEST_DISTANCE || state.getState()==0){
                     this.blink();
                     if (--aiCount <= 0) {
                         aiCount = TIME_DELAY;
@@ -826,6 +820,13 @@ public class Sheep extends MovableGameObject {
                     }
                     if (instr > 33) this.walk();
                     else this.rest();
+                }
+                else if (state.getState()==1) {
+
+                    this.blink();
+                    if (isEat) this.eat();
+                    else if (isChew) this.chew();
+                    else this.walkToGrass();
                 }
             }
         }
