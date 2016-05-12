@@ -13,7 +13,8 @@ public class Cloud extends MovableGameObject {
     public static final int SHAKE_THRESHOLD = 100;
     public static final int SHAKE_COUNT_THRESHOLD = 8;
     public static final int SHAKE_CHECK_DELAY = 1;
-    public static final int SHADOW_Y_OFFSET = 120;
+    public static final int SHADOW_Y_OFFSET = 220;
+    public static final int MAX_Y = 60;
     public static final int CMP_MAX_XY = 1000;
     
     public static final int TYPE_WHITE = 1; // 白雲
@@ -81,6 +82,8 @@ public class Cloud extends MovableGameObject {
         super.dragMoved(pointer);
         int newX = initialX + pointer.getX() - initialPointerX;
         int newY = initialY + pointer.getY() - initialPointerY;
+        if (newY > MAX_Y)
+            newY = MAX_Y;
         this.setLocation(newX, newY);
         if (raining) {
             rain.setLocation(newX, newY + this.height);
@@ -125,7 +128,8 @@ public class Cloud extends MovableGameObject {
 
     public void toggleRainFall(boolean raining) {
         if (raining) {
-            rain = new Rain(this.x, this.y + this.height, this.width, 300);
+            rain = new Rain(this.x, this.y + this.height, this.width,
+                    SHADOW_Y_OFFSET + shadowImage.getHeight() / 2);
         } else {
             rain.release();
             rain = null;
