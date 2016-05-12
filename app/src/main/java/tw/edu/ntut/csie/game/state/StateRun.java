@@ -14,10 +14,12 @@ import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.engine.GameEngine;
 import tw.edu.ntut.csie.game.object.BackgroundSet;
 import tw.edu.ntut.csie.game.object.Bush;
-import tw.edu.ntut.csie.game.object.Grass;
-import tw.edu.ntut.csie.game.object.Rock;
-import tw.edu.ntut.csie.game.object.Sheep;
 import tw.edu.ntut.csie.game.object.Cloud;
+import tw.edu.ntut.csie.game.object.Grass;
+import tw.edu.ntut.csie.game.object.RightNav;
+import tw.edu.ntut.csie.game.object.Rock;
+import tw.edu.ntut.csie.game.object.ScoreBoard;
+import tw.edu.ntut.csie.game.object.Sheep;
 import tw.edu.ntut.csie.game.object.Stone;
 import tw.edu.ntut.csie.game.object.Tree;
 import tw.edu.ntut.csie.game.physics.Lib25D;
@@ -37,6 +39,8 @@ public class StateRun extends GameState {
     private MovingBitmap imgFloor;
     // NavigableMap foreObjectTable: index = lower-left y-axis of object
     private final NavigableMap<Integer, List<MovableGameObject>> foreObjectTable;
+    private ScoreBoard scoreBoard;
+    private RightNav rightNav;
 
     public Grass grass;
 
@@ -57,12 +61,14 @@ public class StateRun extends GameState {
         staticBackground.setLocation(initialX, 0);
 
         backgroundSet = new BackgroundSet();
-
         imgFloor = new MovingBitmap(R.drawable.floor);
         imgFloor.setLocation(
                 -(imgFloor.getWidth() - Game.GAME_FRAME_WIDTH) / 2,
                 BackgroundSet.WRAP_HEIGHT - BackgroundSet.OVERLAP_FOREGROUND
         );
+
+        scoreBoard = new ScoreBoard();
+
 
         // ---------- game objects ----------
         // clouds
@@ -144,6 +150,7 @@ public class StateRun extends GameState {
             gameObject.show();
         }
 
+        scoreBoard.show();
     }
 
     @Override
