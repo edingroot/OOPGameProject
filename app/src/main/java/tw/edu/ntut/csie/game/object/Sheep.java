@@ -58,7 +58,7 @@ public class Sheep extends MovableGameObject {
     private static final int WALK_DELAY = 50;
     private static final int BLINK_DELAY = 150, BLINK_TIME = 10;
     private static final int CHEW_DELAY = 60, EAT_DELAY = 30, RESIZE_DELAY = 5;
-    private static final int GRASS_SHORTEST_DISTANCE = 80;
+    private static final int GRASS_SHORTEST_DISTANCE = 180;
     private SheepState state;
 
     //region animationDeclaration
@@ -947,7 +947,7 @@ public class Sheep extends MovableGameObject {
             setLocation(x, y);
             isChew = true;
             setAnimation();
-            System.out.println("timer"+chewTimer);
+            System.out.println("timer" + chewTimer);
             if (--chewTimer<=0) {
                 chewTimer = CHEW_DELAY;
                 this.eat();
@@ -988,10 +988,13 @@ public class Sheep extends MovableGameObject {
                 this.land();
             }
             else {
-                if (state.getState()==1 && calcGrassDistance(stateRun.grass) < GRASS_SHORTEST_DISTANCE) {
-                    this.walkToGrass();
-                    if (isEat) this.eat();
-                    else if (isChew) this.chew();
+                if (state.getState()==1) {
+
+                    if (calcGrassDistance(stateRun.grass) <= 1) {
+                        if (isEat) this.eat();
+                        else if (isChew) this.chew();
+                    }
+                    else this.walkToGrass();
                 }
                 else if (calcGrassDistance(stateRun.grass) >= GRASS_SHORTEST_DISTANCE || state.getState()==0){
                     this.blink();
@@ -1064,9 +1067,22 @@ public class Sheep extends MovableGameObject {
 
     public double calcGrassDistance(Grass grass){
 
-        double disHor = grass.getX() - x;
-        double disVer = grass.getY() - y;
+//        double disHor;
+//        if (direction) disHor = grass.getX() - (x - 40*ratio);
+//        else disHor = grass.getX() - (x + 40*ratio);
+//        double disVer = grass.getY() - (y + 20*ratio)         ;
 
+        double disHor, disVer;
+
+        if (p_head.cx == grass.getX()) disHor=0;
+
+
+        disHor = direction ? (double)grass.getX() - ((double)p_head.cx -40*ratio) : (double)grass.getX() - ((double)p_head.cx +40*ratio);
+        disVer = (double)grass.getY() - ((double)p_head.cy+40*ratio);
+
+        if(disHor <= 3 && disHor >= -3) disHor = 0;
+        if(disVer <= 3 && disVer >= -3) disVer = 0;
+        System.out.println(" deltaX = " + disHor + " deltaY=" + disVer);
         return (Math.sqrt(disHor * disHor + disVer * disVer));
     }
 
@@ -1096,18 +1112,32 @@ public class Sheep extends MovableGameObject {
             isWalk = true;
             setAnimation();
             //closestGrass = ;
+            angle = Math.atan(((double) (stateRun.grass.getY() - y) / (double) (stateRun.grass.getX() - x)));
+            if ((stateRun.grass.getY() - y) >= 0 && (stateRun.grass.getX() - x) < 0)
+                angle = -Math.toDegrees(angle) + 180;
+            else if ((stateRun.grass.getY() - y) >= 0 && (stateRun.grass.getX() - x) >= 0)
+                angle = -Math.toDegrees(angle) + 360;
+            else if ((stateRun.grass.getY() - y) < 0 && (stateRun.grass.getX() - x) >= 0)
+                angle = -Math.toDegrees(angle);
+            else
+                angle = -Math.toDegrees(angle)+ 180;
 
-            angle = Math.atan(((double)(stateRun.grass.getY() - y) / (double)(stateRun.grass.getX() - x)));
+            angle = Math.toRadians(angle);
+
 
             lx = Math.cos(angle);
             ly = Math.sin(angle);
 
-            //System.out.println(stateRun.grass.getX() + " " + stateRun.grass.getY() +" " +Math.toDegrees(angle) + " "+ lx + " " + ly);
+           // System.out.println(stateRun.grass.getX() + " " + stateRun.grass.getY() +" " +Math.toDegrees(angle) + " "+ lx + " " + ly);
 
             direction = (lx<0);
-            x -= lx;
+
+            if (lx < 0.01 && lx >0.01) lx = 0;
+            x += lx;
+            if (ly < 0.01 && ly > -0.01) ly = 0;
             y -= ly;
-            setLocation(x,y);
+            if (Math.toDegrees(angle) <= 360 && Math.toDegrees(angle)>=0) setLocation(x,y);
+
         }
     }
 
