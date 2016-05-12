@@ -1,5 +1,8 @@
 package tw.edu.ntut.csie.game.object;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
@@ -24,6 +27,12 @@ public class Cloud extends MovableGameObject {
             {R.drawable.cloud_gray1_3, R.drawable.cloud_gray1_2, R.drawable.cloud_gray1_1},
             {R.drawable.cloud_black1_3, R.drawable.cloud_black1_2, R.drawable.cloud_black1_1}
     };
+    private static final Map<Integer, Double> SHADOW_SIZE_RATIO = new HashMap<>();
+    static {
+        SHADOW_SIZE_RATIO.put(LEVEL_BIG, 0.4);
+        SHADOW_SIZE_RATIO.put(LEVEL_MEDIUM, 0.2);
+        SHADOW_SIZE_RATIO.put(LEVEL_SMALL, 0.1);
+    }
 
     private StateRun appStateRun;
     private int type;
@@ -143,6 +152,7 @@ public class Cloud extends MovableGameObject {
     @Override
     public void show() {
         cloudImage.show();
+        shadowImage.show();
         if (raining) {
             rain.show();
         }
@@ -164,11 +174,13 @@ public class Cloud extends MovableGameObject {
 
         // TODO: Bumping animation
         cloudImage = new MovingBitmap(CLOUD_IMAGE[type - 1][level - 1]);
+        cloudImage.resize((int) (cloudImage.getWidth() * 0.7), (int) (cloudImage.getHeight() * 0.7));
         this.width = cloudImage.getWidth();
         this.height = cloudImage.getHeight();
 
         shadowImage = new MovingBitmap(R.drawable.shadow_cloud);
-        shadowImage.resize((int) (shadowImage.getWidth() * 0.7), (int) (shadowImage.getWidth() * 0.7));
+        double ratio = SHADOW_SIZE_RATIO.get(level);
+        shadowImage.resize((int) (shadowImage.getWidth() * ratio), (int) (shadowImage.getHeight() * ratio));
     }
 
     private void detectShaking() {
