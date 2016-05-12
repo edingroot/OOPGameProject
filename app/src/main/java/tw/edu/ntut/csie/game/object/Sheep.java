@@ -618,9 +618,8 @@ public class Sheep extends MovableGameObject {
     @Override
     public void setLocation(int x, int y) {
         super.setLocation(x, y);
-        stateRun.updateForeObjectLocation(this, p_body.px, p_body.py);
 
-        p_body.set(x, y, direction, ratio);
+        p_body.set(x,y,direction,ratio);
         p_head.set(x,y,direction,ratio);
         p_head_sad.set(x,y,direction,ratio);
         p_r_head_sad.set(x,y,direction,ratio);
@@ -659,6 +658,12 @@ public class Sheep extends MovableGameObject {
             shadow.setLocation(p_shadow.px, 220);
             r_shadow.setLocation(p_shadow.px, 220);
         }
+    }
+
+    @Override
+    public int getY25D() {
+        p_body.set(x,y,direction,ratio);
+        return p_body.py;
     }
 
     private void setAnimation() {
@@ -1042,7 +1047,8 @@ public class Sheep extends MovableGameObject {
     }
 
     @Override
-    public void dragMoved(Pointer pointer){
+    public void dragMoved(Pointer pointer) {
+        super.dragMoved(pointer);
         int deltaX = pointer.getX() - initialPointerX;
         int deltaY = pointer.getY() - initialPointerY;
         x = initImageX + deltaX;
