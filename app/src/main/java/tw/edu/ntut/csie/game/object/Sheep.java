@@ -98,7 +98,7 @@ public class Sheep extends MovableGameObject {
     private double lx, ly;
     private double angle;
 
-    private int resizeTimer = RESIZE_DELAY;
+    private int resizeTimer;
 
     public Sheep(StateRun stateRun, int x, int y, int id) {
         this(stateRun, x, y);
@@ -123,6 +123,7 @@ public class Sheep extends MovableGameObject {
 
         chewCount = 0;
         chewTimer = CHEW_DELAY;
+        resizeTimer = RESIZE_DELAY;
 
         state = new SheepState();
 
@@ -618,6 +619,7 @@ public class Sheep extends MovableGameObject {
     @Override
     public void setLocation(int x, int y) {
         super.setLocation(x, y);
+        stateRun.updateForeObjectLocation(this);
 
         p_body.set(x,y,direction,ratio);
         p_head.set(x,y,direction,ratio);
@@ -952,7 +954,7 @@ public class Sheep extends MovableGameObject {
             setLocation(x, y);
             isChew = true;
             setAnimation();
-            System.out.println("timer" + chewTimer);
+            //System.out.println("timer" + chewTimer);
             if (--chewTimer<=0) {
                 chewTimer = CHEW_DELAY;
                 this.eat();
@@ -1061,6 +1063,7 @@ public class Sheep extends MovableGameObject {
         if (--resizeTimer <= 0) {
             resizeTimer = RESIZE_DELAY;
             this.ratio = ratio;
+            //System.out.println(ratio);
             if (y > 210 && !isFall && !isLand) {
                 width = (int) (oriWidth * ratio);
                 height = (int) (oriHeight * ratio);
@@ -1080,15 +1083,13 @@ public class Sheep extends MovableGameObject {
 
         double disHor, disVer;
 
-        if (p_head.cx == grass.getX()) disHor=0;
+        disHor = (double)grass.getX()+38.5 - ((double)x);
+        disVer = (double)grass.getY()+28 - ((double)y);
+        //System.out.println(p_head.cx + " " + p_head.cy);
 
-
-        disHor = direction ? (double)grass.getX() - ((double)p_head.cx -40*ratio) : (double)grass.getX() - ((double)p_head.cx +40*ratio);
-        disVer = (double)grass.getY() - ((double)p_head.cy+40*ratio);
-
-        if(disHor <= 3 && disHor >= -3) disHor = 0;
-        if(disVer <= 3 && disVer >= -3) disVer = 0;
-        System.out.println(" deltaX = " + disHor + " deltaY=" + disVer);
+//        if(disHor <= 3 && disHor >= -3) disHor = 0;
+//        if(disVer <= 3 && disVer >= -3) disVer = 0;
+        //System.out.println(" deltaX = " + disHor + " deltaY=" + disVer);
         return (Math.sqrt(disHor * disHor + disVer * disVer));
     }
 
@@ -1134,15 +1135,16 @@ public class Sheep extends MovableGameObject {
             lx = Math.cos(angle);
             ly = Math.sin(angle);
 
-           // System.out.println(stateRun.grass.getX() + " " + stateRun.grass.getY() +" " +Math.toDegrees(angle) + " "+ lx + " " + ly);
+            System.out.println(calcGrassDistance(stateRun.grass) + " " + Math.toDegrees(angle) + " "+ lx + " " + ly);
 
             direction = (lx<0);
 
-            if (lx < 0.01 && lx >0.01) lx = 0;
+
             x += lx;
-            if (ly < 0.01 && ly > -0.01) ly = 0;
             y -= ly;
-            if (Math.toDegrees(angle) <= 360 && Math.toDegrees(angle)>=0) setLocation(x,y);
+            if (calcGrassDistance(stateRun.grass) >= 1)
+                setLocation(x,y);
+
 
         }
     }
