@@ -39,18 +39,20 @@ public class Sheep extends MovableGameObject {
     private List<Grass> grasses;
     private Grass grassTest;
 
-    private SheepPos p_body = new SheepPos(0, 0, 100, 94);
-    private SheepPos p_head = new SheepPos(165, 40, 64, 57);
-    private SheepPos p_head_sad = new SheepPos(165, 40, 75, 58);
-    private SheepPos p_r_head_sad = new SheepPos(165, 38, 75, 58);
-    private SheepPos p_head_fall = new SheepPos(165, 40, 58, 95);
-    private SheepPos p_body_drag = new SheepPos(90, 30, 92, 119);
-    private SheepPos p_head_drag = new SheepPos(170, 35, 65, 71);
-    private SheepPos p_tail_drag = new SheepPos(15, 40, 29, 27);
-    private SheepPos p_eye = new SheepPos(150, 44, 31, 26);
-    private SheepPos p_tail = new SheepPos(0, 40, 29, 27);
-    private SheepPos p_shadow = new SheepPos(250, 30, 130, 32);
-    private SheepPos p_state = new SheepPos(125, 70, 34, 35);
+    private SheepPos p_body;
+    private SheepPos p_head;
+    private SheepPos p_head_sad;
+    private SheepPos p_r_head_sad;
+    private SheepPos p_head_fall;
+    private SheepPos p_body_drag;
+    private SheepPos p_head_drag;
+    private SheepPos p_tail_drag;
+    private SheepPos p_eye;
+    private SheepPos p_tail;
+    private SheepPos p_shadow;
+    private SheepPos p_state;
+    private SheepPos p_head_eat;
+    private SheepPos p_eat;
 
     private static final int oriWidth = 100, oriHeight = 100;
 
@@ -58,7 +60,7 @@ public class Sheep extends MovableGameObject {
     private static final int WALK_DELAY = 50;
     private static final int BLINK_DELAY = 150, BLINK_TIME = 10;
     private static final int CHEW_DELAY = 60, EAT_DELAY = 30, RESIZE_DELAY = 5;
-    private static final int GRASS_SHORTEST_DISTANCE = 180;
+    private static final int GRASS_SHORTEST_DISTANCE = 100;
     private SheepState state;
 
     //region animationDeclaration
@@ -123,7 +125,7 @@ public class Sheep extends MovableGameObject {
 
         chewCount = 0;
         chewTimer = CHEW_DELAY;
-        resizeTimer = RESIZE_DELAY;
+        resizeTimer = 0;
 
         state = new SheepState();
 
@@ -399,6 +401,22 @@ public class Sheep extends MovableGameObject {
         r_head_chew.addFrame(R.drawable.r_face_chew_1);
         r_head_chew.addFrame(R.drawable.r_face_chew_2);
         //endregion
+
+        p_body = new SheepPos(0, 0, 100, 94);
+        p_head = new SheepPos(165, 40, 64, 57);
+        p_head_sad = new SheepPos(165, 40, 75, 58);
+        p_r_head_sad = new SheepPos(165, 38, 75, 58);
+        p_head_fall = new SheepPos(165, 40, 58, 95);
+        p_body_drag = new SheepPos(90, 30, 92, 119);
+        p_head_drag = new SheepPos(170, 35, 65, 71);
+        p_tail_drag = new SheepPos(15, 40, 29, 27);
+        p_eye = new SheepPos(150, 44, 31, 26);
+        p_tail = new SheepPos(0, 40, 29, 27);
+        p_shadow = new SheepPos(250, 30, 130, 32);
+        p_state = new SheepPos(125, 70, 34, 35);
+        p_head_eat = new SheepPos (165, 49, 64, 57);
+        p_eat = new SheepPos(200, 43, 78, 90);
+
     }
 
     public void clearActions() {
@@ -410,213 +428,7 @@ public class Sheep extends MovableGameObject {
         isChew = false;
     }
 
-    //region origin setLocation
-    /*
-    @Override
-    public void setLocation(int x, int y) {
-        super.setLocation(x, y);
-        stateRun.updateForeObjectLocation(this, x, y);
-
-        for (Animation item : animations_body) {
-            item.setLocation(x, y);
-        }
-        for (Animation item : animations_head) {
-            if(direction) item.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y);
-            else item.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y);
-        }
-        for (Animation item : animations_eye) {
-            if(direction) item.setLocation(x - HEAD_SHIFT_POS_X + EYE_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + EYE_SHIFT_POS_Y);
-            else item.setLocation(x + R_HEAD_SHIFT_POS_X + R_EYE_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + EYE_SHIFT_POS_Y);
-        }
-        if (direction) head_drag.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_DRAG_SHIFT_POS_Y);
-        else r_head_drag.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_DRAG_SHIFT_POS_Y);
-
-        if (direction) head_fall.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y - HEAD_FALL_SHIFT_POS_Y);
-        else r_head_fall.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y - HEAD_FALL_SHIFT_POS_Y);
-
-        //region tailSetLocation
-        if (direction) {
-            if (isRest) tail.setLocation(x + TAIL_SHIFT_X, y + TAIL_SHIFT_Y);
-            else if (isWalk) {
-                switch (body_walk.getCurrentFrameIndex()){
-                    case 0:
-                        tail.setLocation(x + TAIL_SHIFT_X, y + TAIL_SHIFT_Y - TAIL_SHAKE_Y);
-                        break;
-                    case 1:
-                        tail.setLocation(x + TAIL_SHIFT_X, y + TAIL_SHIFT_Y + TAIL_SHAKE_Y);
-                        break;
-                    case 2:
-                        tail.setLocation(x + TAIL_SHIFT_X, y + TAIL_SHIFT_Y - TAIL_SHAKE_Y);
-                        break;
-                    case 3:
-                        tail.setLocation(x + TAIL_SHIFT_X, y + TAIL_SHIFT_Y + TAIL_SHAKE_Y);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            else if (isDrag) tail.setLocation(x + TAIL_SHIFT_X - TAIL_DRAG_POS_X, y + TAIL_SHIFT_Y + TAIL_DRAG_POS_Y);
-            else if (isFall) tail.setLocation(x + TAIL_SHIFT_X, y + TAIL_SHIFT_Y);
-            else if (isLand) {
-                switch (body_land.getCurrentFrameIndex()){
-                    case 0:
-                        tail.setLocation(x + TAIL_SHIFT_X, y + TAIL_SHIFT_Y + TAIL_LAND_POS_Y0);
-                        break;
-                    case 1:
-                        tail.setLocation(x + TAIL_SHIFT_X, y + TAIL_SHIFT_Y);
-                        break;
-                    case 2:
-                        tail.setLocation(x + TAIL_SHIFT_X, y + TAIL_SHIFT_Y + TAIL_LAND_POS_Y2);
-                        break;
-                    case 3:
-                        tail.setLocation(x + TAIL_SHIFT_X, y + TAIL_SHIFT_Y + TAIL_LAND_POS_Y2);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            else tail.setLocation(x + TAIL_SHIFT_X, y + TAIL_SHIFT_Y);
-        }
-        else {
-            if (isRest) r_tail.setLocation(x - R_TAIL_SHIFT_X, y + TAIL_SHIFT_Y);
-            else if (isWalk) {
-                switch (r_body_walk.getCurrentFrameIndex()) {
-                    case 0:
-                        r_tail.setLocation(x - R_TAIL_SHIFT_X, y + TAIL_SHIFT_Y - TAIL_SHAKE_Y);
-                        break;
-                    case 1:
-                        r_tail.setLocation(x - R_TAIL_SHIFT_X, y + TAIL_SHIFT_Y + TAIL_SHAKE_Y);
-                        break;
-                    case 2:
-                        r_tail.setLocation(x - R_TAIL_SHIFT_X, y + TAIL_SHIFT_Y - TAIL_SHAKE_Y);
-                        break;
-                    case 3:
-                        r_tail.setLocation(x - R_TAIL_SHIFT_X, y + TAIL_SHIFT_Y + TAIL_SHAKE_Y);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            else if (isDrag) r_tail.setLocation(x - R_TAIL_SHIFT_X + TAIL_DRAG_POS_X, y + TAIL_SHIFT_Y + TAIL_DRAG_POS_Y);
-            else if (isFall) r_tail.setLocation(x - R_TAIL_SHIFT_X, y + TAIL_SHIFT_Y);
-            else if (isLand) {
-                switch (r_body_land.getCurrentFrameIndex()) {
-                    case 0:
-                        r_tail.setLocation(x - R_TAIL_SHIFT_X, y + TAIL_SHIFT_Y + TAIL_LAND_POS_Y0);
-                        break;
-                    case 1:
-                        r_tail.setLocation(x - R_TAIL_SHIFT_X, y + TAIL_SHIFT_Y);
-                        break;
-                    case 2:
-                        r_tail.setLocation(x - R_TAIL_SHIFT_X, y + TAIL_SHIFT_Y + TAIL_LAND_POS_Y2);
-                        break;
-                    case 3:
-                        r_tail.setLocation(x - R_TAIL_SHIFT_X, y + TAIL_SHIFT_Y + TAIL_LAND_POS_Y2);
-                        break;
-                    default:
-                        break;
-                }
-            }
-            else r_tail.setLocation(x - R_TAIL_SHIFT_X, y + TAIL_SHIFT_Y);
-        }
-        //endregion
-
-        //region particularLocation
-        r_head_sad_walk.setLocation(x + R_HEAD_SAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y);
-        r_head_sad_rest.setLocation(x + R_HEAD_SAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y);
-
-        int HEAD_SHIFT0 = 25, HEAD_SHIFT1 = 50, HEAD_SHIFT2 = 20, HEAD_SHIFT3 = -10, HEAD_SHIFT4 = -20, HEAD_SHIFT5 = -30;
-        int BODY_SHIFT0 = 15, BODY_SHIFT1 = 20, BODY_SHIFT2 = 10, BODY_SHIFT3 = -10, BODY_SHIFT4 = -20, BODY_SHIFT5 = -30;
-        if (direction) {
-            switch (body_land.getCurrentFrameIndex()) {
-                case 0:
-                    head_land.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT0);
-                    r_head_land.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT0);
-                    body_land.setLocation(x, y + BODY_SHIFT0);
-                    r_body_land.setLocation(x, y + BODY_SHIFT0);
-                    break;
-                case 1:
-                    head_land.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT1);
-                    r_head_land.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT1);
-                    body_land.setLocation(x, y + BODY_SHIFT1);
-                    r_body_land.setLocation(x, y + BODY_SHIFT1);
-                    break;
-                case 2:
-                    head_land.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT2);
-                    r_head_land.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT2);
-                    body_land.setLocation(x, y + BODY_SHIFT2);
-                    r_body_land.setLocation(x, y + BODY_SHIFT2);
-                    break;
-                case 3:
-                    head_land.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT3);
-                    r_head_land.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT3);
-                    body_land.setLocation(x, y + BODY_SHIFT3);
-                    r_body_land.setLocation(x, y + BODY_SHIFT3);
-                    break;
-                case 4:
-                    head_land.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT4);
-                    r_head_land.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT4);
-                    body_land.setLocation(x, y + BODY_SHIFT4);
-                    r_body_land.setLocation(x, y + BODY_SHIFT4);
-                    break;
-                case 5:
-                    head_land.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT5);
-                    r_head_land.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT5);
-                    body_land.setLocation(x, y + BODY_SHIFT5);
-                    r_body_land.setLocation(x, y + BODY_SHIFT5);
-                    break;
-                default:
-                    break;
-            }
-        }
-        else {
-            switch (r_body_land.getCurrentFrameIndex()) {
-                case 0:
-                    head_land.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT0);
-                    r_head_land.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT0);
-                    body_land.setLocation(x, y + BODY_SHIFT0);
-                    r_body_land.setLocation(x, y + BODY_SHIFT0);
-                    break;
-                case 1:
-                    head_land.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT1);
-                    r_head_land.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT1);
-                    body_land.setLocation(x, y + BODY_SHIFT1);
-                    r_body_land.setLocation(x, y + BODY_SHIFT1);
-                    break;
-                case 2:
-                    head_land.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT2);
-                    r_head_land.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT2);
-                    body_land.setLocation(x, y + BODY_SHIFT2);
-                    r_body_land.setLocation(x, y + BODY_SHIFT2);
-                    break;
-                case 3:
-                    head_land.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT3);
-                    r_head_land.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT3);
-                    body_land.setLocation(x, y + BODY_SHIFT3);
-                    r_body_land.setLocation(x, y + BODY_SHIFT3);
-                    break;
-                case 4:
-                    head_land.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT4);
-                    r_head_land.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT4);
-                    body_land.setLocation(x, y + BODY_SHIFT4);
-                    r_body_land.setLocation(x, y + BODY_SHIFT4);
-                    break;
-                case 5:
-                    head_land.setLocation(x - HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT5);
-                    r_head_land.setLocation(x + R_HEAD_SHIFT_POS_X, y + HEAD_SHIFT_POS_Y + HEAD_SHIFT5);
-                    body_land.setLocation(x, y + BODY_SHIFT5);
-                    r_body_land.setLocation(x, y + BODY_SHIFT5);
-                    break;
-                default:
-                    break;
-            }
-        }
-        //endregion
-    }
-    */
-    //endregion
-
-    @Override
+       @Override
     public void setLocation(int x, int y) {
         super.setLocation(x, y);
         stateRun.updateForeObjectLocation(this);
@@ -633,6 +445,8 @@ public class Sheep extends MovableGameObject {
         p_state.set(x,y,direction,ratio);
         p_body_drag.set(x,y,direction,ratio);
         p_tail_drag.set(x,y,direction,ratio);
+        p_head_eat.set(x,y,direction,ratio);
+        p_eat.set(x,y,direction,ratio);
         //System.out.println(p_shadow.cy);
 
         for (Animation item : animations_body) item.setLocation(p_body.px, p_body.py);
@@ -649,6 +463,8 @@ public class Sheep extends MovableGameObject {
         sign_hungry.setLocation(p_state.px, p_state.py);
         body_drag.setLocation(p_body_drag.px, p_body_drag.py);
         r_body_drag.setLocation(p_body_drag.px, p_body_drag.py);
+        head_eat.setLocation(p_head_eat.px, p_head_eat.py);
+        //head_chew.setLocation(p_head_eat.px, p_head_eat.py);
         if (isDrag) {
             tail.setLocation(p_tail_drag.px, p_tail_drag.py);
             r_tail.setLocation(p_tail_drag.px, p_tail_drag.py);
@@ -997,10 +813,9 @@ public class Sheep extends MovableGameObject {
             else {
                 if (state.getState()==1) {
 
-                    if (calcGrassDistance(stateRun.grass) <= 1) {
-                        if (isEat) this.eat();
-                        else if (isChew) this.chew();
-                    }
+                    this.blink();
+                    if (isEat) this.eat();
+                    else if (isChew) this.chew();
                     else this.walkToGrass();
                 }
                 else if (calcGrassDistance(stateRun.grass) >= GRASS_SHORTEST_DISTANCE || state.getState()==0){
@@ -1075,77 +890,51 @@ public class Sheep extends MovableGameObject {
     }
 
     public double calcGrassDistance(Grass grass){
-
-//        double disHor;
-//        if (direction) disHor = grass.getX() - (x - 40*ratio);
-//        else disHor = grass.getX() - (x + 40*ratio);
-//        double disVer = grass.getY() - (y + 20*ratio)         ;
-
         double disHor, disVer;
 
-        disHor = (double)grass.getX()+38.5 - ((double)x);
-        disVer = (double)grass.getY()+28 - ((double)y);
-        //System.out.println(p_head.cx + " " + p_head.cy);
+        disHor = (double)grass.getX() - ((double)p_eat.cx);
+        disVer = (double)grass.getY() - ((double)p_eat.cy);
 
-//        if(disHor <= 3 && disHor >= -3) disHor = 0;
-//        if(disVer <= 3 && disVer >= -3) disVer = 0;
-        //System.out.println(" deltaX = " + disHor + " deltaY=" + disVer);
         return (Math.sqrt(disHor * disHor + disVer * disVer));
     }
 
-    public void setGrass(List<Grass> grassesFromStateRun){
-//        for (int i = 0 ; i < grassesFromStateRun.size() ; i++)
-//            grasses.set(i, grassesFromStateRun.get(i));
-
-    }
-
     public void walkToGrass(){
+        if (calcGrassDistance(stateRun.grass) < GRASS_SHORTEST_DISTANCE) {
 
-        Grass closestGrass;
-//        for (Grass item : grasses) {
-//            if (calcGrassDistance(item) < shortestDistance) {
-//                shortestDistance = calcGrassDistance(item);
-//                closestGrass = item;
-//            }
-//        }h
-        if (calcGrassDistance(stateRun.grass) < 1) {
-            isWalk = false;
-            arriveGrass = true;
-            if (!isEat && !isChew) isEat = true;
-        }
-        else if (calcGrassDistance(stateRun.grass) < GRASS_SHORTEST_DISTANCE) {
-            arriveGrass = false;
             clearActions();
             isWalk = true;
             setAnimation();
-            //closestGrass = ;
-            angle = Math.atan(((double) (stateRun.grass.getY() - y) / (double) (stateRun.grass.getX() - x)));
-            if ((stateRun.grass.getY() - y) >= 0 && (stateRun.grass.getX() - x) < 0)
-                angle = -Math.toDegrees(angle) + 180;
-            else if ((stateRun.grass.getY() - y) >= 0 && (stateRun.grass.getX() - x) >= 0)
-                angle = -Math.toDegrees(angle) + 360;
-            else if ((stateRun.grass.getY() - y) < 0 && (stateRun.grass.getX() - x) >= 0)
-                angle = -Math.toDegrees(angle);
-            else
-                angle = -Math.toDegrees(angle)+ 180;
 
-            angle = Math.toRadians(angle);
-
-
-            lx = Math.cos(angle);
-            ly = Math.sin(angle);
-
-            System.out.println(calcGrassDistance(stateRun.grass) + " " + Math.toDegrees(angle) + " "+ lx + " " + ly);
-
-            direction = (lx<0);
-
-
-            x += lx;
-            y -= ly;
             if (calcGrassDistance(stateRun.grass) >= 1)
                 setLocation(x,y);
+            else {
+                clearActions();
+                isEat = true;
+                this.eat();
+            }
+            if ((stateRun.grass.getY() - p_eat.cy)!=0 || (stateRun.grass.getX() - p_eat.cx)!=0) {
+                angle = Math.atan(((double) (stateRun.grass.getY() - p_eat.cy) / (double) (stateRun.grass.getX() - p_eat.cx)));
+                if ((stateRun.grass.getY() - p_eat.cy) >= 0 && (stateRun.grass.getX() - p_eat.cx) < 0)
+                    angle = -Math.toDegrees(angle) + 180;
+                else if ((stateRun.grass.getY() - p_eat.cy) >= 0 && (stateRun.grass.getX() - p_eat.cx) >= 0)
+                    angle = -Math.toDegrees(angle) + 360;
+                else if ((stateRun.grass.getY() - p_eat.cy) < 0 && (stateRun.grass.getX() - p_eat.cx) >= 0)
+                    angle = -Math.toDegrees(angle);
+                else
+                    angle = -Math.toDegrees(angle) + 180;
 
+                angle = Math.toRadians(angle);
 
+                lx = Math.cos(angle);
+                ly = Math.sin(angle);
+
+                System.out.println(calcGrassDistance(stateRun.grass) + " " + Math.toDegrees(angle) + " " + lx + " " + ly);
+
+                direction = (lx < 0);
+
+                x += lx;
+                y -= ly;
+            }
         }
     }
 
