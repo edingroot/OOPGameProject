@@ -8,10 +8,12 @@ import tw.edu.ntut.csie.game.util.MovableGameObject;
 
 public class ScoreBoard implements GameObject {
     private MovingBitmap image;
+    private int height;
 
     public ScoreBoard() {
         image = new MovingBitmap(R.drawable.score_board);
         image.resize((int)(image.getWidth() * 0.6), (int)(image.getHeight() * 0.6));
+        this.height = image.getHeight();
 
         this.setLocation(Game.GAME_FRAME_WIDTH - image.getWidth(), 0);
     }
@@ -27,6 +29,10 @@ public class ScoreBoard implements GameObject {
     @Override
     public void show() {
         image.show();
+    }
+
+    public int getHeight() {
+        return height;
     }
 
     @Override

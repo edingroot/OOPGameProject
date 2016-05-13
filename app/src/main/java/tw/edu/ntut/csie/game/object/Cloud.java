@@ -12,7 +12,7 @@ public class Cloud extends MovableGameObject {
     public static final int SHAKE_CHECK_DELAY = 1;
     public static final int SHADOW_Y_OFFSET = 220;
     public static final int MAX_Y = 60;
-    public static final int GNDWATER_STATE_THRESHOLD = 80; // times that move() was called before triggering groundwater state change
+    public static final int GNDWATER_STATE_THRESHOLD = 70; // times that move() was called before triggering groundwater state change
     public static final int GNDWATER_MAX_MOVE = 5;
     public static final int CMP_MAX_XY = 1000;
     

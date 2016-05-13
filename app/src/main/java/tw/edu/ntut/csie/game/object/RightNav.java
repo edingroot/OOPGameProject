@@ -1,18 +1,25 @@
 package tw.edu.ntut.csie.game.object;
 
+import tw.edu.ntut.csie.game.Game;
 import tw.edu.ntut.csie.game.GameObject;
+import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
+import tw.edu.ntut.csie.game.util.MovableGameObject;
 
-public class RightNav implements GameObject {
+public class RightNav extends MovableGameObject {
     private MovingBitmap image;
+    private boolean expanded = false;
 
-    public RightNav(int x, int y) {
-        image = new MovingBitmap(R.drawable.score_board);
-        this.setLocation(x, y);
+    public RightNav(int y) {
+        this.draggable = false;
+        this.y = y;
+        updateImageFromState();
     }
 
+    @Override
     public void setLocation(int x, int y) {
+        super.setLocation(x, y);
         image.setLocation(x, y);
     }
 
@@ -23,6 +30,27 @@ public class RightNav implements GameObject {
     @Override
     public void show() {
         image.show();
+    }
+
+    @Override
+    public void clicked(Pointer pointer) {
+        expanded = !expanded;
+        updateImageFromState();
+    }
+
+    private void updateImageFromState() {
+        if (image != null)
+            image.release();
+        image = new MovingBitmap(expanded ? R.drawable.nav_right : R.drawable.nav_right_pull);
+        image.resize((int)(image.getWidth() * 0.5), (int)(image.getHeight() * 0.5));
+        this.width = image.getWidth();
+        this.height = image.getHeight();
+        this.setLocation(Game.GAME_FRAME_WIDTH - image.getWidth(), y);
+        image.show();
+    }
+
+    public boolean isExpanded() {
+        return expanded;
     }
 
     @Override

@@ -46,6 +46,7 @@ public class StateRun extends GameState {
 
     private int initForeX = 0;
     private int initPointerX = 0;
+    private int sheepIdCounter = 0;
 
     public StateRun(GameEngine engine) {
         super(engine);
@@ -68,6 +69,7 @@ public class StateRun extends GameState {
         );
 
         scoreBoard = new ScoreBoard();
+        rightNav = new RightNav(scoreBoard.getHeight());
 
 
         // ---------- game objects ----------
@@ -87,8 +89,8 @@ public class StateRun extends GameState {
         addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 600, 190));
         //addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 410, 220));
         // sheep
-        addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 500, 250, 1));
-        addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 100, 211, 2));
+        addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 500, 250, sheepIdCounter++));
+        addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 100, 211, sheepIdCounter++));
         //grass
         grass = new Grass(imgFloor.getX() + MAP_LEFT_MARGIN + 380, 280);
         addToForeObjectTable(grass);
@@ -135,6 +137,9 @@ public class StateRun extends GameState {
                 }
             }
         }
+
+        scoreBoard.move();
+        rightNav.move();
     }
 
     @Override
@@ -151,6 +156,7 @@ public class StateRun extends GameState {
         }
 
         scoreBoard.show();
+        rightNav.show();
     }
 
     @Override
@@ -187,9 +193,26 @@ public class StateRun extends GameState {
                     inScopeObjects.add(gameObject);
                 }
             }
-            if (inScopeObjects.size() > 0) {
-                inScopeObjects.get(inScopeObjects.size() - 1).dragPressed(singlePointer);
+
+            if (Common.isInObjectScope(singlePointer, rightNav)) {
                 isGrabbingMap = false;
+                if (rightNav.isExpanded() && Common.isInObjectScope(
+                        singlePointer, rightNav.getX(), rightNav.getY(),
+                        rightNav.getWidth(), rightNav.getHeight() - 20)) {
+                    // handle drag sheep out from right nav
+                    Sheep sheep = new Sheep(this, singlePointer.getX(), singlePointer.getY(), sheepIdCounter++);
+                    addToForeObjectTable(sheep);
+                    sheep.dragPressed(singlePointer);
+                } else {
+                    // toggle right nav expand state
+                    rightNav.dragPressed(singlePointer);
+                }
+            } else {
+                if (inScopeObjects.size() > 0) {
+                    // trigger dragPressed on the most top object
+                    inScopeObjects.get(inScopeObjects.size() - 1).dragPressed(singlePointer);
+                    isGrabbingMap = false;
+                }
             }
 
             // for moving map
@@ -229,6 +252,7 @@ public class StateRun extends GameState {
             }
         }
 
+        rightNav.dragMoved(singlePointer);
         return false;
     }
 
@@ -244,6 +268,7 @@ public class StateRun extends GameState {
                 gameObject.dragReleased(singlePointer);
         }
 
+        rightNav.dragReleased(singlePointer);
         isGrabbingMap = false;
 
         return false;
@@ -272,6 +297,9 @@ public class StateRun extends GameState {
             list.clear();
         }
         foreObjectTable.clear();
+
+        scoreBoard.release();
+        rightNav.release();
     }
 
     private List<MovableGameObject> getAllForeObjects() {
