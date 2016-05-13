@@ -29,6 +29,15 @@ public class Rain extends MovableGameObject {
         super.setLocation(x, y);
     }
 
+    // for grabbing game map
+    public void setGrabLocation(int x) {
+        int deltaX = x - this.x;
+        for (MovingBitmap drop : drops) {
+            drop.setLocation(drop.getX() + deltaX, drop.getY());
+        }
+        super.setLocation(x, this.y);
+    }
+
     @Override
     public void move() {
         Iterator<MovingBitmap> it = drops.iterator();
