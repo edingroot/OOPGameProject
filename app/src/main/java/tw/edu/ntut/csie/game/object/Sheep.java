@@ -53,6 +53,7 @@ public class Sheep extends MovableGameObject {
     private SheepPos p_state;
     private SheepPos p_head_eat;
     private SheepPos p_eat;
+    private SheepPos p_r_eat;
 
     private static final int oriWidth = 100, oriHeight = 100;
 
@@ -415,8 +416,8 @@ public class Sheep extends MovableGameObject {
         p_shadow = new SheepPos(250, 30, 130, 32);
         p_state = new SheepPos(125, 70, 34, 35);
         p_head_eat = new SheepPos (165, 49, 64, 57);
-        p_eat = new SheepPos(200, 43, 78, 90);
-
+        p_r_eat = new SheepPos(200, 43, 78, 90);
+        p_eat = new SheepPos(195, 60, 78, 90);
     }
 
     public void clearActions() {
@@ -433,8 +434,8 @@ public class Sheep extends MovableGameObject {
         super.setLocation(x, y);
         stateRun.updateForeObjectLocation(this);
 
-        p_body.set(x,y,direction,ratio);
-        p_head.set(x,y,direction,ratio);
+        p_body.set(x, y, direction, ratio);
+        p_head.set(x, y, direction, ratio);
         p_head_sad.set(x,y,direction,ratio);
         p_r_head_sad.set(x,y,direction,ratio);
         p_head_drag.set(x,y,direction,ratio);
@@ -447,6 +448,7 @@ public class Sheep extends MovableGameObject {
         p_tail_drag.set(x,y,direction,ratio);
         p_head_eat.set(x,y,direction,ratio);
         p_eat.set(x,y,direction,ratio);
+        p_r_eat.set(x,y,direction,ratio);
         //System.out.println(p_shadow.cy);
 
         for (Animation item : animations_body) item.setLocation(p_body.px, p_body.py);
@@ -752,11 +754,18 @@ public class Sheep extends MovableGameObject {
             eatCount = EAT_DELAY;
             chewCount++;
         }
+        if (chewCount >= 2){
+            chewCount = 0;
+            arriveGrass = false;
+            isChew = false;
+            state.satisfy(1);
+            this.rest();
+        }
         //clearActions();
         setLocation(x, y);
         isEat = true;
         setAnimation();
-        if(head_eat.isLastFrame() || r_head_eat.isLastFrame()) {
+        if (head_eat.isLastFrame() || r_head_eat.isLastFrame()) {
             isEat = false;
             isChew = true;
             this.chew();
@@ -878,9 +887,10 @@ public class Sheep extends MovableGameObject {
     public void resize(double ratio){
         if (--resizeTimer <= 0) {
             resizeTimer = RESIZE_DELAY;
-            this.ratio = ratio;
+
             //System.out.println(ratio);
             if (y > 210 && !isFall && !isLand) {
+                this.ratio = ratio;
                 width = (int) (oriWidth * ratio);
                 height = (int) (oriHeight * ratio);
                 for (Animation item : animations) {
@@ -893,8 +903,14 @@ public class Sheep extends MovableGameObject {
     public double calcGrassDistance(Grass grass){
         double disHor, disVer;
 
-        disHor = (double)grass.getX() - ((double)p_eat.cx);
-        disVer = (double)grass.getY() - ((double)p_eat.cy);
+        if (direction) {
+            disHor = (double) grass.getX() - ((double) p_eat.cx);
+            disVer = (double) grass.getY() - ((double) p_eat.cy);
+        }
+        else {
+            disHor = (double) grass.getX() - ((double) p_r_eat.cx);
+            disVer = (double) grass.getY() - ((double) p_r_eat.cy);
+        }
 
         return (Math.sqrt(disHor * disHor + disVer * disVer));
     }
@@ -913,22 +929,44 @@ public class Sheep extends MovableGameObject {
                 isEat = true;
                 this.eat();
             }
-            if ((stateRun.grass.getY() - p_eat.cy)!=0 || (stateRun.grass.getX() - p_eat.cx)!=0) {
-                angle = Math.atan(((double) (stateRun.grass.getY() - p_eat.cy) / (double) (stateRun.grass.getX() - p_eat.cx)));
-                if ((stateRun.grass.getY() - p_eat.cy) >= 0 && (stateRun.grass.getX() - p_eat.cx) < 0)
-                    angle = -Math.toDegrees(angle) + 180;
-                else if ((stateRun.grass.getY() - p_eat.cy) >= 0 && (stateRun.grass.getX() - p_eat.cx) >= 0)
-                    angle = -Math.toDegrees(angle) + 360;
-                else if ((stateRun.grass.getY() - p_eat.cy) < 0 && (stateRun.grass.getX() - p_eat.cx) >= 0)
-                    angle = -Math.toDegrees(angle);
-                else
-                    angle = -Math.toDegrees(angle) + 180;
+            if ((direction && ((stateRun.grass.getY() - p_eat.cy)!=0 || (stateRun.grass.getX() - p_eat.cx)!=0))
+                    || (!direction && ((stateRun.grass.getY() - p_r_eat.cy)!=0 || (stateRun.grass.getX() - p_r_eat.cx)!=0))) {
 
-                angle = Math.toRadians(angle);
-
-                lx = Math.cos(angle);
-                ly = Math.sin(angle);
-
+                if (direction) {
+                    angle = Math.atan(((double) (stateRun.grass.getY() - p_eat.cy) / (double) (stateRun.grass.getX() - p_eat.cx)));
+                    if ((stateRun.grass.getY() - p_eat.cy) >= 0 && (stateRun.grass.getX() - p_eat.cx) < 0)
+                        angle = -Math.toDegrees(angle) + 180;
+                    else if ((stateRun.grass.getY() - p_eat.cy) >= 0 && (stateRun.grass.getX() - p_eat.cx) >= 0)
+                        angle = -Math.toDegrees(angle) + 360;
+                    else if ((stateRun.grass.getY() - p_eat.cy) < 0 && (stateRun.grass.getX() - p_eat.cx) >= 0)
+                        angle = -Math.toDegrees(angle);
+                    else
+                        angle = -Math.toDegrees(angle) + 180;
+                }
+                else {
+                    angle = Math.atan(((double) (stateRun.grass.getY() - p_r_eat.cy) / (double) (stateRun.grass.getX() - p_r_eat.cx)));
+                    if ((stateRun.grass.getY() - p_r_eat.cy) >= 0 && (stateRun.grass.getX() - p_r_eat.cx) < 0)
+                        angle = -Math.toDegrees(angle) + 180;
+                    else if ((stateRun.grass.getY() - p_r_eat.cy) >= 0 && (stateRun.grass.getX() - p_r_eat.cx) >= 0)
+                        angle = -Math.toDegrees(angle) + 360;
+                    else if ((stateRun.grass.getY() - p_r_eat.cy) < 0 && (stateRun.grass.getX() - p_r_eat.cx) >= 0)
+                        angle = -Math.toDegrees(angle);
+                    else
+                        angle = -Math.toDegrees(angle) + 180;
+                }
+                if (angle == 270){
+                    lx = 0;
+                    ly = -1;
+                }
+                else if (angle == 90){
+                    lx = 0;
+                    ly = -1;
+                }
+                else {
+                    angle = Math.toRadians(angle);
+                    lx = Math.cos(angle);
+                    ly = Math.sin(angle);
+                }
                 System.out.println(calcGrassDistance(stateRun.grass) + " " + Math.toDegrees(angle) + " " + lx + " " + ly);
 
                 direction = (lx < 0);
