@@ -13,7 +13,7 @@ public class Cloud extends MovableGameObject {
     public static final int SHADOW_Y_OFFSET = 220;
     public static final int MAX_Y = 60;
     public static final int GNDWATER_STATE_THRESHOLD = 70; // times that move() was called before triggering groundwater state change
-    public static final int GNDWATER_MAX_MOVE = 5;
+    public static final int GNDWATER_MAX_MOVE = 10;
     public static final int CMP_MAX_XY = 1000;
     
     public static final int TYPE_WHITE = 1; // 白雲
@@ -58,7 +58,10 @@ public class Cloud extends MovableGameObject {
         shadowImage.setLocation(this.x, this.y + this.height + SHADOW_Y_OFFSET);
         appStateRun.updateForeObjectLocation(this);
         if (raining) {
-            rain.setLocation(x, y + this.height);
+            if (appStateRun.isGrabbingMap)
+                rain.setGrabLocation(x);
+            else
+                rain.setLocation(x, y + this.height);
         }
     }
 
