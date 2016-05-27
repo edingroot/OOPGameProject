@@ -888,13 +888,21 @@ public class Sheep extends MovableGameObject {
         if (--resizeTimer <= 0) {
             resizeTimer = RESIZE_DELAY;
 
-            //System.out.println(ratio);
+            System.out.println(ratio);
             if (y > 210 && !isFall && !isLand) {
                 this.ratio = ratio;
                 width = (int) (oriWidth * ratio);
                 height = (int) (oriHeight * ratio);
                 for (Animation item : animations) {
                     item.resize(ratio * 0.8);
+                }
+            }
+            else if (y < 210) {
+                this.ratio = 0.7352;
+                width = (int) (oriWidth * this.ratio);
+                height = (int) (oriHeight * this.ratio);
+                for (Animation item : animations) {
+                    item.resize(this.ratio * 0.8);
                 }
             }
         }

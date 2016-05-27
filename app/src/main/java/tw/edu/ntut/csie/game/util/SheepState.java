@@ -63,14 +63,14 @@ public class SheepState {
 
     public void work() {
         //System.out.println(hungryValue);
-        if (hungryValue > 40) {
+        if (hungryValue > 100) {
             clearState();
             hungry = true;
         }
-        else if (thirstyValue > 100) {
+        else if (thirstyValue > 1000) {
             clearState();
             thirsty = true;
-        }else if (happiness < 80) {
+        }else if (happiness < 40) {
             clearState();
             satietyDecline();
             sad = true;
