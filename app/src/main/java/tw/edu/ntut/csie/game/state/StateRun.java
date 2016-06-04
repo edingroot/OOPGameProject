@@ -39,7 +39,7 @@ public class StateRun extends GameState {
     private MovingBitmap imgFloor;
     // NavigableMap foreObjectTable: index = lower-left y-axis of object
     private final NavigableMap<Integer, List<MovableGameObject>> foreObjectTable;
-    private ScoreBoard scoreBoard;
+    public ScoreBoard scoreBoard;
     private RightNav rightNav;
 
     public Grass grass;

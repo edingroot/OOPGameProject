@@ -11,6 +11,7 @@ import tw.edu.ntut.csie.game.extend.Animation;
 import tw.edu.ntut.csie.game.state.StateRun;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
 import tw.edu.ntut.csie.game.util.SheepState;
+import tw.edu.ntut.csie.game.object.ScoreBoard;
 
 public class Sheep extends MovableGameObject {
 
@@ -102,6 +103,8 @@ public class Sheep extends MovableGameObject {
     private double angle;
 
     private int resizeTimer;
+
+    private long currentTime;
 
     public Sheep(StateRun stateRun, int x, int y, int id) {
         this(stateRun, x, y);
@@ -823,12 +826,19 @@ public class Sheep extends MovableGameObject {
 
                 if (calcGrassDistance(stateRun.grass) >= GRASS_SHORTEST_DISTANCE || state.getState()==0){
                     this.blink();
-                    if (--aiCount <= 0) {
-                        aiCount = TIME_DELAY;
-                        instr = (int) (Math.random() * 100);
+                    if (System.currentTimeMillis() - currentTime > 5000) {
+                        currentTime = System.currentTimeMillis();
+                        stateRun.scoreBoard.addScore(1);
+                        System.out.println("score: " + stateRun.scoreBoard.score);
                     }
-                    if (instr > 33) this.walk();
-                    else this.rest();
+                    else {
+                        if (--aiCount <= 0) {
+                            aiCount = TIME_DELAY;
+                            instr = (int) (Math.random() * 100);
+                        }
+                        if (instr > 33) this.walk();
+                        else this.rest();
+                    }
                 }
                 else if (state.getState()==1) {
 
