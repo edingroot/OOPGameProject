@@ -829,7 +829,7 @@ public class Sheep extends MovableGameObject {
                     if (System.currentTimeMillis() - currentTime > 5000) {
                         currentTime = System.currentTimeMillis();
                         stateRun.scoreBoard.addScore(1);
-                        System.out.println("score: " + stateRun.scoreBoard.score);
+                        //System.out.println("score: " + stateRun.scoreBoard.score);
                     }
                     else {
                         if (--aiCount <= 0) {
@@ -898,7 +898,6 @@ public class Sheep extends MovableGameObject {
         if (--resizeTimer <= 0) {
             resizeTimer = RESIZE_DELAY;
 
-            System.out.println(ratio);
             if (y > 210 && !isFall && !isLand) {
                 this.ratio = ratio;
                 width = (int) (oriWidth * ratio);
@@ -985,7 +984,6 @@ public class Sheep extends MovableGameObject {
                     lx = Math.cos(angle);
                     ly = Math.sin(angle);
                 }
-                System.out.println(calcGrassDistance(stateRun.grass) + " " + Math.toDegrees(angle) + " " + lx + " " + ly);
 
                 direction = (lx < 0);
 
