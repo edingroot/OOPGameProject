@@ -9,78 +9,57 @@ import java.util.TreeMap;
 
 import tw.edu.ntut.csie.game.Game;
 import tw.edu.ntut.csie.game.Pointer;
-import tw.edu.ntut.csie.game.R;
-import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.engine.GameEngine;
 import tw.edu.ntut.csie.game.object.BackgroundLevel1;
 import tw.edu.ntut.csie.game.object.BackgroundLevel2;
-import tw.edu.ntut.csie.game.object.Bush;
 import tw.edu.ntut.csie.game.object.Cloud;
 import tw.edu.ntut.csie.game.object.Grass;
+import tw.edu.ntut.csie.game.object.LevelObjectSet1;
 import tw.edu.ntut.csie.game.object.RightNav;
-import tw.edu.ntut.csie.game.object.Rock;
 import tw.edu.ntut.csie.game.object.ScoreBoard;
 import tw.edu.ntut.csie.game.object.Sheep;
-import tw.edu.ntut.csie.game.object.Stone;
-import tw.edu.ntut.csie.game.object.Tree;
 import tw.edu.ntut.csie.game.physics.Lib25D;
 import tw.edu.ntut.csie.game.util.BackgroundSet;
 import tw.edu.ntut.csie.game.util.Common;
 import tw.edu.ntut.csie.game.util.Constants;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
+import tw.edu.ntut.csie.game.util.LevelObjectSet;
 
 public class StateRun extends GameState {
+    public BackgroundSet backgroundSet;
+    LevelObjectSet levelObjectSet;
+    public ScoreBoard scoreBoard;
+    public Grass grass;
+    public boolean isGrabbingMap = false;
+
     private final int MAP_LEFT_MARGIN = 180 + Constants.FRAME_LEFT_MARGIN;
     private final int MAP_RIGHT_MARGIN = 150 + Constants.FRAME_RIGHT_MARGIN;
     private final int MAP_AUTO_ROLL_RATE = 50;
-
-    public boolean isGrabbingMap = false;
-
-    private BackgroundSet backgroundSet;
     // NavigableMap foreObjectTable: index = lower-left y-axis of object
     private final NavigableMap<Integer, List<MovableGameObject>> foreObjectTable;
-    public ScoreBoard scoreBoard;
     private RightNav rightNav;
-
-    public Grass grass;
-
     private int initForeX = 0;
     private int initPointerX = 0;
     private int sheepIdCounter = 0;
 
     public StateRun(GameEngine engine) {
         super(engine);
-
         foreObjectTable = new TreeMap<>();
     }
 
     @Override
     public void initialize(Map<String, Object> data) {
         // ---------- set back objects ----------
-        backgroundSet = new BackgroundLevel2();
+        backgroundSet = new BackgroundLevel1();
+        levelObjectSet = new LevelObjectSet1(this, MAP_LEFT_MARGIN, MAP_RIGHT_MARGIN);
         scoreBoard = new ScoreBoard();
         rightNav = new RightNav(scoreBoard.getHeight());
 
-
         // ---------- game objects ----------
-        // clouds
+        levelObjectSet.addObjects();
         addToForeObjectTable(new Cloud(this, 10, 0, Cloud.TYPE_GRAY, Cloud.LEVEL_BIG));
         addToForeObjectTable(new Cloud(this, 100, 10, Cloud.TYPE_WHITE, Cloud.LEVEL_MEDIUM));
-        // stones
-        addToForeObjectTable(new Stone(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 45, 240));
-        addToForeObjectTable(new Stone(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 30, 280));
-        addToForeObjectTable(new Stone(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 15, 320));
-        addToForeObjectTable(new Stone(backgroundSet.imgFloor.getX() + backgroundSet.imgFloor.getWidth() - MAP_RIGHT_MARGIN - 95, 240));
-        addToForeObjectTable(new Stone(backgroundSet.imgFloor.getX() + backgroundSet.imgFloor.getWidth() - MAP_RIGHT_MARGIN - 80, 280));
-        addToForeObjectTable(new Stone(backgroundSet.imgFloor.getX() + backgroundSet.imgFloor.getWidth() - MAP_RIGHT_MARGIN - 65, 320));
-        // trees
-        addToForeObjectTable(new Rock(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 200, 170));
-        addToForeObjectTable(new Bush(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 240, 250));
-        addToForeObjectTable(new Tree(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 600, 190));
-        //addToForeObjectTable(new Tree(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 410, 220));
-        // sheep
-        //addToForeObjectTable(new Sheep(this, backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 500, 250, sheepIdCounter++));
-        //addToForeObjectTable(new Sheep(this, backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 100, 211, sheepIdCounter++));
+
         //grass
         grass = new Grass(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 380, 280);
         addToForeObjectTable(grass);
@@ -122,6 +101,7 @@ public class StateRun extends GameState {
                     if (gameObject.getClass().getName().equals("Cloud")) {
                         System.out.println("Release out of bounds cloud: " + gameObject.getClass().getSimpleName());
                         removeFromForeObjectTable(gameObject);
+                        gameObject.release();
                         it.remove();
                     }
                 }
@@ -274,7 +254,7 @@ public class StateRun extends GameState {
     @Override
     public void release() {
         backgroundSet.release();
-        backgroundSet = null;
+        levelObjectSet.release();
 
         for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
             List<MovableGameObject> list = entry.getValue();
@@ -305,20 +285,26 @@ public class StateRun extends GameState {
      }
 
     public void removeFromForeObjectTable(MovableGameObject gameObject) {
+        boolean found = false;
         int py = gameObject.getY25D() + gameObject.getHeight();
         List<MovableGameObject> list = foreObjectTable.get(py);
+
         if (list != null) {
             Iterator<MovableGameObject> it = list.iterator();
             while (it.hasNext()) {
                 MovableGameObject obj = it.next();
-                if (obj == gameObject)
+                if (obj == gameObject) {
                     it.remove();
+                    found = true;
+                }
             }
             if (list.size() == 0)
                 foreObjectTable.remove(py);
         }
-        gameObject.release();
-        gameObject = null;
+
+        if (!found) {
+            System.out.printf("removeFromForeObjectTable: object not found, className=%s\n", gameObject.getClass().getName());
+        }
     }
 
     /**
@@ -328,6 +314,10 @@ public class StateRun extends GameState {
      */
     public void updateForeObjectLocation(MovableGameObject gameObject) {
         synchronized (foreObjectTable) {
+            // resize
+            double ratio = Lib25D.sizeAdj(gameObject.getY25D());
+            gameObject.resize(ratio);
+
             int py = gameObject.getY25D() + gameObject.getHeight();
             int originalY = -1;
             for (Map.Entry<Integer, List<MovableGameObject>> entry : foreObjectTable.entrySet()) {
@@ -360,10 +350,6 @@ public class StateRun extends GameState {
                 newList = new ArrayList<>();
             newList.add(gameObject);
             foreObjectTable.put(py, newList);
-
-            // resize
-            double ratio = Lib25D.sizeAdj(gameObject.getY25D());
-            gameObject.resize(ratio);
         }
     }
 

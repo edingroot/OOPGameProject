@@ -76,11 +76,12 @@ public abstract class BackgroundSet implements GameObject {
 
     public void dragReleased() {
         foreDeltaX = 0;
-
     }
 
     @Override
     public void release() {
+        staticBackground.release();
+        imgFloor.release();
         for (MovingBitmap image : backImages) {
             image.release();
         }
