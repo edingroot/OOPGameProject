@@ -36,7 +36,8 @@ public class Sheep extends MovableGameObject {
 
     private static final int eyeW = 30, eyeH = 26;
     //endregion
-
+    private final static int TOP_BORDER = 175;
+    private final static int BOTTOM_BORDER = 280;
     private List<Grass> grasses;
     private Grass grassTest;
 
@@ -62,7 +63,7 @@ public class Sheep extends MovableGameObject {
     private static final int WALK_DELAY = 50;
     private static final int BLINK_DELAY = 150, BLINK_TIME = 10;
     private static final int CHEW_DELAY = 60, EAT_DELAY = 30, RESIZE_DELAY = 5;
-    private static final int GRASS_SHORTEST_DISTANCE = 100;
+    private static final int GRASS_SHORTEST_DISTANCE = 120;
     private SheepState state;
 
     //region animationDeclaration
@@ -95,12 +96,15 @@ public class Sheep extends MovableGameObject {
     private int chewCount, chewTimer, eatCount=0;
     private boolean arriveGrass;
     private int walkCount=0, aiCount=0, blinkCount=0, blinkTimeCount=0, instr=0;
+    private boolean grassLeave;
     private int initImageX, initImageY, releaseY, initialPointerX, initialPointerY;
     private boolean dragRelease;
     private boolean isBlink;
     private int tmpY = 0;
     private double lx, ly;
     private double angle;
+
+    private int ix, iy;
 
     private int resizeTimer;
 
@@ -435,23 +439,28 @@ public class Sheep extends MovableGameObject {
        @Override
     public void setLocation(int x, int y) {
         super.setLocation(x, y);
+        width = (int)(p_body.picW*ratio);
+        height = (int)(p_body.picH*ratio);
         stateRun.updateForeObjectLocation(this);
 
-        p_body.set(x, y, direction, ratio);
-        p_head.set(x, y, direction, ratio);
-        p_head_sad.set(x,y,direction,ratio);
-        p_r_head_sad.set(x,y,direction,ratio);
-        p_head_drag.set(x,y,direction,ratio);
-        p_head_fall.set(x,y,direction,ratio);
-        p_eye.set(x,y,direction,ratio);
-        p_tail.set(x,y,direction,ratio);
-        p_shadow.set(x,y,direction,ratio);
-        p_state.set(x,y,direction,ratio);
-        p_body_drag.set(x,y,direction,ratio);
-        p_tail_drag.set(x,y,direction,ratio);
-        p_head_eat.set(x,y,direction,ratio);
-        p_eat.set(x,y,direction,ratio);
-        p_r_eat.set(x,y,direction,ratio);
+        ix = x + width/2;
+        iy = y + height/2;
+
+        p_body.set(ix, iy, direction, ratio);
+        p_head.set(ix, iy, direction, ratio);
+        p_head_sad.set(ix,iy,direction,ratio);
+        p_r_head_sad.set(ix,iy,direction,ratio);
+        p_head_drag.set(ix,iy,direction,ratio);
+        p_head_fall.set(ix,iy,direction,ratio);
+        p_eye.set(ix,iy,direction,ratio);
+        p_tail.set(ix,iy,direction,ratio);
+        p_shadow.set(ix,iy,direction,ratio);
+        p_state.set(ix,iy,direction,ratio);
+        p_body_drag.set(ix,iy,direction,ratio);
+        p_tail_drag.set(ix,iy,direction,ratio);
+        p_head_eat.set(ix,iy,direction,ratio);
+        p_eat.set(ix,iy,direction,ratio);
+        p_r_eat.set(ix,iy,direction,ratio);
         //System.out.println(p_shadow.cy);
 
         for (Animation item : animations_body) item.setLocation(p_body.px, p_body.py);
@@ -474,7 +483,7 @@ public class Sheep extends MovableGameObject {
             tail.setLocation(p_tail_drag.px, p_tail_drag.py);
             r_tail.setLocation(p_tail_drag.px, p_tail_drag.py);
         }
-        if(y>210) {
+        if(y>TOP_BORDER) {
             shadow.setLocation(p_shadow.px, p_shadow.py);
             r_shadow.setLocation(p_shadow.px, p_shadow.py);
         }else {
@@ -701,7 +710,7 @@ public class Sheep extends MovableGameObject {
         }
         if(!stateRun.isGrabbingMap) {
 
-            if (y>210 && y<300) {
+            if (y>TOP_BORDER && y<BOTTOM_BORDER) {
                 x = (int)(x + rx);
                 y = (int)(y + ry);
                 this.setLocation(x, y);
@@ -712,7 +721,7 @@ public class Sheep extends MovableGameObject {
             int tmpX, tmpY;
             tmpX = (int)(moveX + rx);
             tmpY = (int)(moveY + ry);
-            if (y>210 && y<300) {
+            if (y>TOP_BORDER && y<BOTTOM_BORDER) {
                 moveX = tmpX;
                 moveY = tmpY;
             }
@@ -729,7 +738,7 @@ public class Sheep extends MovableGameObject {
         isFall = true;
         setAnimation();
 
-        if (y < 210){
+        if (y < TOP_BORDER){
             if (!stateRun.isGrabbingMap) this.setLocation(x, y+=20);
             else y += 20;
         }
@@ -744,8 +753,8 @@ public class Sheep extends MovableGameObject {
         }
     }
     public void land() {
-        if (tmpY +10 > 210) y = tmpY + 5;
-        else y = 210;
+        if (tmpY +10 > TOP_BORDER) y = tmpY + 5;
+        else y = TOP_BORDER;
         setLocation(x, y);
         isLand = true;
         setAnimation();
@@ -898,7 +907,7 @@ public class Sheep extends MovableGameObject {
         if (--resizeTimer <= 0) {
             resizeTimer = RESIZE_DELAY;
 
-            if (y > 210 && !isFall && !isLand) {
+            if (y > TOP_BORDER && !isFall && !isLand) {
                 this.ratio = ratio;
                 width = (int) (oriWidth * ratio);
                 height = (int) (oriHeight * ratio);
@@ -906,7 +915,7 @@ public class Sheep extends MovableGameObject {
                     item.resize(ratio * 0.8);
                 }
             }
-            else if (y < 210) {
+            else if (y < TOP_BORDER) {
                 this.ratio = 0.7352;
                 width = (int) (oriWidth * this.ratio);
                 height = (int) (oriHeight * this.ratio);
@@ -971,7 +980,7 @@ public class Sheep extends MovableGameObject {
                     else
                         angle = -Math.toDegrees(angle) + 180;
                 }
-                if (angle == 270){
+                if ((angle <= 270 && angle > 255) || angle > 10000){
                     lx = 0;
                     ly = -1;
                 }
@@ -985,10 +994,20 @@ public class Sheep extends MovableGameObject {
                     ly = Math.sin(angle);
                 }
 
+                System.out.println("angle: " + Math.toDegrees(angle) + " "  + lx + " " + ly);
                 direction = (lx < 0);
-
-                x += lx;
-                y -= ly;
+                if (p_eat.cx < stateRun.grass.getX() && p_tail.cx > stateRun.grass.getX()){
+                    direction = true;
+                    x -= 1;
+                }
+                else if (p_eat.cx > stateRun.grass.getX() + stateRun.grass.getWidth() && p_tail.cx < stateRun.grass.getX() + stateRun.grass.getWidth()){
+                    direction = false;
+                    x += 1;
+                }
+                else {
+                    x += lx;
+                    y -= ly;
+                }
             }
         }
     }
