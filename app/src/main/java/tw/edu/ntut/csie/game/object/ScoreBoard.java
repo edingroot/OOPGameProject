@@ -13,7 +13,7 @@ public class ScoreBoard implements GameObject {
     private static final int SCORE_Y = 2;
     private MovingBitmap image;
     private int height;
-    public int score, score_tmp;
+    public int score;
     private int int_numbers[] = {
             R.drawable._0, R.drawable._1, R.drawable._2, R.drawable._3, R.drawable._4,
             R.drawable._5, R.drawable._6, R.drawable._7, R.drawable._8, R.drawable._9

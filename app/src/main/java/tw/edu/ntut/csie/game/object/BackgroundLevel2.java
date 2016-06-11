@@ -8,6 +8,8 @@ import tw.edu.ntut.csie.game.util.BackgroundSet;
 public class BackgroundLevel2 extends BackgroundSet {
 
     public BackgroundLevel2() {
+        level = 2;
+
         int initialX = -(WRAP_WIDTH - Game.GAME_FRAME_WIDTH) / 2; // center of screen
         staticBackground = new MovingBitmap(R.drawable.background_static_lv2);
         staticBackground.setLocation(initialX, 0);

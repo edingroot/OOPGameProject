@@ -14,10 +14,23 @@ public abstract class BackgroundSet implements GameObject {
     protected MovingBitmap[] backImages = new MovingBitmap[3];
     protected int[] initialX = new int[3];
     protected int foreDeltaX = 0;
+    protected static int level = 0; // ** NEEDED TO BE SET **
 
     public BackgroundSet() {
         /*
         Constructor sample:
+            level = 1;
+
+            int initialX = -(WRAP_WIDTH - Game.GAME_FRAME_WIDTH) / 2; // center of screen
+            staticBackground = new MovingBitmap(R.drawable.background_static);
+            staticBackground.setLocation(initialX, 0);
+
+            imgGround = new MovingBitmap(R.drawable.ground);
+            imgGround.setLocation(
+                    -(imgGround.getWidth() - Game.GAME_FRAME_WIDTH) / 2,
+                    BackgroundLevel1.WRAP_HEIGHT - BackgroundLevel1.OVERLAP_FOREGROUND
+            );
+
             backImages[0] = new MovingBitmap(R.drawable.background0);
             backImages[1] = new MovingBitmap(R.drawable.background1);
             backImages[2] = new MovingBitmap(R.drawable.background2);
@@ -86,5 +99,9 @@ public abstract class BackgroundSet implements GameObject {
             image.release();
         }
         backImages = null;
+    }
+
+    public int getLevel() {
+        return level;
     }
 }

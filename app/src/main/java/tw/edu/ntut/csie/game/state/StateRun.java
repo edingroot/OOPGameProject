@@ -14,6 +14,7 @@ import tw.edu.ntut.csie.game.object.BackgroundLevel1;
 import tw.edu.ntut.csie.game.object.BackgroundLevel2;
 import tw.edu.ntut.csie.game.object.Cloud;
 import tw.edu.ntut.csie.game.object.Grass;
+import tw.edu.ntut.csie.game.object.LevelObjectSet1;
 import tw.edu.ntut.csie.game.object.LevelObjectSet2;
 import tw.edu.ntut.csie.game.object.RightNav;
 import tw.edu.ntut.csie.game.object.ScoreBoard;
@@ -28,7 +29,6 @@ import tw.edu.ntut.csie.game.util.LevelObjectSet;
 public class StateRun extends GameState {
     public BackgroundSet backgroundSet;
     LevelObjectSet levelObjectSet;
-    public ScoreBoard scoreBoard;
     public Grass grass;
     public boolean isGrabbingMap = false;
 
@@ -38,6 +38,7 @@ public class StateRun extends GameState {
     // NavigableMap foreObjectTable: index = lower-left y-axis of object
     private final NavigableMap<Integer, List<MovableGameObject>> foreObjectTable;
     private RightNav rightNav;
+    private ScoreBoard scoreBoard;
     private int initForeX = 0;
     private int initPointerX = 0;
     private int sheepIdCounter = 0;
@@ -50,8 +51,8 @@ public class StateRun extends GameState {
     @Override
     public void initialize(Map<String, Object> data) {
         // ---------- set back objects ----------
-        backgroundSet = new BackgroundLevel2();
-        levelObjectSet = new LevelObjectSet2(this, MAP_LEFT_MARGIN, MAP_RIGHT_MARGIN);
+        backgroundSet = new BackgroundLevel1();
+        levelObjectSet = new LevelObjectSet1(this, MAP_LEFT_MARGIN, MAP_RIGHT_MARGIN);
         scoreBoard = new ScoreBoard();
         rightNav = new RightNav(scoreBoard.getHeight());
 
@@ -348,6 +349,18 @@ public class StateRun extends GameState {
                 newList = new ArrayList<>();
             newList.add(gameObject);
             foreObjectTable.put(py, newList);
+        }
+    }
+
+    public void addScore(int amount) {
+        scoreBoard.addScore(amount);
+        if (scoreBoard.score >= 100 && backgroundSet.getLevel() == 1) {
+            backgroundSet.release();
+            backgroundSet = new BackgroundLevel2();
+            levelObjectSet.release();
+            levelObjectSet = new LevelObjectSet2(this, MAP_LEFT_MARGIN, MAP_RIGHT_MARGIN);
+            levelObjectSet.addObjects();
+            scoreBoard.score = 0;
         }
     }
 

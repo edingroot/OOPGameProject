@@ -828,7 +828,7 @@ public class Sheep extends MovableGameObject {
                     this.blink();
                     if (System.currentTimeMillis() - currentTime > 5000) {
                         currentTime = System.currentTimeMillis();
-                        stateRun.scoreBoard.addScore(1);
+                        stateRun.addScore(1);
                         //System.out.println("score: " + stateRun.scoreBoard.score);
                     }
                     else {
