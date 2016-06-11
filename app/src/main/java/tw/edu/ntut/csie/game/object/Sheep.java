@@ -994,7 +994,7 @@ public class Sheep extends MovableGameObject {
                     ly = Math.sin(angle);
                 }
 
-                System.out.println("angle: " + Math.toDegrees(angle) + " "  + lx + " " + ly);
+                //System.out.println("angle: " + Math.toDegrees(angle) + " "  + lx + " " + ly);
                 direction = (lx < 0);
                 if (p_eat.cx < stateRun.grass.getX() && p_tail.cx > stateRun.grass.getX()){
                     direction = true;
