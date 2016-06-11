@@ -14,7 +14,7 @@ import tw.edu.ntut.csie.game.object.BackgroundLevel1;
 import tw.edu.ntut.csie.game.object.BackgroundLevel2;
 import tw.edu.ntut.csie.game.object.Cloud;
 import tw.edu.ntut.csie.game.object.Grass;
-import tw.edu.ntut.csie.game.object.LevelObjectSet1;
+import tw.edu.ntut.csie.game.object.LevelObjectSet2;
 import tw.edu.ntut.csie.game.object.RightNav;
 import tw.edu.ntut.csie.game.object.ScoreBoard;
 import tw.edu.ntut.csie.game.object.Sheep;
@@ -50,8 +50,8 @@ public class StateRun extends GameState {
     @Override
     public void initialize(Map<String, Object> data) {
         // ---------- set back objects ----------
-        backgroundSet = new BackgroundLevel1();
-        levelObjectSet = new LevelObjectSet1(this, MAP_LEFT_MARGIN, MAP_RIGHT_MARGIN);
+        backgroundSet = new BackgroundLevel2();
+        levelObjectSet = new LevelObjectSet2(this, MAP_LEFT_MARGIN, MAP_RIGHT_MARGIN);
         scoreBoard = new ScoreBoard();
         rightNav = new RightNav(scoreBoard.getHeight());
 
@@ -61,10 +61,8 @@ public class StateRun extends GameState {
         addToForeObjectTable(new Cloud(this, 100, 10, Cloud.TYPE_WHITE, Cloud.LEVEL_MEDIUM));
 
         //grass
-        grass = new Grass(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 380, 280);
+        grass = new Grass(backgroundSet.imgGround.getX() + MAP_LEFT_MARGIN + 380, 280);
         addToForeObjectTable(grass);
-
-
     }
 
     @Override
@@ -78,15 +76,15 @@ public class StateRun extends GameState {
             int foreDeltaX = 0;
 
             // if user grab the map over left or right margin, roll back automatically
-            if (backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN > 0) {
-                int diff = backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN;
+            if (backgroundSet.imgGround.getX() + MAP_LEFT_MARGIN > 0) {
+                int diff = backgroundSet.imgGround.getX() + MAP_LEFT_MARGIN;
                 foreDeltaX = -(diff >= MAP_AUTO_ROLL_RATE ? MAP_AUTO_ROLL_RATE : diff);
-            } else if (backgroundSet.imgFloor.getX() + backgroundSet.imgFloor.getWidth() - MAP_RIGHT_MARGIN < Game.GAME_FRAME_WIDTH) {
-                int diff = Game.GAME_FRAME_WIDTH - (backgroundSet.imgFloor.getX() + backgroundSet.imgFloor.getWidth() - MAP_RIGHT_MARGIN);
+            } else if (backgroundSet.imgGround.getX() + backgroundSet.imgGround.getWidth() - MAP_RIGHT_MARGIN < Game.GAME_FRAME_WIDTH) {
+                int diff = Game.GAME_FRAME_WIDTH - (backgroundSet.imgGround.getX() + backgroundSet.imgGround.getWidth() - MAP_RIGHT_MARGIN);
                 foreDeltaX = diff >= MAP_AUTO_ROLL_RATE ? MAP_AUTO_ROLL_RATE : diff;
             }
             backgroundSet.setForeDeltaX(foreDeltaX).move();
-            backgroundSet.imgFloor.setLocation(backgroundSet.imgFloor.getX() + foreDeltaX, backgroundSet.imgFloor.getY());
+            backgroundSet.imgGround.setLocation(backgroundSet.imgGround.getX() + foreDeltaX, backgroundSet.imgGround.getY());
 
             // move foreground objects with map
             Iterator<MovableGameObject> it = foreObjects.iterator();
@@ -97,7 +95,7 @@ public class StateRun extends GameState {
                 gameObject.setLocation(x, gameObject.getY());
 
                 // release fore objects if it's out of map bounds
-                if (Common.isOutOfBounds(gameObject, backgroundSet.imgFloor.getX(), BackgroundLevel1.WRAP_WIDTH, Game.GAME_FRAME_HEIGHT)) {
+                if (Common.isOutOfBounds(gameObject, backgroundSet.imgGround.getX(), BackgroundLevel1.WRAP_WIDTH, Game.GAME_FRAME_HEIGHT)) {
                     if (gameObject.getClass().getName().equals("Cloud")) {
                         System.out.println("Release out of bounds cloud: " + gameObject.getClass().getSimpleName());
                         removeFromForeObjectTable(gameObject);
@@ -117,7 +115,7 @@ public class StateRun extends GameState {
         backgroundSet.show();
 
         // show objects in foreObjectLists ordering by Y-axis
-        for (MovableGameObject gameObject : getAllForeObjects()){
+        for (MovableGameObject gameObject : getAllForeObjects()) {
 
             gameObject.show();
         }
@@ -156,7 +154,7 @@ public class StateRun extends GameState {
             // check is dragging of objects in foreObjectLists
             for (MovableGameObject gameObject : getAllForeObjects()) {
                 gameObject.moveStarted(singlePointer);
-                if (gameObject.isDraggable() && Common.isInObjectScope(singlePointer, gameObject)){
+                if (gameObject.isDraggable() && Common.isInObjectScope(singlePointer, gameObject)) {
                     inScopeObjects.add(gameObject);
                 }
             }
@@ -184,7 +182,7 @@ public class StateRun extends GameState {
 
             // for moving map
             backgroundSet.moveStarted();
-            initForeX = backgroundSet.imgFloor.getX();
+            initForeX = backgroundSet.imgGround.getX();
             initPointerX = singlePointer.getX();
         }
         return true;
@@ -202,13 +200,13 @@ public class StateRun extends GameState {
                 gameObject.dragMoved(singlePointer);
         }
 
-        // moving background
+        // moving background_static
         if (isGrabbingMap) {
             int newForeX = initForeX + deltaX;
             if (newForeX < 0 - Constants.FRAME_LEFT_MARGIN &&
-                    newForeX + backgroundSet.imgFloor.getWidth() > Game.GAME_FRAME_WIDTH + Constants.FRAME_RIGHT_MARGIN) {
+                    newForeX + backgroundSet.imgGround.getWidth() > Game.GAME_FRAME_WIDTH + Constants.FRAME_RIGHT_MARGIN) {
                 backgroundSet.setForeDeltaX(deltaX).dragMoved();
-                backgroundSet.imgFloor.setLocation(newForeX, backgroundSet.imgFloor.getY());
+                backgroundSet.imgGround.setLocation(newForeX, backgroundSet.imgGround.getY());
 
                 // move foreground objects with foreground
                 for (MovableGameObject gameObject : foreObjects) {
@@ -282,7 +280,7 @@ public class StateRun extends GameState {
 
     public void addToForeObjectTable(MovableGameObject gameObject) {
         updateForeObjectLocation(gameObject);
-     }
+    }
 
     public void removeFromForeObjectTable(MovableGameObject gameObject) {
         boolean found = false;

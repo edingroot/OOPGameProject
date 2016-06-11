@@ -1,17 +1,17 @@
 package tw.edu.ntut.csie.game.object;
 
-import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
 
 public class Rock extends MovableGameObject {
     private MovingBitmap image;
-    private double random = Math.random()*100;
 
-    public Rock(int x, int y) {
+    public Rock(int x, int y, int imgResource1, int imgResource2) {
         this.draggable = false;
-        if (random < 50)image = new MovingBitmap(R.drawable.rock1);
-        else image = new MovingBitmap(R.drawable.rock2);
+        if (Math.random() * 100 < 50)
+            image = new MovingBitmap(imgResource1);
+        else
+            image = new MovingBitmap(imgResource2);
         this.width = image.getWidth();
         this.height = image.getHeight();
         this.setLocation(x, y);
@@ -24,7 +24,7 @@ public class Rock extends MovableGameObject {
 
     public void resize(double ratio) {
         super.resize(ratio);
-        image.resize((int)(width*ratio), (int)(height*ratio));
+        image.resize((int) (width * ratio), (int) (height * ratio));
     }
 
     @Override

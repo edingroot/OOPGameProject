@@ -8,8 +8,8 @@ public abstract class BackgroundSet implements GameObject {
     public static final int OVERLAP_FOREGROUND = 20;
     public static final int WRAP_WIDTH = 1100;
     public static final int WRAP_HEIGHT = 220;
-    public MovingBitmap imgFloor;
-    protected MovingBitmap staticBackground; // the deepest background
+    public MovingBitmap imgGround;
+    protected MovingBitmap staticBackground; // the deepest background_static
     protected static final int[] DEPTH_TO_FRAME = {400, 250, 220}; // shouldn't lower than WRAP_HEIGHT
     protected MovingBitmap[] backImages = new MovingBitmap[3];
     protected int[] initialX = new int[3];
@@ -50,7 +50,7 @@ public abstract class BackgroundSet implements GameObject {
     @Override
     public void show() {
         staticBackground.show();
-        imgFloor.show();
+        imgGround.show();
         for (MovingBitmap image : backImages) {
             image.show();
         }
@@ -81,7 +81,7 @@ public abstract class BackgroundSet implements GameObject {
     @Override
     public void release() {
         staticBackground.release();
-        imgFloor.release();
+        imgGround.release();
         for (MovingBitmap image : backImages) {
             image.release();
         }

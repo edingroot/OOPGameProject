@@ -9,12 +9,12 @@ public class BackgroundLevel1 extends BackgroundSet {
 
     public BackgroundLevel1() {
         int initialX = -(WRAP_WIDTH - Game.GAME_FRAME_WIDTH) / 2; // center of screen
-        staticBackground = new MovingBitmap(R.drawable.background);
+        staticBackground = new MovingBitmap(R.drawable.background_static);
         staticBackground.setLocation(initialX, 0);
 
-        imgFloor = new MovingBitmap(R.drawable.floor);
-        imgFloor.setLocation(
-                -(imgFloor.getWidth() - Game.GAME_FRAME_WIDTH) / 2,
+        imgGround = new MovingBitmap(R.drawable.ground);
+        imgGround.setLocation(
+                -(imgGround.getWidth() - Game.GAME_FRAME_WIDTH) / 2,
                 BackgroundLevel1.WRAP_HEIGHT - BackgroundLevel1.OVERLAP_FOREGROUND
         );
 
