@@ -22,8 +22,8 @@ public abstract class MovableGameObject implements GameObject {
     }
 
     public void resize(double ratio) {
-        this.width = (int)(this.width*ratio);
-        this.height = (int)(this.height*ratio);
+        this.width = (int) (this.width * ratio);
+        this.height = (int) (this.height * ratio);
     }
 
     public void moveStarted(Pointer pointer) {
@@ -37,7 +37,7 @@ public abstract class MovableGameObject implements GameObject {
 
     public void dragPressed(Pointer pointer) {
         this.dragging = true;
-        this.dragPressedMillis = System.currentTimeMillis() % 1000;
+        this.dragPressedMillis = System.currentTimeMillis();
         this.dragMovedTimes = 0;
         this.moveStarted(pointer);
     }
@@ -48,12 +48,13 @@ public abstract class MovableGameObject implements GameObject {
 
     public void dragReleased(Pointer pointer) {
         this.dragging = false;
-        long millis = System.currentTimeMillis() % 1000;
+        long millis = System.currentTimeMillis();
         if (this.dragMovedTimes < 10 && Math.abs(millis - dragPressedMillis) < 300)
             clicked(pointer);
     }
 
-    public void clicked(Pointer pointer) {}
+    public void clicked(Pointer pointer) {
+    }
 
     public int getX() {
         return x;
@@ -65,6 +66,7 @@ public abstract class MovableGameObject implements GameObject {
 
     /**
      * return y for determining how far the object is
+     *
      * @return int y25d
      */
     public int getY25D() {
@@ -87,9 +89,13 @@ public abstract class MovableGameObject implements GameObject {
         return initialPointerY;
     }
 
-    public int getDeltaX() { return moveX - initialX; }
+    public int getDeltaX() {
+        return moveX - initialX;
+    }
 
-    public int getDeltaY() { return moveY - initialY; }
+    public int getDeltaY() {
+        return moveY - initialY;
+    }
 
     public int getWidth() {
         return width;

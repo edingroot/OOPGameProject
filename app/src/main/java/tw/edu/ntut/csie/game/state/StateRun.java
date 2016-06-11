@@ -12,7 +12,8 @@ import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.engine.GameEngine;
-import tw.edu.ntut.csie.game.object.BackgroundSet;
+import tw.edu.ntut.csie.game.object.BackgroundLevel1;
+import tw.edu.ntut.csie.game.object.BackgroundLevel2;
 import tw.edu.ntut.csie.game.object.Bush;
 import tw.edu.ntut.csie.game.object.Cloud;
 import tw.edu.ntut.csie.game.object.Grass;
@@ -23,6 +24,7 @@ import tw.edu.ntut.csie.game.object.Sheep;
 import tw.edu.ntut.csie.game.object.Stone;
 import tw.edu.ntut.csie.game.object.Tree;
 import tw.edu.ntut.csie.game.physics.Lib25D;
+import tw.edu.ntut.csie.game.util.BackgroundSet;
 import tw.edu.ntut.csie.game.util.Common;
 import tw.edu.ntut.csie.game.util.Constants;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
@@ -34,9 +36,7 @@ public class StateRun extends GameState {
 
     public boolean isGrabbingMap = false;
 
-    private MovingBitmap staticBackground;
     private BackgroundSet backgroundSet;
-    private MovingBitmap imgFloor;
     // NavigableMap foreObjectTable: index = lower-left y-axis of object
     private final NavigableMap<Integer, List<MovableGameObject>> foreObjectTable;
     public ScoreBoard scoreBoard;
@@ -56,18 +56,8 @@ public class StateRun extends GameState {
 
     @Override
     public void initialize(Map<String, Object> data) {
-        // ---------- set back images ----------
-        int initialX = -(BackgroundSet.WRAP_WIDTH - Game.GAME_FRAME_WIDTH) / 2; // center screen
-        staticBackground = new MovingBitmap(R.drawable.background);
-        staticBackground.setLocation(initialX, 0);
-
-        backgroundSet = new BackgroundSet();
-        imgFloor = new MovingBitmap(R.drawable.floor);
-        imgFloor.setLocation(
-                -(imgFloor.getWidth() - Game.GAME_FRAME_WIDTH) / 2,
-                BackgroundSet.WRAP_HEIGHT - BackgroundSet.OVERLAP_FOREGROUND
-        );
-
+        // ---------- set back objects ----------
+        backgroundSet = new BackgroundLevel2();
         scoreBoard = new ScoreBoard();
         rightNav = new RightNav(scoreBoard.getHeight());
 
@@ -77,22 +67,22 @@ public class StateRun extends GameState {
         addToForeObjectTable(new Cloud(this, 10, 0, Cloud.TYPE_GRAY, Cloud.LEVEL_BIG));
         addToForeObjectTable(new Cloud(this, 100, 10, Cloud.TYPE_WHITE, Cloud.LEVEL_MEDIUM));
         // stones
-        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 45, 240));
-        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 30, 280));
-        addToForeObjectTable(new Stone(imgFloor.getX() + MAP_LEFT_MARGIN + 15, 320));
-        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 95, 240));
-        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 80, 280));
-        addToForeObjectTable(new Stone(imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN - 65, 320));
+        addToForeObjectTable(new Stone(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 45, 240));
+        addToForeObjectTable(new Stone(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 30, 280));
+        addToForeObjectTable(new Stone(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 15, 320));
+        addToForeObjectTable(new Stone(backgroundSet.imgFloor.getX() + backgroundSet.imgFloor.getWidth() - MAP_RIGHT_MARGIN - 95, 240));
+        addToForeObjectTable(new Stone(backgroundSet.imgFloor.getX() + backgroundSet.imgFloor.getWidth() - MAP_RIGHT_MARGIN - 80, 280));
+        addToForeObjectTable(new Stone(backgroundSet.imgFloor.getX() + backgroundSet.imgFloor.getWidth() - MAP_RIGHT_MARGIN - 65, 320));
         // trees
-        addToForeObjectTable(new Rock(imgFloor.getX() + MAP_LEFT_MARGIN + 200, 170));
-        addToForeObjectTable(new Bush(imgFloor.getX() + MAP_LEFT_MARGIN + 240, 250));
-        addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 600, 190));
-        //addToForeObjectTable(new Tree(imgFloor.getX() + MAP_LEFT_MARGIN + 410, 220));
+        addToForeObjectTable(new Rock(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 200, 170));
+        addToForeObjectTable(new Bush(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 240, 250));
+        addToForeObjectTable(new Tree(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 600, 190));
+        //addToForeObjectTable(new Tree(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 410, 220));
         // sheep
-        //addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 500, 250, sheepIdCounter++));
-        //addToForeObjectTable(new Sheep(this, imgFloor.getX() + MAP_LEFT_MARGIN + 100, 211, sheepIdCounter++));
+        //addToForeObjectTable(new Sheep(this, backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 500, 250, sheepIdCounter++));
+        //addToForeObjectTable(new Sheep(this, backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 100, 211, sheepIdCounter++));
         //grass
-        grass = new Grass(imgFloor.getX() + MAP_LEFT_MARGIN + 380, 280);
+        grass = new Grass(backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN + 380, 280);
         addToForeObjectTable(grass);
 
 
@@ -109,15 +99,15 @@ public class StateRun extends GameState {
             int foreDeltaX = 0;
 
             // if user grab the map over left or right margin, roll back automatically
-            if (imgFloor.getX() + MAP_LEFT_MARGIN > 0) {
-                int diff = imgFloor.getX() + MAP_LEFT_MARGIN;
+            if (backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN > 0) {
+                int diff = backgroundSet.imgFloor.getX() + MAP_LEFT_MARGIN;
                 foreDeltaX = -(diff >= MAP_AUTO_ROLL_RATE ? MAP_AUTO_ROLL_RATE : diff);
-            } else if (imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN < Game.GAME_FRAME_WIDTH) {
-                int diff = Game.GAME_FRAME_WIDTH - (imgFloor.getX() + imgFloor.getWidth() - MAP_RIGHT_MARGIN);
+            } else if (backgroundSet.imgFloor.getX() + backgroundSet.imgFloor.getWidth() - MAP_RIGHT_MARGIN < Game.GAME_FRAME_WIDTH) {
+                int diff = Game.GAME_FRAME_WIDTH - (backgroundSet.imgFloor.getX() + backgroundSet.imgFloor.getWidth() - MAP_RIGHT_MARGIN);
                 foreDeltaX = diff >= MAP_AUTO_ROLL_RATE ? MAP_AUTO_ROLL_RATE : diff;
             }
             backgroundSet.setForeDeltaX(foreDeltaX).move();
-            imgFloor.setLocation(imgFloor.getX() + foreDeltaX, imgFloor.getY());
+            backgroundSet.imgFloor.setLocation(backgroundSet.imgFloor.getX() + foreDeltaX, backgroundSet.imgFloor.getY());
 
             // move foreground objects with map
             Iterator<MovableGameObject> it = foreObjects.iterator();
@@ -128,7 +118,7 @@ public class StateRun extends GameState {
                 gameObject.setLocation(x, gameObject.getY());
 
                 // release fore objects if it's out of map bounds
-                if (Common.isOutOfBounds(gameObject, imgFloor.getX(), BackgroundSet.WRAP_WIDTH, Game.GAME_FRAME_HEIGHT)) {
+                if (Common.isOutOfBounds(gameObject, backgroundSet.imgFloor.getX(), BackgroundLevel1.WRAP_WIDTH, Game.GAME_FRAME_HEIGHT)) {
                     if (gameObject.getClass().getName().equals("Cloud")) {
                         System.out.println("Release out of bounds cloud: " + gameObject.getClass().getSimpleName());
                         removeFromForeObjectTable(gameObject);
@@ -144,9 +134,6 @@ public class StateRun extends GameState {
 
     @Override
     public void show() {
-        // show back image
-        staticBackground.show();
-        imgFloor.show();
         backgroundSet.show();
 
         // show objects in foreObjectLists ordering by Y-axis
@@ -217,7 +204,7 @@ public class StateRun extends GameState {
 
             // for moving map
             backgroundSet.moveStarted();
-            initForeX = imgFloor.getX();
+            initForeX = backgroundSet.imgFloor.getX();
             initPointerX = singlePointer.getX();
         }
         return true;
@@ -239,9 +226,9 @@ public class StateRun extends GameState {
         if (isGrabbingMap) {
             int newForeX = initForeX + deltaX;
             if (newForeX < 0 - Constants.FRAME_LEFT_MARGIN &&
-                    newForeX + imgFloor.getWidth() > Game.GAME_FRAME_WIDTH + Constants.FRAME_RIGHT_MARGIN) {
+                    newForeX + backgroundSet.imgFloor.getWidth() > Game.GAME_FRAME_WIDTH + Constants.FRAME_RIGHT_MARGIN) {
                 backgroundSet.setForeDeltaX(deltaX).dragMoved();
-                imgFloor.setLocation(newForeX, imgFloor.getY());
+                backgroundSet.imgFloor.setLocation(newForeX, backgroundSet.imgFloor.getY());
 
                 // move foreground objects with foreground
                 for (MovableGameObject gameObject : foreObjects) {
