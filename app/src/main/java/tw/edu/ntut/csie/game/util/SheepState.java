@@ -7,10 +7,10 @@ import android.provider.Settings;
  */
 public class SheepState {
 
-    private static final int HAPPINESS_DELAY = 10, HUNGRY_DELAY = 10, THIRSTY_DELAY = 10;
-    private boolean happy, sad, hungry, thirsty;
-    private int hungryCount, thirstyCount;
-    private int hungryValue, thirstyValue;
+    private static final int HAPPINESS_DELAY = 10, HUNGRY_DELAY = 10, THIRSTY_DELAY = 10, HEALTH_DELAY = 10;
+    private boolean happy, sad, hungry, thirsty, dead;
+    private int hungryCount, thirstyCount, healthCount;
+    private int hungryValue, thirstyValue, health;
     private int happiness;
     private int happinessCount;
 
@@ -23,6 +23,7 @@ public class SheepState {
         hungryValue = 0;
         thirstyValue = 0;
         happiness = 100;
+        health = 100;
     }
 
     private void clearState() {
@@ -30,6 +31,13 @@ public class SheepState {
         sad = false;
         hungry = false;
         thirsty = false;
+    }
+
+    public void healthDecline() {
+        if (--healthCount <= 0) {
+            healthCount = HEALTH_DELAY;
+            health--;
+        }
     }
 
     public void happinessDecline() {
@@ -56,21 +64,28 @@ public class SheepState {
     public int getState() {
 
         if (sad) return 3;
-        if (hungry) return 1;
+        if (dead) return 4;
+        else if (hungry) return 1;
         else if (thirsty) return 2;
         else return 0;
     }
 
     public void work() {
-        //System.out.println(hungryValue);
-        if (hungryValue > 100) {
+        if (health <= 0) {
+            clearState();
+            dead = true;
+        }
+        else if (hungryValue > 100) {
             clearState();
             hungry = true;
+            healthDecline();
         }
         else if (thirstyValue > 1000) {
             clearState();
             thirsty = true;
-        }else if (happiness < 40) {
+            healthDecline();
+        }
+        else if (happiness < 40) {
             clearState();
             satietyDecline();
             sad = true;
