@@ -68,8 +68,7 @@ public class StateRun extends GameState {
 
     @Override
     public void move() {
-        List<MovableGameObject> foreObjects = getAllForeObjects();
-        for (MovableGameObject gameObject : foreObjects) {
+        for (MovableGameObject gameObject : getAllForeObjects()) {
             gameObject.move();
         }
 
@@ -88,7 +87,7 @@ public class StateRun extends GameState {
             backgroundSet.imgGround.setLocation(backgroundSet.imgGround.getX() + foreDeltaX, backgroundSet.imgGround.getY());
 
             // move foreground objects with map
-            Iterator<MovableGameObject> it = foreObjects.iterator();
+            Iterator<MovableGameObject> it = getAllForeObjects().iterator();
             while (it.hasNext()) {
                 MovableGameObject gameObject = it.next();
                 int deltaX25D = calForeObjectHorizontalMove(foreDeltaX, gameObject.getY());
@@ -117,7 +116,6 @@ public class StateRun extends GameState {
 
         // show objects in foreObjectLists ordering by Y-axis
         for (MovableGameObject gameObject : getAllForeObjects()) {
-
             gameObject.show();
         }
 
@@ -192,11 +190,10 @@ public class StateRun extends GameState {
     @Override
     public boolean pointerMoved(List<Pointer> pointers) {
         Pointer singlePointer = pointers.get(0);
-        List<MovableGameObject> foreObjects = getAllForeObjects();
         int deltaX = singlePointer.getX() - initPointerX;
 
         // trigger dragMoved event on dragging objects in foreObjectLists
-        for (MovableGameObject gameObject : foreObjects) {
+        for (MovableGameObject gameObject : getAllForeObjects()) {
             if (gameObject.isDragging())
                 gameObject.dragMoved(singlePointer);
         }
@@ -210,7 +207,7 @@ public class StateRun extends GameState {
                 backgroundSet.imgGround.setLocation(newForeX, backgroundSet.imgGround.getY());
 
                 // move foreground objects with foreground
-                for (MovableGameObject gameObject : foreObjects) {
+                for (MovableGameObject gameObject : getAllForeObjects()) {
                     int deltaX25D = calForeObjectHorizontalMove(deltaX, gameObject.getY());
                     int x = gameObject.getInitialX() + deltaX25D + gameObject.getDeltaX();
                     gameObject.setLocation(x, gameObject.getY());

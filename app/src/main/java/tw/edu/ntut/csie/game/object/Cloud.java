@@ -4,6 +4,7 @@ import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.state.StateRun;
+import tw.edu.ntut.csie.game.util.Common;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
 
 public class Cloud extends MovableGameObject {
@@ -138,7 +139,8 @@ public class Cloud extends MovableGameObject {
 
     @Override
     public void move() {
-        detectShaking();
+        if (detectShaking())
+            return;
 
         if (!appStateRun.isGrabbingMap && !dragging) {
             int newX = x + speed;
@@ -201,14 +203,18 @@ public class Cloud extends MovableGameObject {
         shadowImage.resize((int) (shadowImage.getWidth() * ratio), (int) (shadowImage.getHeight() * ratio));
     }
 
-    private void detectShaking() {
+    /**
+     *
+     * @return boolean Whether this object is released by itself or not
+     */
+    private boolean detectShaking() {
         checkShakeCounter = (checkShakeCounter + 1) % SHAKE_CHECK_DELAY;
         if (!dragging || checkShakeCounter != 0)
-            return;
+            return false;
 
         if (lastCheckX == CMP_MAX_XY) {
             lastCheckX = this.x;
-            return;
+            return false;
         }
 
         int delta = this.x - lastCheckX;
@@ -219,12 +225,14 @@ public class Cloud extends MovableGameObject {
                 if (directionChangedCounter == 0) {
                     System.out.println("Cloud shake exceed threshold!");
                     spreadToClouds();
+                    return true;
                 }
             }
         } else {
             checkShakeCounter = 0;
         }
         lastCheckX = this.x;
+        return false;
     }
 
     private void spreadToClouds() {
@@ -235,5 +243,7 @@ public class Cloud extends MovableGameObject {
         int x1 = this.x, x2 = this.x + this.width / 3;
         appStateRun.addToForeObjectTable(new Cloud(appStateRun, x1, y, newType, level - 1));
         appStateRun.addToForeObjectTable(new Cloud(appStateRun, x2, y, newType, level - 1));
+        appStateRun.removeFromForeObjectTable(this);
+        this.release();
     }
 }
