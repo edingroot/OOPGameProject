@@ -140,13 +140,16 @@ public class Sheep extends MovableGameObject {
         animations_tail.add(tail);
         tail.addFrame(R.drawable.tail);
 
-        sheep_die = new Animation();
+        sheep_die = new Animation(3);
         sheep_die.setRepeating(false);
         animations.add(sheep_die);
+        sheep_die.addFrame(R.drawable.sheep_die);
         sheep_die.addFrame(R.drawable.sheep_die);
         sheep_die.addFrame(R.drawable.sheep_die_1);
         sheep_die.addFrame(R.drawable.sheep_die_2);
         sheep_die.addFrame(R.drawable.sheep_die_3);
+        sheep_die.addFrame(R.drawable.sheep_die_4);
+        sheep_die.addFrame(R.drawable.sheep_die_4);
         sheep_die.addFrame(R.drawable.sheep_die_4);
         sheep_die.addFrame(R.drawable.sheep_die_4);
         sheep_die.addFrame(R.drawable.sheep_die_4);
@@ -282,13 +285,16 @@ public class Sheep extends MovableGameObject {
         animations_tail.add(r_tail);
         r_tail.addFrame(R.drawable.r_tail);
 
-        r_sheep_die = new Animation();
+        r_sheep_die = new Animation(3);
         r_sheep_die.setRepeating(false);
         animations.add(r_sheep_die);
+        r_sheep_die.addFrame(R.drawable.r_sheep_die);
         r_sheep_die.addFrame(R.drawable.r_sheep_die);
         r_sheep_die.addFrame(R.drawable.r_sheep_die_1);
         r_sheep_die.addFrame(R.drawable.r_sheep_die_2);
         r_sheep_die.addFrame(R.drawable.r_sheep_die_3);
+        r_sheep_die.addFrame(R.drawable.r_sheep_die_4);
+        r_sheep_die.addFrame(R.drawable.r_sheep_die_4);
         r_sheep_die.addFrame(R.drawable.r_sheep_die_4);
         r_sheep_die.addFrame(R.drawable.r_sheep_die_4);
         r_sheep_die.addFrame(R.drawable.r_sheep_die_4);
@@ -428,8 +434,8 @@ public class Sheep extends MovableGameObject {
         p_head_eat = new SheepPos(165, 49, 64, 57);
         p_r_eat = new SheepPos(200, 43, 78, 90);
         p_eat = new SheepPos(195, 60, 78, 90);
-        p_sheep_die = new SheepPos(130, 45, 109, 135);
-        p_r_sheep_die = new SheepPos(130, 45, 109, 135);
+        p_sheep_die = new SheepPos(125, 25, 109, 135);
+        p_r_sheep_die = new SheepPos(120, 5, 109, 135);
     }
 
     public void clearActions() {
@@ -506,7 +512,7 @@ public class Sheep extends MovableGameObject {
     @Override
     public int getY25D() {
         p_body.set(x, y, direction, ratio);
-        return p_body.py;
+        return y;
     }
 
     private void setAnimation() {
@@ -865,7 +871,7 @@ public class Sheep extends MovableGameObject {
     }
 
     private void aiMove() {
-        if (state.getState() == 4) {
+        if (state.getState() == 4 || isDead == true) {
             this.die();
         } else if (this.dragging) {
             instr = 0;
@@ -969,7 +975,8 @@ public class Sheep extends MovableGameObject {
         }
         if (clickDeadTimestamps.size() >= 4) {
             System.out.println("Force sheep to die.");
-            die();
+            clearActions();
+            isDead = true;
             clickDeadTimestamps.clear();
         } else {
             clickDeadTimestamps.add(currentTime);
