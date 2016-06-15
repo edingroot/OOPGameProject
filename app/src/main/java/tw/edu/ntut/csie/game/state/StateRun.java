@@ -10,6 +10,8 @@ import java.util.TreeMap;
 
 import tw.edu.ntut.csie.game.Game;
 import tw.edu.ntut.csie.game.Pointer;
+import tw.edu.ntut.csie.game.R;
+import tw.edu.ntut.csie.game.core.Audio;
 import tw.edu.ntut.csie.game.engine.GameEngine;
 import tw.edu.ntut.csie.game.object.BackgroundLevel1;
 import tw.edu.ntut.csie.game.object.BackgroundLevel2;
@@ -44,6 +46,7 @@ public class StateRun extends GameState {
     private int initPointerX = 0;
     private int sheepIdCounter = 0;
     private long lastGenCloudTime = 0;
+    private Audio bgm = new Audio(R.raw.ambience_mountains);
 
     public StateRun(GameEngine engine) {
         super(engine);
@@ -70,6 +73,7 @@ public class StateRun extends GameState {
 
     @Override
     public void move() {
+        bgm.resume();
         genCloudsRandomly();
 
         for (MovableGameObject gameObject : getAllForeObjects()) {
@@ -264,7 +268,7 @@ public class StateRun extends GameState {
             list.clear();
         }
         foreObjectTable.clear();
-
+        bgm.release();
         scoreBoard.release();
         rightNav.release();
     }

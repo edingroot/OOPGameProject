@@ -2,6 +2,7 @@ package tw.edu.ntut.csie.game.object;
 
 import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
+import tw.edu.ntut.csie.game.core.Audio;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.state.StateRun;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
@@ -42,6 +43,7 @@ public class Cloud extends MovableGameObject {
     private int lastCheckX = CMP_MAX_XY;
     private int gndwaterStateCounter = 0;
     private int shadowLastX = 0, shadowLastY = 0;
+    private Audio a_raining = new Audio(R.raw.rain_loop);
 
     /**
      *
@@ -147,9 +149,11 @@ public class Cloud extends MovableGameObject {
 
     public void toggleRainFall(boolean raining) {
         if (raining) {
+            a_raining.resume();
             rain = new Rain(this.x, this.y + this.height, this.width,
                     SHADOW_Y_OFFSET + shadowImage.getHeight() / 2);
         } else {
+            a_raining.stop();
             rain.release();
             rain = null;
         }
@@ -205,6 +209,8 @@ public class Cloud extends MovableGameObject {
             rain.release();
             rain = null;
         }
+        a_raining.release();
+        a_raining = null;
     }
 
     private void updateImageFromState() {
