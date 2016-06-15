@@ -107,7 +107,7 @@ public class Sheep extends MovableGameObject {
     private double angle;
     private boolean released;
     private int ix, iy;
-
+    private int iwidth, iheight;
     private int resizeTimer;
 
     private long currentTime;
@@ -470,12 +470,12 @@ public class Sheep extends MovableGameObject {
        @Override
     public void setLocation(int x, int y) {
         super.setLocation(x, y);
-        width = (int)(p_body.picW*ratio);
-        height = (int)(p_body.picH*ratio);
+        iwidth = (int)(p_body.picW*ratio);
+        iheight = (int)(p_body.picH*ratio);
         stateRun.updateForeObjectLocation(this);
 
-        ix = x + width/2;
-        iy = y + height/2;
+        ix = x + iwidth/2;
+        iy = y + iheight/2;
 
         p_body.set(ix, iy, direction, ratio);
         p_head.set(ix, iy, direction, ratio);
