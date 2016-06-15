@@ -105,7 +105,7 @@ public class Sheep extends MovableGameObject {
     private int tmpY = 0;
     private double lx, ly;
     private double angle;
-
+    private boolean released;
     private int ix, iy;
 
     private int resizeTimer;
@@ -125,6 +125,7 @@ public class Sheep extends MovableGameObject {
         this.x = x;
         this.y = y;
 
+        released = false;
         isWalk = false;
         isDrag = false;
         isWalk = false;
@@ -171,6 +172,9 @@ public class Sheep extends MovableGameObject {
         sheep_die.addFrame(R.drawable.sheep_die_1);
         sheep_die.addFrame(R.drawable.sheep_die_2);
         sheep_die.addFrame(R.drawable.sheep_die_3);
+        sheep_die.addFrame(R.drawable.sheep_die_4);
+        sheep_die.addFrame(R.drawable.sheep_die_4);
+        sheep_die.addFrame(R.drawable.sheep_die_4);
         sheep_die.addFrame(R.drawable.sheep_die_4);
 
         body_rest = new Animation();
@@ -310,6 +314,9 @@ public class Sheep extends MovableGameObject {
         r_sheep_die.addFrame(R.drawable.r_sheep_die_1);
         r_sheep_die.addFrame(R.drawable.r_sheep_die_2);
         r_sheep_die.addFrame(R.drawable.r_sheep_die_3);
+        r_sheep_die.addFrame(R.drawable.r_sheep_die_4);
+        r_sheep_die.addFrame(R.drawable.r_sheep_die_4);
+        r_sheep_die.addFrame(R.drawable.r_sheep_die_4);
         r_sheep_die.addFrame(R.drawable.r_sheep_die_4);
 
         r_body_rest = new Animation();
@@ -860,9 +867,10 @@ public class Sheep extends MovableGameObject {
         isDead = true;
         setAnimation();
 
-//        if (sheep_die.isLastFrame() || r_sheep_die.isLastFrame()) {
-//
-//        }
+        if (sheep_die.isLastFrame() || r_sheep_die.isLastFrame()) {
+            stateRun.addScore(-10);
+            released = true;
+        }
     }
 
     private void aiMove() {
@@ -889,7 +897,7 @@ public class Sheep extends MovableGameObject {
                 this.showState();
                 if (calcGrassDistance(stateRun.grass) >= GRASS_SHORTEST_DISTANCE || state.getState()==0){
                     this.blink();
-                    if (System.currentTimeMillis() - currentTime > 5000) {
+                    if (System.currentTimeMillis() - currentTime > 5000 && state.getState() == 0) {
                         currentTime = System.currentTimeMillis();
                         stateRun.addScore(1);
                         //System.out.println("score: " + stateRun.scoreBoard.score);
@@ -916,6 +924,14 @@ public class Sheep extends MovableGameObject {
 
     @Override
     public void move() {
+        if (released) {
+            stateRun.removeFromForeObjectTable(this);
+            this.release();
+        }
+        if (stateRun.scoreBoard.score >= 100 && stateRun.backgroundSet.getLevel() == 1) {
+            stateRun.removeFromForeObjectTable(this);
+            this.release();
+        }
         state.work();
         aiMove();
     }

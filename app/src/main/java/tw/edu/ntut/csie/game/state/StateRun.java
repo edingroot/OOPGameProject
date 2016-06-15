@@ -38,7 +38,7 @@ public class StateRun extends GameState {
     // NavigableMap foreObjectTable: index = lower-left y-axis of object
     private final NavigableMap<Integer, List<MovableGameObject>> foreObjectTable;
     private RightNav rightNav;
-    private ScoreBoard scoreBoard;
+    public ScoreBoard scoreBoard;
     private int initForeX = 0;
     private int initPointerX = 0;
     private int sheepIdCounter = 0;
