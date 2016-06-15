@@ -12,8 +12,7 @@ import tw.edu.ntut.csie.game.extend.ButtonEventHandler;
 public class StateReady extends AbstractGameState {
 
     private MovingBitmap _background;
-    private BitmapButton _startButton;
-    private BitmapButton _exitButton;
+    private BitmapButton _startButton, _aboutButton, _exitButton;
 
     public StateReady(GameEngine engine) {
         super(engine);
@@ -23,6 +22,7 @@ public class StateReady extends AbstractGameState {
     public void initialize(Map<String, Object> data) {
         addGameObject(_background = new MovingBitmap(R.drawable.state_ready_bg));
         initializeStartButton();
+        initializeAboutButton();
         initializeExitButton();
     }
 
@@ -37,15 +37,26 @@ public class StateReady extends AbstractGameState {
         addPointerEventHandler(_startButton);
     }
 
-    private void initializeExitButton() {
-        addGameObject(_exitButton = new BitmapButton(R.drawable.btn_exit, R.drawable.btn_exit_pressed, 388, 243));
-        _exitButton.addButtonEventHandler(new ButtonEventHandler() {
+    private void initializeAboutButton() {
+        addGameObject(_aboutButton = new BitmapButton(R.drawable.btn_about, R.drawable.btn_about_pressed, 355, 233));
+        _aboutButton.addButtonEventHandler(new ButtonEventHandler() {
             @Override
             public void perform(BitmapButton button) {
-                _engine.exit();
+
             }
         });
-        addPointerEventHandler(_exitButton);
+        addPointerEventHandler(_aboutButton);
+    }
+
+    private void initializeExitButton() {
+//        addGameObject(_exitButton = new BitmapButton(R.drawable.btn_exit, R.drawable.btn_exit_pressed, 388, 243));
+//        _exitButton.addButtonEventHandler(new ButtonEventHandler() {
+//            @Override
+//            public void perform(BitmapButton button) {
+//                _engine.exit();
+//            }
+//        });
+//        addPointerEventHandler(_exitButton);
     }
 
     @Override
