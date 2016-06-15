@@ -46,6 +46,7 @@ public class ScoreBoard implements GameObject {
 
     public void addScore(int score){
         this.score += score;
+        if (this.score <= 0) this.score = 0;
     }
 
     private int pow(int x, int i){
