@@ -4,7 +4,6 @@ import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.state.StateRun;
-import tw.edu.ntut.csie.game.util.Common;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
 
 public class Cloud extends MovableGameObject {
@@ -16,7 +15,7 @@ public class Cloud extends MovableGameObject {
     public static final int GNDWATER_STATE_THRESHOLD = 70; // times that move() was called before triggering groundwater state change
     public static final int GNDWATER_MAX_MOVE = 10;
     public static final int CMP_MAX_XY = 1000;
-    
+
     public static final int TYPE_WHITE = 1; // 白雲
     public static final int TYPE_GRAY = 2; // 烏雲
     public static final int TYPE_BLACK = 3; // 雨雲
@@ -44,10 +43,22 @@ public class Cloud extends MovableGameObject {
     private int gndwaterStateCounter = 0;
     private int shadowLastX = 0, shadowLastY = 0;
 
-    public Cloud(StateRun appStateRun, int x, int y, int type, int level) {
+    /**
+     *
+     * @param appStateRun The StateRun instance
+     * @param x int Location_X
+     * @param y int Location_Y
+     * @param type int {TYPE_WHITE / TYPE_GRAY / TYPE_BLACK}
+     * @param level int {LEVEL_BIG / LEVEL_MEDIUM / LEVEL_SMALL}
+     * @param direction boolean {true: L to R, false: R to L}
+     */
+    public Cloud(StateRun appStateRun, int x, int y, int type, int level, boolean direction) {
         this.appStateRun = appStateRun;
         this.type = type;
         this.level = level;
+        this.speed = direction ? 1 : -1;
+        if (this.type == TYPE_WHITE)
+            speed *= 2;
         updateImageFromState();
         setLocation(x, y);
     }
@@ -101,7 +112,7 @@ public class Cloud extends MovableGameObject {
 
     @Override
     public void clicked(Pointer pointer) {
-        if (this.type == TYPE_GRAY && this.level == LEVEL_BIG) {
+        if ((this.type == TYPE_BLACK || this.type == TYPE_GRAY) && (this.level == LEVEL_BIG || this.level == LEVEL_MEDIUM)) {
             toggleRainFall(!raining);
         }
     }
@@ -126,6 +137,14 @@ public class Cloud extends MovableGameObject {
         return raining;
     }
 
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+
     public void toggleRainFall(boolean raining) {
         if (raining) {
             rain = new Rain(this.x, this.y + this.height, this.width,
@@ -146,7 +165,7 @@ public class Cloud extends MovableGameObject {
             int newX = x + speed;
             this.setLocation(newX, y);
             if (raining) {
-                 rain.setLocation(newX, this.y + this.height);
+                rain.setLocation(newX, this.y + this.height);
             }
         }
         if (raining) {
@@ -204,7 +223,6 @@ public class Cloud extends MovableGameObject {
     }
 
     /**
-     *
      * @return boolean Whether this object is released by itself or not
      */
     private boolean detectShaking() {
@@ -241,8 +259,8 @@ public class Cloud extends MovableGameObject {
 
         int newType = type == TYPE_WHITE ? TYPE_WHITE : type - 1;
         int x1 = this.x, x2 = this.x + this.width / 3;
-        appStateRun.addToForeObjectTable(new Cloud(appStateRun, x1, y, newType, level - 1));
-        appStateRun.addToForeObjectTable(new Cloud(appStateRun, x2, y, newType, level - 1));
+        appStateRun.addToForeObjectTable(new Cloud(appStateRun, x1, y, newType, level - 1, true));
+        appStateRun.addToForeObjectTable(new Cloud(appStateRun, x2, y, newType, level - 1, false));
         appStateRun.removeFromForeObjectTable(this);
         this.release();
     }

@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Random;
 import java.util.TreeMap;
 
 import tw.edu.ntut.csie.game.Game;
@@ -42,6 +43,7 @@ public class StateRun extends GameState {
     private int initForeX = 0;
     private int initPointerX = 0;
     private int sheepIdCounter = 0;
+    private long lastGenCloudTime = 0;
 
     public StateRun(GameEngine engine) {
         super(engine);
@@ -58,8 +60,8 @@ public class StateRun extends GameState {
 
         // ---------- game objects ----------
         levelObjectSet.addObjects();
-        addToForeObjectTable(new Cloud(this, 10, 0, Cloud.TYPE_GRAY, Cloud.LEVEL_BIG));
-        addToForeObjectTable(new Cloud(this, 100, 10, Cloud.TYPE_WHITE, Cloud.LEVEL_MEDIUM));
+        addToForeObjectTable(new Cloud(this, 10, 0, Cloud.TYPE_GRAY, Cloud.LEVEL_BIG, true));
+        addToForeObjectTable(new Cloud(this, 100, 10, Cloud.TYPE_WHITE, Cloud.LEVEL_MEDIUM, true));
 
         //grass
         grass = new Grass(backgroundSet.imgGround.getX() + MAP_LEFT_MARGIN + 380, 280);
@@ -68,6 +70,8 @@ public class StateRun extends GameState {
 
     @Override
     public void move() {
+        genCloudsRandomly();
+
         for (MovableGameObject gameObject : getAllForeObjects()) {
             gameObject.move();
         }
@@ -364,5 +368,20 @@ public class StateRun extends GameState {
     private int calForeObjectHorizontalMove(int deltaX, int y) {
         double D = Game.GAME_FRAME_HEIGHT - y;
         return (int) Lib25D.horizontalMoveAdj(D, deltaX);
+    }
+
+    private void genCloudsRandomly() {
+        if (System.currentTimeMillis() - lastGenCloudTime > (8 + Math.random() * 5) * 1000) {
+            boolean direction = (Math.random() * 2 > 1);
+            addToForeObjectTable(new Cloud(
+                    this,
+                    backgroundSet.imgGround.getX() + (direction ? -120 : backgroundSet.imgGround.getWidth() + 120),
+                    (int) (Math.random() * 20),
+                    (int) (Math.random() * 3) + 1,
+                    (int) (Math.random() * 3) + 1,
+                    direction
+            ));
+            lastGenCloudTime = System.currentTimeMillis();
+        }
     }
 }
