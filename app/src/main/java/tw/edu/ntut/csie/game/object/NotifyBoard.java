@@ -55,7 +55,6 @@ public class NotifyBoard extends MovableGameObject {
     @Override
     public void clicked(Pointer pointer) {
         if (active) {
-            this.setActive(false);
             appStateRun.switchToLevel2();
         }
     }

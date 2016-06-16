@@ -408,6 +408,8 @@ public class StateRun extends GameState {
         levelObjectSet = new LevelObjectSet2(this, MAP_LEFT_MARGIN, MAP_RIGHT_MARGIN);
         levelObjectSet.addObjects();
         scoreBoard.score = 0;
+        notifyBoard.setActive(false);
+
         if (bgm != null)
             bgm.release();
         bgm = new Audio(R.raw.ambience_prairie);
