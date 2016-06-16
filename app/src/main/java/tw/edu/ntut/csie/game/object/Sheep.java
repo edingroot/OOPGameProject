@@ -6,6 +6,7 @@ import java.util.List;
 
 import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
+import tw.edu.ntut.csie.game.core.Audio;
 import tw.edu.ntut.csie.game.extend.Animation;
 import tw.edu.ntut.csie.game.state.StateRun;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
@@ -82,6 +83,9 @@ public class Sheep extends MovableGameObject {
     private int iwidth, iheight;
     private int resizeTimer;
 
+    private Audio a_flying, a_baa, a_land, a_dying, a_chewing;
+    private boolean flyPlay, baaPlay, landPlay, diePlay, chewPlay;
+    private List<Audio> audios;
     private long currentTime;
     private List<Long> clickDeadTimestamps = new ArrayList<>();
 
@@ -125,6 +129,24 @@ public class Sheep extends MovableGameObject {
         animations.add(sign_hungry);
         sign_hungry.addFrame(R.drawable.state_hungry);
 
+        audios = new ArrayList<>();
+
+        a_baa = new Audio(R.raw.happy_1_02);
+        a_baa.setRepeating(false);
+        a_chewing = new Audio(R.raw.chewing1);
+        a_chewing.setRepeating(false);
+        a_dying = new Audio(R.raw.dying);
+        a_dying.setRepeating(false);
+        a_land = new Audio(R.raw.sheep_land);
+        a_land.setRepeating(false);
+        a_flying = new Audio(R.raw.flying_1);
+        a_flying.setRepeating(false);
+
+        audios.add(a_baa);
+        audios.add(a_chewing);
+        audios.add(a_dying);
+        audios.add(a_land);
+        audios.add(a_flying);
 
         //region AnimationLeft
 
@@ -444,7 +466,13 @@ public class Sheep extends MovableGameObject {
         isChew = false;
         isDead = false;
     }
-
+    public void clearAudios() {
+        flyPlay = false;
+        chewPlay = false;
+        diePlay = false;
+        baaPlay = false;
+        landPlay = false;
+    }
     @Override
     public void setLocation(int x, int y) {
         super.setLocation(x, y);
@@ -868,6 +896,13 @@ public class Sheep extends MovableGameObject {
     }
 
     private void aiMove() {
+
+        if (isChew) a_chewing.resume();
+        else if (isDead) a_dying.resume();
+        else if (isFall) a_flying.resume();
+        else if (isLand) a_land.resume();
+        else if (isDrag) a_baa.resume();
+
         if (state.getState() == 4 || isDead == true) {
             this.die();
         } else if (this.dragging) {
@@ -935,6 +970,10 @@ public class Sheep extends MovableGameObject {
     @Override
     public void release() {
         for (Animation item : animations) {
+            item.release();
+            item = null;
+        }
+        for (Audio item : audios) {
             item.release();
             item = null;
         }
