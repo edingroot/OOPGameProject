@@ -1,6 +1,6 @@
 package tw.edu.ntut.csie.game.util;
 
-import android.provider.Settings;
+
 
 /**
  * Created by Lin on 2016/4/3.
