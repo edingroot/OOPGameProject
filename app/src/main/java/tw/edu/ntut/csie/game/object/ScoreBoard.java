@@ -1,29 +1,37 @@
 package tw.edu.ntut.csie.game.object;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import tw.edu.ntut.csie.game.Game;
 import tw.edu.ntut.csie.game.GameObject;
+import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
+import tw.edu.ntut.csie.game.state.StateRun;
+import tw.edu.ntut.csie.game.util.MovableGameObject;
 
-public class ScoreBoard implements GameObject {
+public class ScoreBoard extends MovableGameObject {
     private static final int SCORE_Y = 2;
     public int score;
     public List<MovingBitmap> scoreIcon;
+    private StateRun appStateRun;
     private MovingBitmap image;
-    private int height;
     private int int_numbers[] = {
             R.drawable._0, R.drawable._1, R.drawable._2, R.drawable._3, R.drawable._4,
             R.drawable._5, R.drawable._6, R.drawable._7, R.drawable._8, R.drawable._9
     };
     private List<MovingBitmap> digits, digits2;
+    private List<Long> clickDeadTimestamps = new ArrayList<>();
 
-    public ScoreBoard() {
+    public ScoreBoard(StateRun appStateRun) {
+        this.appStateRun = appStateRun;
+
         score = 0;
         image = new MovingBitmap(R.drawable.score_board);
         image.resize((int) (image.getWidth() * 0.6), (int) (image.getHeight() * 0.6));
+        this.width = image.getWidth();
         this.height = image.getHeight();
         scoreIcon = new ArrayList<>();
         scoreIcon.add(new MovingBitmap(R.drawable._0));
@@ -83,6 +91,7 @@ public class ScoreBoard implements GameObject {
     }
 
     public void setLocation(int x, int y) {
+        super.setLocation(x, y);
         image.setLocation(x, y);
     }
 
@@ -97,8 +106,25 @@ public class ScoreBoard implements GameObject {
         calcScore();
     }
 
-    public int getHeight() {
-        return height;
+    @Override
+    public void clicked(Pointer pointer) {
+        // !! if clicked more than 5 times in 3 seconds, add 100 points !!
+        long currentTime = System.currentTimeMillis();
+        Iterator<Long> iterator = clickDeadTimestamps.iterator();
+        while (iterator.hasNext()) {
+            if (currentTime - iterator.next() > 3000) {
+                iterator.remove();
+            } else {
+                break;
+            }
+        }
+        if (clickDeadTimestamps.size() >= 4) {
+            System.out.println("Cheat step: add 100 points!");
+            appStateRun.addScore(100);
+            clickDeadTimestamps.clear();
+        } else {
+            clickDeadTimestamps.add(currentTime);
+        }
     }
 
     @Override

@@ -971,11 +971,9 @@ public class Sheep extends MovableGameObject {
     public void release() {
         for (Animation item : animations) {
             item.release();
-            item = null;
         }
         for (Audio item : audios) {
             item.release();
-            item = null;
         }
     }
 
@@ -1007,10 +1005,12 @@ public class Sheep extends MovableGameObject {
         while (iterator.hasNext()) {
             if (currentTime - iterator.next() > 3000) {
                 iterator.remove();
+            } else {
+                break;
             }
         }
         if (clickDeadTimestamps.size() >= 4) {
-            System.out.println("Force sheep to die.");
+            System.out.println("Cheat step: force sheep to die!");
             clearActions();
             isDead = true;
             clickDeadTimestamps.clear();

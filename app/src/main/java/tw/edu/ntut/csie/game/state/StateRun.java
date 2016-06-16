@@ -60,7 +60,7 @@ public class StateRun extends GameState {
         // ---------- set back objects ----------
         backgroundSet = new BackgroundLevel1();
         levelObjectSet = new LevelObjectSet1(this, MAP_LEFT_MARGIN, MAP_RIGHT_MARGIN);
-        scoreBoard = new ScoreBoard();
+        scoreBoard = new ScoreBoard(this);
         rightNav = new RightNav(scoreBoard.getHeight());
 
         // ---------- game objects ----------
@@ -166,7 +166,6 @@ public class StateRun extends GameState {
     public boolean pointerPressed(List<Pointer> pointers) {
         if (pointers.size() == 1) {
             Pointer singlePointer = pointers.get(0);
-            isGrabbingMap = true;
 
             List<MovableGameObject> inScopeObjects = new ArrayList<>();
             // check is dragging of objects in foreObjectLists
@@ -178,7 +177,6 @@ public class StateRun extends GameState {
             }
 
             if (Common.isInObjectScope(singlePointer, rightNav)) {
-                isGrabbingMap = false;
                 if (rightNav.isExpanded() && Common.isInObjectScope(
                         singlePointer, rightNav.getX(), rightNav.getY(),
                         rightNav.getWidth(), rightNav.getHeight() - 20)) {
@@ -190,12 +188,11 @@ public class StateRun extends GameState {
                     // toggle right nav expand state
                     rightNav.dragPressed(singlePointer);
                 }
-            } else {
-                if (inScopeObjects.size() > 0) {
-                    // trigger dragPressed on the most top object
-                    inScopeObjects.get(inScopeObjects.size() - 1).dragPressed(singlePointer);
-                    isGrabbingMap = false;
-                }
+            } else if (Common.isInObjectScope(singlePointer, scoreBoard)) {
+                scoreBoard.dragPressed(singlePointer);
+            } else if (inScopeObjects.size() > 0) {
+                // trigger dragPressed on the most top object
+                inScopeObjects.get(inScopeObjects.size() - 1).dragPressed(singlePointer);
             }
 
             // for moving map
@@ -235,6 +232,7 @@ public class StateRun extends GameState {
         }
 
         rightNav.dragMoved(singlePointer);
+        scoreBoard.dragMoved(singlePointer);
         return false;
     }
 
@@ -251,6 +249,7 @@ public class StateRun extends GameState {
         }
 
         rightNav.dragReleased(singlePointer);
+        scoreBoard.dragReleased(singlePointer);
         isGrabbingMap = false;
 
         return false;
