@@ -18,9 +18,9 @@ public class Lib25D {
     /**
      * Calculate vertical displacement adjustment of 2.5D
      *
-     * @param E distance of eye to the nearest object(dObject = 0)
+     * @param E  distance of eye to the nearest object(dObject = 0)
      * @param Eh distance of eye to ground
-     * @param F vertical movement in 3D
+     * @param F  vertical movement in 3D
      * @return
      */
     public static double verticalMoveAdj(double E, double Eh, double F) {
@@ -43,16 +43,15 @@ public class Lib25D {
      * @return new height of the object
      */
     public static double sizeAdj(double Y) {
-        //double F = Y * (Constants.EYE_TO_FRAME_Y) / (Constants.EYE_TO_FLOOR_H - Y);
-        double F = (Constants.EYE_TO_FLOOR_H - Y) * Constants.EYE_TO_FRAME_Y / Y;
-
+//        double F = Y * (Constants.EYE_TO_FRAME_Y) / (Constants.EYE_TO_FLOOR_H - Y);
+//        double F = (Constants.EYE_TO_FLOOR_H - Y) * Constants.EYE_TO_FRAME_Y / Y;
 //       if(Constants.EYE_TO_FRAME_Y / (Constants.EYE_TO_FRAME_Y + F) > 0) return Constants.EYE_TO_FRAME_Y / (Constants.EYE_TO_FRAME_Y + F) *0.8;
 //       else return -(Constants.EYE_TO_FRAME_Y / (Constants.EYE_TO_FRAME_Y + F));
 //       System.out.println(Y);
-       return (Math.sqrt(Y)*20) / 369;
+        return (Math.sqrt(Y) * 20) / 369;
     }
 
-    public static double sizePersentage(double persentage){
-        return persentage/100;
+    public static double sizePercentage(double percentage) {
+        return percentage / 100;
     }
 }

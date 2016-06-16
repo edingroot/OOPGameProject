@@ -10,7 +10,7 @@ public class Groundwater extends MovableGameObject {
     public Groundwater(int x, int y) {
         this.draggable = false;
         image = new MovingBitmap(R.drawable.groundwater);
-        image.resize((int)(image.getWidth() * 0.7), (int)(image.getHeight() * 0.7));
+        image.resize((int) (image.getWidth() * 0.7), (int) (image.getHeight() * 0.7));
         this.width = image.getWidth();
         this.height = image.getHeight();
         this.setLocation(x, y);

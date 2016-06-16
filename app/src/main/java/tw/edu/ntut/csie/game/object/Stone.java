@@ -1,6 +1,5 @@
 package tw.edu.ntut.csie.game.object;
 
-import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.util.MovableGameObject;
 

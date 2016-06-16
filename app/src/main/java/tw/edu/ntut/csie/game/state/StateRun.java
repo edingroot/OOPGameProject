@@ -10,6 +10,8 @@ import java.util.TreeMap;
 
 import tw.edu.ntut.csie.game.Game;
 import tw.edu.ntut.csie.game.Pointer;
+import tw.edu.ntut.csie.game.R;
+import tw.edu.ntut.csie.game.core.MovingBitmap;
 import tw.edu.ntut.csie.game.engine.GameEngine;
 import tw.edu.ntut.csie.game.object.BackgroundLevel1;
 import tw.edu.ntut.csie.game.object.BackgroundLevel2;
@@ -29,21 +31,24 @@ import tw.edu.ntut.csie.game.util.LevelObjectSet;
 
 public class StateRun extends GameState {
     public BackgroundSet backgroundSet;
-    LevelObjectSet levelObjectSet;
+    private LevelObjectSet levelObjectSet;
     public Grass grass;
+    public ScoreBoard scoreBoard;
     public boolean isGrabbingMap = false;
 
     private final int MAP_LEFT_MARGIN = 180 + Constants.FRAME_LEFT_MARGIN;
     private final int MAP_RIGHT_MARGIN = 150 + Constants.FRAME_RIGHT_MARGIN;
     private final int MAP_AUTO_ROLL_RATE = 50;
+    private final int SWITCH_LEVEL_DELAY = 3000;
     // NavigableMap foreObjectTable: index = lower-left y-axis of object
-    private final NavigableMap<Integer, List<MovableGameObject>> foreObjectTable;
+    private final Map<Integer, List<MovableGameObject>> foreObjectTable;
     private RightNav rightNav;
-    public ScoreBoard scoreBoard;
+    private MovingBitmap imgSwitchingLevel;
     private int initForeX = 0;
     private int initPointerX = 0;
     private int sheepIdCounter = 0;
     private long lastGenCloudTime = 0;
+    private long switchingLevelStart = 0; // timestamp of start switching level, when not equals 0: switching level.
 
     public StateRun(GameEngine engine) {
         super(engine);
@@ -62,10 +67,11 @@ public class StateRun extends GameState {
         levelObjectSet.addObjects();
         addToForeObjectTable(new Cloud(this, 10, 0, Cloud.TYPE_GRAY, Cloud.LEVEL_BIG, true));
         addToForeObjectTable(new Cloud(this, 100, 10, Cloud.TYPE_WHITE, Cloud.LEVEL_MEDIUM, true));
-
         //grass
         grass = new Grass(backgroundSet.imgGround.getX() + MAP_LEFT_MARGIN + 380, 280);
         addToForeObjectTable(grass);
+
+        imgSwitchingLevel = new MovingBitmap(R.drawable.changing_level);
     }
 
     @Override
@@ -125,6 +131,14 @@ public class StateRun extends GameState {
 
         scoreBoard.show();
         rightNav.show();
+
+        if (switchingLevelStart != 0) {
+            if (System.currentTimeMillis() - switchingLevelStart > SWITCH_LEVEL_DELAY) {
+                switchingLevelStart = 0;
+            } else {
+                imgSwitchingLevel.show();
+            }
+        }
     }
 
     @Override
@@ -372,8 +386,11 @@ public class StateRun extends GameState {
         for (MovableGameObject gameObject : getAllForeObjects()) {
             if (gameObject.getClass().getSimpleName().equals("Sheep")) {
                 removeFromForeObjectTable(gameObject);
+                gameObject.release();
             }
         }
+
+        switchingLevelStart = System.currentTimeMillis();
     }
 
     private int calForeObjectHorizontalMove(int deltaX, int y) {

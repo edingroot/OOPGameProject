@@ -10,7 +10,7 @@ public class Grass extends MovableGameObject {
     public Grass(int x, int y) {
         this.draggable = false;
         image = new MovingBitmap(R.drawable.grass);
-        image.resize((int)(image.getWidth()*0.7), (int)(image.getHeight()*0.7));
+        image.resize((int) (image.getWidth() * 0.7), (int) (image.getHeight() * 0.7));
         this.width = image.getWidth();
         this.height = image.getHeight();
         this.setLocation(x, y);
@@ -23,7 +23,7 @@ public class Grass extends MovableGameObject {
 
     public void resize(double ratio) {
         super.resize(ratio);
-        image.resize((int)(width*ratio), (int)(height*ratio));
+        image.resize((int) (width * ratio), (int) (height * ratio));
     }
 
     @Override
@@ -42,10 +42,11 @@ public class Grass extends MovableGameObject {
         image = null;
     }
 
-    public int getX(){
+    public int getX() {
         return x;
     }
-    public int getY(){
+
+    public int getY() {
         return y;
     }
 }

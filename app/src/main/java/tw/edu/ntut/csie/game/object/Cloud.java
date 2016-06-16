@@ -44,13 +44,12 @@ public class Cloud extends MovableGameObject {
     private int shadowLastX = 0, shadowLastY = 0;
 
     /**
-     *
      * @param appStateRun The StateRun instance
-     * @param x int Location_X
-     * @param y int Location_Y
-     * @param type int {TYPE_WHITE / TYPE_GRAY / TYPE_BLACK}
-     * @param level int {LEVEL_BIG / LEVEL_MEDIUM / LEVEL_SMALL}
-     * @param direction boolean {true: L to R, false: R to L}
+     * @param x           int Location_X
+     * @param y           int Location_Y
+     * @param type        int {TYPE_WHITE / TYPE_GRAY / TYPE_BLACK}
+     * @param level       int {LEVEL_BIG / LEVEL_MEDIUM / LEVEL_SMALL}
+     * @param direction   boolean {true: L to R, false: R to L}
      */
     public Cloud(StateRun appStateRun, int x, int y, int type, int level, boolean direction) {
         this.appStateRun = appStateRun;

@@ -16,8 +16,13 @@ public class Sheep extends MovableGameObject {
 
     private final static int TOP_BORDER = 175;
     private final static int BOTTOM_BORDER = 280;
+    private static final int oriWidth = 100, oriHeight = 100;
+    private static final int TIME_DELAY = 100;
+    private static final int WALK_DELAY = 50;
+    private static final int BLINK_DELAY = 150, BLINK_TIME = 10;
+    private static final int CHEW_DELAY = 60, EAT_DELAY = 30, RESIZE_DELAY = 5;
+    private static final int GRASS_SHORTEST_DISTANCE = 120;
     private List<Grass> grasses;
-
     private SheepPos p_body;
     private SheepPos p_head;
     private SheepPos p_head_sad;
@@ -34,14 +39,6 @@ public class Sheep extends MovableGameObject {
     private SheepPos p_eat;
     private SheepPos p_r_eat;
     private SheepPos p_sheep_die, p_r_sheep_die;
-
-    private static final int oriWidth = 100, oriHeight = 100;
-
-    private static final int TIME_DELAY = 100;
-    private static final int WALK_DELAY = 50;
-    private static final int BLINK_DELAY = 150, BLINK_TIME = 10;
-    private static final int CHEW_DELAY = 60, EAT_DELAY = 30, RESIZE_DELAY = 5;
-    private static final int GRASS_SHORTEST_DISTANCE = 120;
     private SheepState state;
 
     //region animationDeclaration
