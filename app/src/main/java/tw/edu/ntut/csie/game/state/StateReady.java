@@ -11,8 +11,8 @@ import tw.edu.ntut.csie.game.extend.ButtonEventHandler;
 
 public class StateReady extends AbstractGameState {
 
-    private MovingBitmap _background;
-    private BitmapButton _startButton, _aboutButton, _exitButton;
+    private MovingBitmap _background, _backgroundAbout;
+    private BitmapButton _startButton, _aboutButton, _returnButton, _exitButton;
 
     public StateReady(GameEngine engine) {
         super(engine);
@@ -20,10 +20,15 @@ public class StateReady extends AbstractGameState {
 
     @Override
     public void initialize(Map<String, Object> data) {
-        addGameObject(_background = new MovingBitmap(R.drawable.state_ready_bg));
+        _background = new MovingBitmap(R.drawable.state_ready_bg);
+        _backgroundAbout = new MovingBitmap(R.drawable.about_game);
+        addGameObject(_background);
+        addGameObject(_backgroundAbout);
         initializeStartButton();
         initializeAboutButton();
+        initializeReturnButton();
         initializeExitButton();
+        activateAboutMode(false);
     }
 
     private void initializeStartButton() {
@@ -42,21 +47,32 @@ public class StateReady extends AbstractGameState {
         _aboutButton.addButtonEventHandler(new ButtonEventHandler() {
             @Override
             public void perform(BitmapButton button) {
-
+                activateAboutMode(true);
             }
         });
         addPointerEventHandler(_aboutButton);
     }
 
+    private void initializeReturnButton() {
+        addGameObject(_returnButton = new BitmapButton(R.drawable.return_button, R.drawable.return_button, 560, 300));
+        _returnButton.addButtonEventHandler(new ButtonEventHandler() {
+            @Override
+            public void perform(BitmapButton button) {
+                activateAboutMode(false);
+            }
+        });
+        addPointerEventHandler(_returnButton);
+    }
+
     private void initializeExitButton() {
-//        addGameObject(_exitButton = new BitmapButton(R.drawable.btn_exit, R.drawable.btn_exit_pressed, 388, 243));
-//        _exitButton.addButtonEventHandler(new ButtonEventHandler() {
-//            @Override
-//            public void perform(BitmapButton button) {
-//                _engine.exit();
-//            }
-//        });
-//        addPointerEventHandler(_exitButton);
+        addGameObject(_exitButton = new BitmapButton(R.drawable.exit_button, R.drawable.exit_button, 590, 10));
+        _exitButton.addButtonEventHandler(new ButtonEventHandler() {
+            @Override
+            public void perform(BitmapButton button) {
+                _engine.exit();
+            }
+        });
+        addPointerEventHandler(_exitButton);
     }
 
     @Override
@@ -65,6 +81,16 @@ public class StateReady extends AbstractGameState {
 
     @Override
     public void resume() {
+    }
+    
+    private void activateAboutMode(boolean active) {
+        _background.setVisible(!active);
+        _backgroundAbout.setVisible(active);
+
+        _startButton.setVisible(!active);
+        _aboutButton.setVisible(!active);
+        _returnButton.setVisible(active);
+        _exitButton.setVisible(!active);
     }
 }
 
