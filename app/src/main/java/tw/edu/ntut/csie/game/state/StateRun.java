@@ -18,6 +18,7 @@ import tw.edu.ntut.csie.game.object.Cloud;
 import tw.edu.ntut.csie.game.object.Grass;
 import tw.edu.ntut.csie.game.object.LevelObjectSet1;
 import tw.edu.ntut.csie.game.object.LevelObjectSet2;
+import tw.edu.ntut.csie.game.object.NotifyBoard;
 import tw.edu.ntut.csie.game.object.RightNav;
 import tw.edu.ntut.csie.game.object.ScoreBoard;
 import tw.edu.ntut.csie.game.object.Sheep;
@@ -42,6 +43,7 @@ public class StateRun extends GameState {
     // NavigableMap foreObjectTable: index = lower-left y-axis of object
     private final Map<Integer, List<MovableGameObject>> foreObjectTable;
     private RightNav rightNav;
+    private NotifyBoard notifyBoard;
     private MovingBitmap imgSwitchingLevel;
     private int initForeX = 0;
     private int initPointerX = 0;
@@ -66,6 +68,7 @@ public class StateRun extends GameState {
         levelObjectSet = new LevelObjectSet1(this, MAP_LEFT_MARGIN, MAP_RIGHT_MARGIN);
         scoreBoard = new ScoreBoard(this);
         rightNav = new RightNav(scoreBoard.getHeight());
+        notifyBoard = new NotifyBoard(this);
 
         // ---------- game objects ----------
         levelObjectSet.addObjects();
@@ -135,6 +138,7 @@ public class StateRun extends GameState {
 
         scoreBoard.show();
         rightNav.show();
+        notifyBoard.show();
 
         if (switchingLevelStart != 0) {
             if (System.currentTimeMillis() - switchingLevelStart > SWITCH_LEVEL_DELAY) {
@@ -193,9 +197,13 @@ public class StateRun extends GameState {
                 }
             } else if (Common.isInObjectScope(singlePointer, scoreBoard)) {
                 scoreBoard.dragPressed(singlePointer);
+            } else if (Common.isInObjectScope(singlePointer, notifyBoard)) {
+                notifyBoard.dragPressed(singlePointer);
             } else if (inScopeObjects.size() > 0) {
                 // trigger dragPressed on the most top object
                 inScopeObjects.get(inScopeObjects.size() - 1).dragPressed(singlePointer);
+            } else {
+                isGrabbingMap = true;
             }
 
             // for moving map
@@ -236,6 +244,7 @@ public class StateRun extends GameState {
 
         rightNav.dragMoved(singlePointer);
         scoreBoard.dragMoved(singlePointer);
+        notifyBoard.dragMoved(singlePointer);
         return false;
     }
 
@@ -253,6 +262,7 @@ public class StateRun extends GameState {
 
         rightNav.dragReleased(singlePointer);
         scoreBoard.dragReleased(singlePointer);
+        notifyBoard.dragReleased(singlePointer);
         isGrabbingMap = false;
 
         return false;
@@ -375,7 +385,7 @@ public class StateRun extends GameState {
         if (scoreBoard.score >= 100) {
             switch (backgroundSet.getLevel()) {
                 case 1:
-                    switchToLevel2();
+                    notifyBoard.setActive(true);
                     break;
                 case 2:
                     changeState(Game.OVER_STATE);
@@ -384,7 +394,7 @@ public class StateRun extends GameState {
         }
     }
 
-    private void switchToLevel2() {
+    public void switchToLevel2() {
         // remove all sheep
         for (MovableGameObject gameObject : getAllForeObjects()) {
             if (gameObject.getClass().getSimpleName().equals("Sheep")) {
@@ -398,6 +408,11 @@ public class StateRun extends GameState {
         levelObjectSet = new LevelObjectSet2(this, MAP_LEFT_MARGIN, MAP_RIGHT_MARGIN);
         levelObjectSet.addObjects();
         scoreBoard.score = 0;
+        if (bgm != null)
+            bgm.release();
+        bgm = new Audio(R.raw.ambience_prairie);
+        bgm.setRepeating(true);
+        bgm.play();
 
         switchingLevelStart = System.currentTimeMillis();
     }

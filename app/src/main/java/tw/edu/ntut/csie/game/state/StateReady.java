@@ -91,6 +91,12 @@ public class StateReady extends AbstractGameState {
     public void resume() {
         bgm.resume();
     }
+
+    @Override
+    public void release() {
+        super.release();
+        bgm.release();
+    }
     
     private void activateAboutMode(boolean active) {
         _background.setVisible(!active);
