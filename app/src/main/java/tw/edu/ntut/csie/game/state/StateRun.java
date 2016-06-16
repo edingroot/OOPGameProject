@@ -48,7 +48,7 @@ public class StateRun extends GameState {
     private int sheepIdCounter = 0;
     private long lastGenCloudTime = 0;
     private long switchingLevelStart = 0; // timestamp of start switching level, when not equals 0: switching level.
-    private Audio bgm = new Audio(R.raw.ambience_mountains);
+    private Audio bgm;
 
     public StateRun(GameEngine engine) {
         super(engine);
@@ -57,6 +57,10 @@ public class StateRun extends GameState {
 
     @Override
     public void initialize(Map<String, Object> data) {
+        bgm = new Audio(R.raw.ambience_mountains);
+        bgm.setRepeating(true);
+        bgm.play();
+
         // ---------- set back objects ----------
         backgroundSet = new BackgroundLevel1();
         levelObjectSet = new LevelObjectSet1(this, MAP_LEFT_MARGIN, MAP_RIGHT_MARGIN);
@@ -76,7 +80,6 @@ public class StateRun extends GameState {
 
     @Override
     public void move() {
-        bgm.resume();
         genCloudsRandomly();
 
         for (MovableGameObject gameObject : getAllForeObjects()) {
@@ -257,12 +260,12 @@ public class StateRun extends GameState {
 
     @Override
     public void pause() {
-
+        bgm.pause();
     }
 
     @Override
     public void resume() {
-
+        bgm.resume();
     }
 
     @Override

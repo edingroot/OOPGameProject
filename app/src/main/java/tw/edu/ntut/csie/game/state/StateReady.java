@@ -13,7 +13,7 @@ import tw.edu.ntut.csie.game.extend.ButtonEventHandler;
 public class StateReady extends AbstractGameState {
     private MovingBitmap _background, _backgroundAbout;
     private BitmapButton _startButton, _aboutButton, _returnButton, _exitButton;
-    private Audio bgm = new Audio(R.raw.menu_loop);
+    private Audio bgm;
 
     public StateReady(GameEngine engine) {
         super(engine);
@@ -21,7 +21,10 @@ public class StateReady extends AbstractGameState {
 
     @Override
     public void initialize(Map<String, Object> data) {
-        bgm.resume();
+        bgm = new Audio(R.raw.menu_loop);
+        bgm.setRepeating(true);
+        bgm.play();
+
         _background = new MovingBitmap(R.drawable.state_ready_bg);
         _backgroundAbout = new MovingBitmap(R.drawable.about_game);
         addGameObject(_background);
@@ -81,10 +84,12 @@ public class StateReady extends AbstractGameState {
 
     @Override
     public void pause() {
+        bgm.pause();
     }
 
     @Override
     public void resume() {
+        bgm.resume();
     }
     
     private void activateAboutMode(boolean active) {
