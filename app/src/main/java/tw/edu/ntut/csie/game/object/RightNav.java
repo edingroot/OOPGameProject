@@ -1,7 +1,6 @@
 package tw.edu.ntut.csie.game.object;
 
 import tw.edu.ntut.csie.game.Game;
-import tw.edu.ntut.csie.game.GameObject;
 import tw.edu.ntut.csie.game.Pointer;
 import tw.edu.ntut.csie.game.R;
 import tw.edu.ntut.csie.game.core.MovingBitmap;
@@ -39,16 +38,12 @@ public class RightNav extends MovableGameObject {
     }
 
     private void updateImageFromState() {
-        MovingBitmap image2 = new MovingBitmap(expanded ? R.drawable.nav_right : R.drawable.nav_right_pull);
-        image2.resize((int)(image2.getWidth() * 0.5), (int)(image2.getHeight() * 0.5));
-
         if (image != null)
             image.release();
-        image = image2;
+        image = new MovingBitmap(expanded ? R.drawable.nav_right : R.drawable.nav_right_pull);
         this.width = image.getWidth();
         this.height = image.getHeight();
         this.setLocation(Game.GAME_FRAME_WIDTH - image.getWidth(), y);
-        image.show();
     }
 
     public boolean isExpanded() {
