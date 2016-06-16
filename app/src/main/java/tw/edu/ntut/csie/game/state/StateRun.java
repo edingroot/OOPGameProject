@@ -369,19 +369,19 @@ public class StateRun extends GameState {
 
     public void addScore(int amount) {
         scoreBoard.addScore(amount);
-        if (scoreBoard.score >= 100 && backgroundSet.getLevel() == 1) {
-            switchToLevel2();
+        if (scoreBoard.score >= 100) {
+            switch (backgroundSet.getLevel()) {
+                case 1:
+                    switchToLevel2();
+                    break;
+                case 2:
+                    changeState(Game.OVER_STATE);
+                    break;
+            }
         }
     }
 
     private void switchToLevel2() {
-        backgroundSet.release();
-        backgroundSet = new BackgroundLevel2();
-        levelObjectSet.release();
-        levelObjectSet = new LevelObjectSet2(this, MAP_LEFT_MARGIN, MAP_RIGHT_MARGIN);
-        levelObjectSet.addObjects();
-        scoreBoard.score = 0;
-
         // remove all sheep
         for (MovableGameObject gameObject : getAllForeObjects()) {
             if (gameObject.getClass().getSimpleName().equals("Sheep")) {
@@ -389,6 +389,12 @@ public class StateRun extends GameState {
                 gameObject.release();
             }
         }
+        backgroundSet.release();
+        backgroundSet = new BackgroundLevel2();
+        levelObjectSet.release();
+        levelObjectSet = new LevelObjectSet2(this, MAP_LEFT_MARGIN, MAP_RIGHT_MARGIN);
+        levelObjectSet.addObjects();
+        scoreBoard.score = 0;
 
         switchingLevelStart = System.currentTimeMillis();
     }
