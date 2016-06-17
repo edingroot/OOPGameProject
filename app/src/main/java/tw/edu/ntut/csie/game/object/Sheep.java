@@ -953,10 +953,6 @@ public class Sheep extends MovableGameObject {
             appStateRun.removeFromForeObjectTable(this);
             this.release();
         }
-        if (appStateRun.scoreBoard.score >= 100 && appStateRun.backgroundSet.getLevel() == 1) {
-            appStateRun.removeFromForeObjectTable(this);
-            this.release();
-        }
     }
 
     @Override
